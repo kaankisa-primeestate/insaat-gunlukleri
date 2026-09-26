@@ -14,6 +14,8 @@ pratik olması en önemli ölçüt.**
 - `docs/ANAYASA.md` — kullanıcının verdiği ana metin. **Sapılmaz.**
 - `docs/ERTELENENLER.md` — bilerek sonraya bırakılanlar. Kullanıcı
   **"eksik ne kaldı"** dediğinde bu liste getirilir.
+- `docs/YOL-HARITASI.md` — sıralı iş planı (fazlar). **Hangi iş sırada
+  sorusunun cevabı burada.** Şu an Faz 0: kullanıcı sahada deniyor.
 - `docs/DUZELTILECEKLER.md` — pilotta çıkan, sonraya bırakılan düzeltmeler.
   Kullanıcı **"düzeltecek neler var"** dediğinde bu liste getirilir.
 - `docs/KARARLAR.md` — verilen kararlar ve gerekçeleri.
