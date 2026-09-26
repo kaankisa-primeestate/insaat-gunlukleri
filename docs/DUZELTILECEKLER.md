@@ -15,27 +15,17 @@ getirilir; seçilen madde yapılır ve "Yapıldı" bölümüne taşınır.
 | D3 | Şantiye adı ve kat sayısı sonradan değiştirilemiyor. | |
 | D4 | Kullanıcının adı, telefonu ve rolü sonradan değiştirilemiyor (şifre, şantiye ataması, hesap kapatma var). | |
 | D5 | **"Dünden devam" — sürüp giden işte her gün formu baştan doldurmamak.** Taşeron bir işe başladığında 2–3 gün aynı yerde aynı işi yapıyor; her gün aynı günlüğü girmek zahmetli. | Ayrıntı aşağıda. D1 ve D2 ile birlikte yapılmalı (aynı ekran). |
-| D6 | **Bilgisayarda tarih kutusuna tıklayınca takvim açılmıyor.** Telefonda açılıyor; bilgisayarda yalnızca küçük takvim simgesi açıyor, teslimat ekranındaki büyük tarih kutusunda o da yok. | Tüm tarih kutularında kutunun her yerine tıklayınca takvim açılsın (tek yerden). |
-| D7 | **"Bu şantiyede taşeron yok" mesajı çıkmaz sokak.** Kullanıcı teslimat ekranında takıldı, geri dönemedi. | Mesaj nedenini söylesin (taşeron, sözleşmesi olan şantiyede görünür); altında "Taşeronlara git" düğmesi. Şantiye değiştirme D8'e göre çıkış/giriş ile. |
-| D8 | **Şantiye girişte seçilir, oturum boyunca değişmez.** Kullanıcı üstteki seçicide yanlışlıkla diğer şantiyeye geçip farkında olmadan işlem yaptı. | Ayrıntı aşağıda. |
-| D9 | **Bilgisayar görünümü.** Bilgisayarda telefon ekranının büyütülmüşü görünüyor; kayıtları ve hataları incelemek zor. | Ayrıntı aşağıda. Telefon görünümüne dokunulmaz. |
 
 ## D8 ayrıntısı: şantiye girişte seçilir (kullanıcı kararı)
 
-- Kullanıcı adı ve şifreden sonra **"Hangi şantiyeye giriyorsunuz?"** ekranı:
-  büyük düğmelerle şantiyeler. Seçilince oturum o şantiyede kalır.
-  (Şantiyeler kullanıcı tanınmadan listelenemez; bu yüzden şifreden hemen
-  sonraki ekranda, aynı giriş akışının parçası olarak.)
-- Tek şantiyesi olan (ör. yalnız Manzara'ya atanmış şef, tek şantiyedeki
-  taşeron) bu ekranı görmez, doğrudan girer.
+- Kullanıcı adı ve şifreden sonra **"Hangi şantiyeye giriyorsunuz?"**
+  ekranı; büyük düğmeler. Seçilince oturum o şantiyede kalır, ekran bir daha
+  gösterilmez. (Şifreden önce gösterilmez: giriş yapmamış birine firmanın
+  şantiye listesi açılmış olur.)
+- Tek şantiyesi olan bu ekranı görmez, doğrudan girer.
 - Üstteki şantiye seçici kalkar. Başka şantiyeye geçmek için çıkış yapılıp
   yeniden girilir.
-- **Hangi şantiyede olunduğu her ekranda görünür kalır** (değiştirilemeyen,
-  belirgin bir şantiye adı şeridi). Seçici kalkınca yanlış şantiyede
-  olduğunu fark etmenin tek yolu bu; kullanıcının yaşadığı karışıklık
-  tekrarlanmasın.
-- Açık: merkez için ileride bilgisayar görünümünde "tüm şantiyelerin özeti"
-  (B2) istenirse ayrıca konuşulur.
+- Her ekranda ayrı bir şantiye şeridi **olmayacak** (kullanıcı istemedi).
 
 ## D9 ayrıntısı: bilgisayar görünümü (öneri)
 
@@ -80,6 +70,11 @@ fark etmezse sahte kayıt oluşur; günlüğün güvenilirliği biter. Bunun yer
    taşeronun sahada olduğu tek tek gözle onaylansın.)
 
 ## Yapıldı
+
+- D8 Şantiye girişte (şifreden sonra) bir kez seçilir; üstteki seçici kalktı, çıkış ana sayfanın altında
+- D6 Bilgisayarda tarih kutusuna tıklayınca takvim açılıyor (tüm tarih kutuları)
+- D7 "Taşeron yok" mesajı nedenini söylüyor, "Taşeronlara git" düğmesi var
+- D9 Bilgisayar görünümü: solda menü, günlükler tablo, hatalı işler üç sütunlu pano, taşeron sayfası iki sütun, teslimatta form ve saatler yan yana, fotoğraf görüntüleyici, seçim pencereleri ortada
 
 - Sözleşme düzeltme / silme, mükerrer taşeron ve çift sözleşme engeli
 - Taşerona birden çok iş türü, birden çok yetkili

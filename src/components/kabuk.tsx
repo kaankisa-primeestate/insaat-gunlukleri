@@ -8,17 +8,20 @@ export function Sayfa({
   geri = "/",
   geriAd = "Ana sayfa",
   sag,
+  genis,
   children,
 }: {
   baslik: string;
   geri?: string;
   geriAd?: string;
   sag?: ReactNode;
+  /** Liste sayfaları bilgisayarda geniş açılır; formlar okunaklı genişlikte kalır. */
+  genis?: boolean;
   children: ReactNode;
 }) {
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col">
-      <header className="sticky top-0 z-10 flex items-center gap-2 border-b-2 border-cizgi bg-zemin/95 px-3 py-2 backdrop-blur">
+    <div className={`mx-auto flex w-full flex-1 flex-col ${genis ? "max-w-2xl lg:max-w-6xl" : "max-w-2xl"}`}>
+      <header className="sticky top-0 z-10 flex items-center gap-2 border-b-2 border-cizgi bg-zemin/95 px-3 py-2 backdrop-blur lg:px-7">
         <Link
           href={geri}
           className="flex min-h-12 items-center gap-1 rounded-xl pr-3 pl-1 text-base font-semibold active:bg-yuzey"
@@ -28,7 +31,7 @@ export function Sayfa({
         </Link>
         <div className="ml-auto">{sag}</div>
       </header>
-      <main className="flex flex-col gap-5 px-4 pt-4 pb-24">
+      <main className="flex flex-col gap-5 px-4 pt-4 pb-24 lg:px-8">
         <h1 className="text-2xl font-extrabold">{baslik}</h1>
         {children}
       </main>

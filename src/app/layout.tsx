@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { TarihAcici } from "@/components/tarih-acici";
 
 export const metadata: Metadata = {
   title: "İnşaat Günlükleri",
@@ -18,7 +19,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="tr" className="h-full antialiased">
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <TarihAcici />
+        {children}
+      </body>
     </html>
   );
 }

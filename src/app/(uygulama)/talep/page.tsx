@@ -26,13 +26,13 @@ export default async function Talepler({ searchParams }: PageProps<"/talep">) {
   const liste = (data ?? []) as unknown as Talep[];
 
   return (
-    <Sayfa baslik={`Talepler · ${o.santiye.ad}`}>
+    <Sayfa baslik={`Talepler · ${o.santiye.ad}`} genis>
       {o.yetki("talep", true) && (
         <Link href="/talep/yeni" className="flex min-h-16 items-center justify-center gap-2 rounded-2xl bg-vurgu text-xl font-bold text-black">
           <Package className="size-7" /> Talep Aç
         </Link>
       )}
-      <nav className="grid grid-cols-3 gap-1 rounded-2xl bg-yuzey p-1">
+      <nav className="grid grid-cols-3 gap-1 rounded-2xl bg-yuzey p-1 lg:max-w-xl">
         {Object.entries(SEKMELER).map(([k, v]) => (
           <Link
             key={k}
@@ -45,7 +45,7 @@ export default async function Talepler({ searchParams }: PageProps<"/talep">) {
         ))}
       </nav>
       {liste.length === 0 && <Bos>Kayıt yok.</Bos>}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 lg:grid lg:grid-cols-2">
         {liste.map((t) => (
           <TalepKarti key={t.id} t={t} />
         ))}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Minus, Plus, AlertTriangle } from "lucide-react";
 import { SecimPenceresi, type PencereSecenegi } from "./secim-penceresi";
 
@@ -39,10 +40,23 @@ export function TaseronSecici({
   onChange?: (t: TaseronSecenek | undefined) => void;
 }) {
   if (taseronlar.length === 0) {
+    // Çıkmaz sokak olmasın: neden boş olduğu ve nereye gidileceği söylenir.
     return (
-      <p className="rounded-xl bg-kirmizi px-4 py-3 font-semibold text-white">
-        Bu şantiyede kayıtlı taşeron yok. Önce taşeron ve sözleşmesi girilmeli.
-      </p>
+      <div className="flex flex-col gap-3 rounded-xl border-2 border-kirmizi p-4">
+        <p className="font-bold text-kirmizi">Bu şantiyede görevli taşeron yok.</p>
+        <p className="text-soluk">
+          Taşeron, sözleşmesi olan şantiyede görünür. Taşeron bu şantiyede de çalışıyorsa sayfasından bu şantiye için
+          sözleşme ekleyin. Başka bir şantiyede işlem yapacaksanız çıkış yapıp o şantiyeye girin.
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          <Link href="/taseronlar?hepsi=1" className="flex min-h-14 items-center justify-center rounded-xl bg-koyu px-2 text-center font-bold text-white">
+            Taşeronlara git
+          </Link>
+          <Link href="/" className="flex min-h-14 items-center justify-center rounded-xl border-2 border-yazi px-2 text-center font-bold">
+            Ana sayfa
+          </Link>
+        </div>
+      </div>
     );
   }
   const ilk = varsayilan ?? (taseronlar.length === 1 ? taseronlar[0].id : undefined);

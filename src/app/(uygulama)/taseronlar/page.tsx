@@ -24,7 +24,7 @@ export default async function Taseronlar({ searchParams }: PageProps<"/taseronla
   const altlar = (id: string) => liste.filter((t) => t.ust_taseron_id === id);
 
   return (
-    <Sayfa baslik="Taşeronlar">
+    <Sayfa baslik="Taşeronlar" genis>
       {silindi && <p className="rounded-xl bg-yesil px-4 py-3 font-bold text-white">✓ Taşeron silindi</p>}
       {o.yetki("taseronlar", true) && (
         <BuyukBag href="/taseronlar/yeni" sinif="bg-vurgu text-black">
@@ -51,7 +51,7 @@ export default async function Taseronlar({ searchParams }: PageProps<"/taseronla
           {hepsi ? "Henüz taşeron yok." : "Bu şantiyede sözleşmesi olan taşeron yok. Taşeron ekleyip sözleşmesini bu şantiyeye bağlayın."}
         </Bos>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <ul className="flex flex-col gap-2 lg:grid lg:grid-cols-2 lg:items-start">
           {anaListe.map((t) => (
             <li key={t.id} className="flex flex-col gap-2">
               <Satir t={t} gecikme={gecikme.get(t.id)} />

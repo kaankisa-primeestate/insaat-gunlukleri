@@ -17,13 +17,15 @@ export type Profil = {
 
 export type Santiye = { id: string; ad: string; bodrum_kat: number; kat_sayisi: number; aktif: boolean };
 
-export const SANTIYE_CEREZI = "santiye";
+export { SANTIYE_CEREZI } from "./santiye-cerezi";
+import { SANTIYE_CEREZI } from "./santiye-cerezi";
 
 /**
  * Oturum bilgisi: kullanıcı, firma, erişilen şantiyeler, seçili şantiye ve
- * yetkiler. İstek başına bir kez okunur.
+ * yetkiler. İstek başına bir kez okunur. Şantiye seçimi zorlanmaz; bunu
+ * `oturum` yapar. Yalnızca şantiye seçim ekranı bunu doğrudan kullanır.
  */
-export const oturum = cache(async () => {
+export const oturumTemel = cache(async () => {
   const supabase = await supabaseSunucu();
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) redirect("/giris");
@@ -45,8 +47,9 @@ export const oturum = cache(async () => {
   ]);
 
   const liste = (santiyeler ?? []) as Santiye[];
+  // Şantiye girişte bir kez seçilir (çerez). Tek şantiyesi olan seçmez.
   const cerez = (await cookies()).get(SANTIYE_CEREZI)?.value;
-  const secili = liste.find((s) => s.id === cerez) ?? liste[0] ?? null;
+  const secili = liste.find((s) => s.id === cerez) ?? (liste.length === 1 ? liste[0] : null);
 
   const ozel = new Map((yetkiSatirlari ?? []).map((y) => [y.sayfa as Sayfa, y]));
   function yetki(sayfa: Sayfa, duzen = false) {
@@ -66,6 +69,16 @@ export const oturum = cache(async () => {
     merkez: profil.rol === "merkez",
     taseron: profil.rol === "taseron",
   };
+});
+
+/**
+ * Uygulama sayfalarının oturumu. Birden çok şantiyesi olup henüz seçmemiş
+ * kullanıcı şantiye seçim ekranına gönderilir.
+ */
+export const oturum = cache(async () => {
+  const o = await oturumTemel();
+  if (!o.santiye && o.santiyeler.length > 1) redirect("/santiye-sec");
+  return o;
 });
 
 export type Oturum = Awaited<ReturnType<typeof oturum>>;

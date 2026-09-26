@@ -25,14 +25,10 @@ yapılamaz (Y1).
 
 Sonraki her şey doğru ve düzeltilebilir kayda dayanır; önce bu.
 
-Kullanıcının saha denemesinde yaşadıkları en başta (kullanıcı kararı):
+Saha denemesinden gelen D6–D9 yapıldı (26 Eylül). Kalanlar:
 
 | Kod | İş |
 |---|---|
-| D8 | Şantiye girişte seçilir, oturum boyunca değişmez; üstteki seçici kalkar, şantiye adı her ekranda görünür |
-| D6 | Bilgisayarda tarih kutusuna tıklayınca takvim açılsın |
-| D7 | "Taşeron yok" mesajı çıkmaz sokak olmasın |
-| D9 | Bilgisayar görünümü (telefon görünümü aynen kalır) |
 | D2 | Günlük, hatalı iş, talep düzeltme ve silme (değişiklik geçmişe yazılır) |
 | D1 | Aynı gün aynı taşerona tek günlük; varsa mevcut açılır |
 | D3 | Şantiye adı / kat sayısı düzenleme |

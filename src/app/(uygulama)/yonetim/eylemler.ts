@@ -2,6 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+import { CEREZ_AYARI, SANTIYE_CEREZI } from "@/lib/santiye-cerezi";
 import { merkezIste, oturum } from "@/lib/oturum";
 import { supabaseYonetici } from "@/lib/supabase/server";
 import { girisEpostasi, SAYFALAR, type Rol } from "@/lib/sabitler";
@@ -20,6 +22,10 @@ export async function santiyeEkle(_: FormDurumu, form: FormData): Promise<FormDu
     .from("santiyeler")
     .insert({ ad, adres: metin(form, "adres", 200), bodrum_kat: bodrum, kat_sayisi: kat, firma_id: o.firma.id });
   if (error) return { hata: "Kaydedilemedi: " + error.message };
+  // Tek şantiyeyle çalışan merkez ikinci şantiyeyi eklediğinde oturumu şu anki
+  // şantiyede kalsın; seçim ekranına atılmasın.
+  const cerezler = await cookies();
+  if (o.santiye && !cerezler.get(SANTIYE_CEREZI)) cerezler.set(SANTIYE_CEREZI, o.santiye.id, CEREZ_AYARI);
   revalidatePath("/", "layout");
   return { tamam: `${ad} eklendi.` };
 }

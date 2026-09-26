@@ -35,6 +35,7 @@ export default async function TaseronSayfasi({ params, searchParams }: PageProps
 
   return (
     <Sayfa
+      genis
       baslik={t.firma_adi}
       geri={o.taseron ? "/" : "/taseronlar"}
       geriAd={o.taseron ? "Ana sayfa" : "Taşeronlar"}
@@ -55,7 +56,7 @@ export default async function TaseronSayfasi({ params, searchParams }: PageProps
         {!t.aktif && <Etiket sinif="bg-gri text-white">Pasif</Etiket>}
       </div>
 
-      <nav className="grid grid-flow-col gap-1 rounded-2xl bg-yuzey p-1">
+      <nav className="grid grid-flow-col gap-1 rounded-2xl bg-yuzey p-1 lg:hidden">
         {sekmeler.map((s) => (
           <Link
             key={s.kod}
@@ -70,9 +71,40 @@ export default async function TaseronSayfasi({ params, searchParams }: PageProps
         ))}
       </nav>
 
-      {sekme === "bilgi" && <Bilgi o={o} t={t} kendisi={kendisi} />}
-      {sekme === "kayitlar" && <Kayitlar o={o} taseronId={t.id} />}
-      {sekme === "yetki" && o.merkez && <Yetki o={o} taseronId={t.id} />}
+      {o.merkez && (
+        <nav className="hidden w-fit grid-cols-2 gap-1 rounded-2xl bg-yuzey p-1 lg:grid">
+          {[
+            { kod: "bilgi", ad: "Bilgi ve kayıtlar" },
+            { kod: "yetki", ad: "Yetki" },
+          ].map((x) => (
+            <Link
+              key={x.kod}
+              href={`/taseronlar/${t.id}?sekme=${x.kod}`}
+              replace
+              className={`flex min-h-11 items-center justify-center rounded-xl px-5 font-bold ${
+                (x.kod === "yetki") === (sekme === "yetki") ? "bg-koyu text-white" : "text-soluk"
+              }`}
+            >
+              {x.ad}
+            </Link>
+          ))}
+        </nav>
+      )}
+
+      {sekme === "yetki" && o.merkez ? (
+        <Yetki o={o} taseronId={t.id} />
+      ) : (
+        // Telefonda sekmeye göre biri; bilgisayarda bilgi ve kayıtlar yan yana.
+        <div className="lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start lg:gap-8">
+          <div className={sekme === "bilgi" ? "" : "hidden lg:block"}>
+            <Bilgi o={o} t={t} kendisi={kendisi} />
+          </div>
+          <div className={sekme === "kayitlar" ? "" : "hidden lg:block"}>
+            <h2 className="mb-3 hidden text-xl font-bold lg:block">Kayıtlar</h2>
+            <Kayitlar o={o} taseronId={t.id} />
+          </div>
+        </div>
+      )}
     </Sayfa>
   );
 }

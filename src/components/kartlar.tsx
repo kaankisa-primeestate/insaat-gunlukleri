@@ -45,21 +45,8 @@ function sonradanMi(isTarihi: string, olusturma: string) {
   return giris > isTarihi;
 }
 
-export function Fotolar({ yollar, adresler }: { yollar: string[]; adresler: Record<string, string> }) {
-  if (!yollar.length) return null;
-  return (
-    <div className="flex gap-2 overflow-x-auto">
-      {yollar.map((y) =>
-        adresler[y] ? (
-          <a key={y} href={adresler[y]} target="_blank" rel="noreferrer" className="shrink-0">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={adresler[y]} alt="" loading="lazy" className="size-24 rounded-xl object-cover" />
-          </a>
-        ) : null,
-      )}
-    </div>
-  );
-}
+export { Fotolar } from "./fotolar";
+import { Fotolar } from "./fotolar";
 
 export function GunlukKarti({ g, adresler, taseronGoster = true }: { g: Gunluk; adresler: Record<string, string>; taseronGoster?: boolean }) {
   return (
@@ -122,5 +109,41 @@ export function TalepKarti({ t, taseronGoster = true }: { t: Talep; taseronGoste
       </div>
       <Etiket sinif={TALEP_DURUM[t.durum].renk}>{TALEP_DURUM[t.durum].ad}</Etiket>
     </Link>
+  );
+}
+
+/** Bilgisayar ekranı için günlük tablosu: bir satır bir kayıt. */
+export function GunlukTablosu({ liste, adresler }: { liste: Gunluk[]; adresler: Record<string, string> }) {
+  return (
+    <div className="overflow-x-auto rounded-2xl border-2 border-cizgi">
+      <table className="w-full text-left text-base">
+        <thead className="bg-koyu text-sm text-white">
+          <tr>
+            {["Tarih", "Taşeron", "Kişi", "Kat", "Yapılan iş", "Not", "Fotoğraf", "Giren"].map((b) => (
+              <th key={b} className="px-3 py-2 font-bold whitespace-nowrap">{b}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {liste.map((g) => (
+            <tr key={g.id} className="border-t-2 border-cizgi align-top even:bg-yuzey">
+              <td className="px-3 py-2 font-bold whitespace-nowrap">
+                {kisaTarih(g.is_tarihi)}
+                {sonradanMi(g.is_tarihi, g.olusturma) && <span className="block text-xs font-semibold text-soluk">sonradan girildi</span>}
+              </td>
+              <td className="px-3 py-2 font-semibold">{g.taseronlar?.firma_adi}</td>
+              <td className="px-3 py-2 text-center">{g.kisi_sayisi}</td>
+              <td className="px-3 py-2">{g.katlar.join(", ")}</td>
+              <td className="px-3 py-2">{g.is_kalemleri.join(", ")}</td>
+              <td className="max-w-xs px-3 py-2 text-soluk">{g.notu}</td>
+              <td className="px-3 py-2">
+                <Fotolar yollar={g.fotograflar} adresler={adresler} boyut="size-12" />
+              </td>
+              <td className="px-3 py-2 text-sm whitespace-nowrap text-soluk">{g.profiller?.ad_soyad}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

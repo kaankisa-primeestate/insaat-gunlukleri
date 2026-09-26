@@ -3,7 +3,7 @@ import { Plus, Filter } from "lucide-react";
 import { yetkiIste } from "@/lib/oturum";
 import { imzala } from "@/lib/dosya";
 import { Bos, Sayfa } from "@/components/kabuk";
-import { GunlukKarti, type Gunluk } from "@/components/kartlar";
+import { GunlukKarti, GunlukTablosu, type Gunluk } from "@/components/kartlar";
 import { tarihMi, uuidMi } from "@/lib/denetim";
 
 /** Geriye dönük görüntüleme: tarih aralığı + taşeron (+ üstteki şantiye) süzgeci. */
@@ -39,7 +39,7 @@ export default async function Gunlukler({ searchParams }: PageProps<"/gunluk">) 
   for (const g of liste) gunler.set(g.is_tarihi, [...(gunler.get(g.is_tarihi) ?? []), g]);
 
   return (
-    <Sayfa baslik={`Günlükler · ${o.santiye.ad}`}>
+    <Sayfa baslik={`Günlükler · ${o.santiye.ad}`} genis>
       {o.yetki("gunluk", true) && (
         <Link href="/gunluk/yeni" className="flex min-h-16 items-center justify-center gap-2 rounded-2xl bg-vurgu text-xl font-bold text-black">
           <Plus className="size-7" strokeWidth={3} /> Yeni Günlük
@@ -50,8 +50,8 @@ export default async function Gunlukler({ searchParams }: PageProps<"/gunluk">) 
         <summary className="flex min-h-14 cursor-pointer items-center gap-2 px-4 text-lg font-bold">
           <Filter className="size-6" /> Süz {bas || bit || taseron ? "(etkin)" : ""}
         </summary>
-        <form className="flex flex-col gap-3 p-4 pt-0">
-          <div className="grid grid-cols-2 gap-3">
+        <form className="flex flex-col gap-3 p-4 pt-0 lg:grid lg:grid-cols-[1fr_1fr_2fr_auto] lg:items-end">
+          <div className="grid grid-cols-2 gap-3 lg:col-span-2">
             <label className="flex flex-col gap-1 font-semibold">
               Başlangıç
               <input type="date" name="bas" defaultValue={bas} className="min-h-14 rounded-xl border-2 border-cizgi px-3" />
@@ -78,6 +78,8 @@ export default async function Gunlukler({ searchParams }: PageProps<"/gunluk">) 
       </details>
 
       {liste.length === 0 && <Bos>Kayıt yok.</Bos>}
+      {/* Telefonda güne göre kartlar, bilgisayarda tek tablo. */}
+      <div className="flex flex-col gap-5 lg:hidden">
       {[...gunler.entries()].map(([gun, kayitlar]) => (
         <section key={gun} className="flex flex-col gap-2">
           <p className="text-sm font-bold text-soluk">
@@ -88,6 +90,15 @@ export default async function Gunlukler({ searchParams }: PageProps<"/gunluk">) 
           ))}
         </section>
       ))}
+      </div>
+      {liste.length > 0 && (
+        <div className="hidden lg:block">
+          <p className="mb-2 font-bold text-soluk">
+            {liste.length} kayıt · toplam {liste.reduce((a, b) => a + b.kisi_sayisi, 0)} kişi-gün
+          </p>
+          <GunlukTablosu liste={liste} adresler={adresler} />
+        </div>
+      )}
     </Sayfa>
   );
 }

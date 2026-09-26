@@ -120,13 +120,13 @@ export function SecimPenceresi({
       <input ref={denetim} type="text" tabIndex={-1} aria-hidden className="sr-only" value="" onChange={() => {}} />
 
       {acik && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50" onClick={() => setAcik(false)}>
+        <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50 md:justify-center md:p-6" onClick={() => setAcik(false)}>
           <div
             role="dialog"
             aria-modal="true"
             aria-label={baslik}
             onClick={(e) => e.stopPropagation()}
-            className="mx-auto flex max-h-[85dvh] w-full max-w-2xl flex-col rounded-t-3xl bg-zemin pb-[env(safe-area-inset-bottom)]"
+            className="mx-auto flex max-h-[85dvh] w-full max-w-2xl flex-col rounded-t-3xl bg-zemin pb-[env(safe-area-inset-bottom)] md:rounded-3xl md:pb-0"
           >
             <div className="flex items-center gap-2 border-b-2 border-cizgi px-4 py-3">
               <p className="min-w-0 flex-1 text-xl font-extrabold">{baslik}</p>

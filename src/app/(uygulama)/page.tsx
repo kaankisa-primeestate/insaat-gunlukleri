@@ -15,7 +15,6 @@ import { oturum } from "@/lib/oturum";
 import { bugun } from "@/lib/sabitler";
 import { cikisYap } from "@/app/giris/eylem";
 import { KameraDugmesi } from "@/components/kamera-dugmesi";
-import { SantiyeSecici } from "@/components/santiye-secici";
 import { GecikmeSesi } from "@/components/gecikme-sesi";
 
 export default async function AnaSayfa({ searchParams }: PageProps<"/">) {
@@ -45,29 +44,13 @@ export default async function AnaSayfa({ searchParams }: PageProps<"/">) {
   const bugunTeslimat = ((teslimatlar?.data ?? []) as { adet: number }[]).reduce((a, b) => a + Number(b.adet), 0);
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4 px-4 pt-3 pb-16">
+    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4 px-4 pt-3 pb-16 lg:max-w-5xl lg:px-8 lg:pt-8">
 
       {yetkiUyarisi === "yok" && (
         <p className="rounded-xl bg-kirmizi px-4 py-3 font-semibold text-white">Bu sayfayı görme yetkiniz yok.</p>
       )}
       {kayit && <p className="rounded-xl bg-yesil px-4 py-3 text-lg font-bold text-white">✓ Kaydedildi</p>}
 
-      {/* Kim olduğu ve rolü girişte belli; üstte yalnızca şantiye ve çıkış kalır. */}
-      <div className="flex items-center gap-2">
-        <div className="min-w-0 flex-1">
-          <SantiyeSecici santiyeler={o.santiyeler} secili={s?.id} />
-        </div>
-        <form action={cikisYap}>
-          <button
-            type="submit"
-            aria-label={`Çıkış (${o.profil.ad_soyad})`}
-            className="flex min-h-14 min-w-14 flex-col items-center justify-center rounded-xl text-xs font-semibold text-soluk active:bg-yuzey"
-          >
-            <LogOut className="size-6" />
-            Çıkış
-          </button>
-        </form>
-      </div>
 
       {!s && (
         <div className="rounded-2xl bg-yuzey p-5 text-center">
@@ -98,7 +81,7 @@ export default async function AnaSayfa({ searchParams }: PageProps<"/">) {
       )}
 
       {s && (
-        <section className="flex flex-col gap-3">
+        <section className="flex flex-col gap-3 lg:grid lg:grid-cols-2">
           {o.yetki("gunluk", true) && (
             <div className="flex gap-3">
               <Link
@@ -123,7 +106,7 @@ export default async function AnaSayfa({ searchParams }: PageProps<"/">) {
               <KameraDugmesi hedef="/hatali/yeni" etiket="Fotoğraf çekip hatalı iş bildir" />
             </div>
           )}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 lg:col-span-2">
             {o.yetki("talep", true) && (
               <Link
                 href="/talep/yeni"
@@ -144,7 +127,7 @@ export default async function AnaSayfa({ searchParams }: PageProps<"/">) {
         </section>
       )}
 
-      <nav className="grid grid-cols-2 gap-3">
+      <nav className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {s && o.yetki("gunluk") && <Kutu href="/gunluk" ikon={<BookOpen />} ad="Günlükler" />}
         {s && o.yetki("hatali") && (
           <Kutu href="/hatali" ikon={<AlertTriangle />} ad="Hatalı İşler" sayi={hatalar?.count} sayiAd="açık" kirmizi />
@@ -158,6 +141,17 @@ export default async function AnaSayfa({ searchParams }: PageProps<"/">) {
         )}
         {o.merkez && <Kutu href="/yonetim" ikon={<Settings />} ad="Yönetim" />}
       </nav>
+
+      {/* Şantiye girişte seçilir; başka şantiyeye geçmek için çıkış yapılır. */}
+      <form action={cikisYap} className="mt-2 lg:hidden">
+        <button
+          type="submit"
+          className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl border-2 border-cizgi text-lg font-semibold text-soluk active:bg-yuzey"
+        >
+          <LogOut className="size-6" />
+          Çıkış{o.santiyeler.length > 1 ? " (şantiye değiştirmek için)" : ""}
+        </button>
+      </form>
     </div>
   );
 }

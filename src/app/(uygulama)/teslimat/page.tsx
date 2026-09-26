@@ -40,11 +40,14 @@ export default async function Teslimat({ searchParams }: PageProps<"/teslimat">)
   const ayrinti = (kendi ?? []) as unknown as { id: string; saat: number; arac: string; urun: string; taseronlar: { firma_adi: string } | null }[];
 
   return (
-    <Sayfa baslik={`Teslimat Takvimi · ${o.santiye.ad}`}>
+    <Sayfa baslik={`Teslimat Takvimi · ${o.santiye.ad}`} genis>
       {sp.kayit && <p className="rounded-xl bg-yesil px-4 py-3 font-bold text-white">✓ Teslimat kaydedildi</p>}
 
       <GunSecici tarih={tarih} bugun={b} ek={`${yeni ? "&yeni=1" : ""}${talepId ? `&talep=${talepId}` : ""}`} />
 
+      {/* Bilgisayarda giriş formu solda, günün saatleri sağda. */}
+      <div className="flex flex-col gap-5 lg:grid lg:grid-cols-2 lg:items-start lg:gap-8">
+      <div className="flex flex-col gap-5">
       {o.yetki("teslimat", true) && tarih < b && (
         <p className="rounded-xl bg-yuzey px-4 py-3 text-soluk">Geçmiş güne teslimat girilmez; yalnızca görüntülenir.</p>
       )}
@@ -69,6 +72,7 @@ export default async function Teslimat({ searchParams }: PageProps<"/teslimat">)
           </Link>
         ))}
 
+      </div>
       <section className="flex flex-col gap-1">
         <div className="flex gap-3 text-sm font-semibold">
           <span className="flex items-center gap-1"><i className="size-4 rounded bg-yesil" /> Boş</span>
@@ -110,6 +114,7 @@ export default async function Teslimat({ searchParams }: PageProps<"/teslimat">)
           );
         })}
       </section>
+      </div>
     </Sayfa>
   );
 }
