@@ -14,6 +14,8 @@ pratik olması en önemli ölçüt.**
 - `docs/ANAYASA.md` — kullanıcının verdiği ana metin. **Sapılmaz.**
 - `docs/ERTELENENLER.md` — bilerek sonraya bırakılanlar. Kullanıcı
   **"eksik ne kaldı"** dediğinde bu liste getirilir.
+- `docs/DUZELTILECEKLER.md` — pilotta çıkan, sonraya bırakılan düzeltmeler.
+  Kullanıcı **"düzeltecek neler var"** dediğinde bu liste getirilir.
 - `docs/KARARLAR.md` — verilen kararlar ve gerekçeleri.
 - `docs/KURULUM.md` — Supabase + Vercel kurulum adımları.
 
