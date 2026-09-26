@@ -8,6 +8,7 @@ import { Bos, Etiket, GecikmeEtiketi, Sayfa } from "@/components/kabuk";
 import { GunlukKarti, HataKarti, TalepKarti, type Gunluk, type Hata, type Talep } from "@/components/kartlar";
 import { YetkiMatrisi } from "@/components/yetki-matrisi";
 import { sozlesmeTamamla } from "../eylemler";
+import { TaseronKaldir } from "./kaldir";
 
 const SEKMELER = [
   { kod: "bilgi", ad: "Bilgi" },
@@ -85,6 +86,7 @@ type T = {
   iban: string | null;
   ust_taseron_id: string | null;
   alt_taseron_yetkisi: boolean;
+  aktif: boolean;
 };
 
 async function Bilgi({ o, t, kendisi }: { o: O; t: T; kendisi: boolean }) {
@@ -174,6 +176,14 @@ async function Bilgi({ o, t, kendisi }: { o: O; t: T; kendisi: boolean }) {
                     </a>
                   )}
                   {!o.taseron && o.yetki("taseronlar", true) && (
+                    <Link
+                      href={`/taseronlar/${t.id}/sozlesme/${s.id}`}
+                      className="flex min-h-12 items-center gap-2 rounded-xl bg-vurgu px-4 font-bold text-black"
+                    >
+                      <Pencil className="size-5" /> Düzelt
+                    </Link>
+                  )}
+                  {!o.taseron && o.yetki("taseronlar", true) && (
                     <form action={sozlesmeTamamla}>
                       <input type="hidden" name="id" value={s.id} />
                       <input type="hidden" name="taseron_id" value={t.id} />
@@ -211,6 +221,8 @@ async function Bilgi({ o, t, kendisi }: { o: O; t: T; kendisi: boolean }) {
           )}
         </section>
       ) : null}
+
+      {!o.taseron && o.yetki("taseronlar", true) && <TaseronKaldir id={t.id} aktif={t.aktif} />}
     </div>
   );
 }

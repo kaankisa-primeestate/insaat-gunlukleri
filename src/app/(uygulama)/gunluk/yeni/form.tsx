@@ -1,14 +1,14 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Alan, Girdi, KaydetButonu, Mesaj, Metin, Secim, TarihSecici } from "@/components/form";
+import { Alan, Form, Girdi, KaydetButonu, Mesaj, Metin, Secim, TarihSecici } from "@/components/form";
 import { FotoSecici } from "@/components/foto-secici";
 import { SayiSecici, TaseronSecici, type TaseronSecenek } from "@/components/secimler";
 import { isKalemleri } from "@/lib/sabitler";
 import { gunlukKaydet } from "../eylemler";
 
 export function GunlukFormu({ firmaId, taseronlar, katlar }: { firmaId: string; taseronlar: TaseronSecenek[]; katlar: string[] }) {
-  const [durum, eylem] = useActionState(gunlukKaydet, undefined);
+  const [durum, eylem, bekliyor] = useActionState(gunlukKaydet, undefined);
   // Kimlik formda üretilir: çift dokunmada aynı kayıt iki kez oluşmaz.
   const [id] = useState(() => crypto.randomUUID());
   const [taseron, setTaseron] = useState<TaseronSecenek | undefined>(taseronlar.length === 1 ? taseronlar[0] : undefined);
@@ -16,7 +16,7 @@ export function GunlukFormu({ firmaId, taseronlar, katlar }: { firmaId: string; 
   const kalemler = taseron ? isKalemleri(taseron.is_turleri) : [];
 
   return (
-    <form action={eylem} className="flex flex-col gap-6">
+    <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-6">
       <input type="hidden" name="id" value={id} />
       <Alan etiket="Taşeron" zorunlu>
         <TaseronSecici taseronlar={taseronlar} onChange={(t) => { setTaseron(t); setKalem(""); }} />
@@ -59,6 +59,6 @@ export function GunlukFormu({ firmaId, taseronlar, katlar }: { firmaId: string; 
       <div className="sticky bottom-3">
         <KaydetButonu />
       </div>
-    </form>
+    </Form>
   );
 }

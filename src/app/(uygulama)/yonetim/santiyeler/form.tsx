@@ -1,17 +1,17 @@
 "use client";
 
 import { useActionState, useEffect, useRef } from "react";
-import { Alan, Girdi, KaydetButonu, Mesaj } from "@/components/form";
+import { Alan, Form, Girdi, KaydetButonu, Mesaj } from "@/components/form";
 import { santiyeEkle } from "../eylemler";
 
 export function SantiyeFormu() {
-  const [durum, eylem] = useActionState(santiyeEkle, undefined);
+  const [durum, eylem, bekliyor] = useActionState(santiyeEkle, undefined);
   const form = useRef<HTMLFormElement>(null);
   useEffect(() => {
     if (durum?.tamam) form.current?.reset();
   }, [durum]);
   return (
-    <form ref={form} action={eylem} className="flex flex-col gap-4">
+    <Form ref={form} eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-4">
       <Alan etiket="Şantiye adı" zorunlu>
         <Girdi name="ad" required maxLength={80} placeholder="Örn. Polenium Manzara" />
       </Alan>
@@ -28,6 +28,6 @@ export function SantiyeFormu() {
       </div>
       <Mesaj durum={durum} />
       <KaydetButonu>Şantiye Ekle</KaydetButonu>
-    </form>
+    </Form>
   );
 }

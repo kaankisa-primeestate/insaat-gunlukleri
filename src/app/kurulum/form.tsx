@@ -1,13 +1,13 @@
 "use client";
 
 import { useActionState } from "react";
-import { Alan, Girdi, KaydetButonu, Mesaj } from "@/components/form";
+import { Alan, Form, Girdi, KaydetButonu, Mesaj } from "@/components/form";
 import { kurulumYap } from "./eylem";
 
 export function KurulumFormu() {
-  const [durum, eylem] = useActionState(kurulumYap, undefined);
+  const [durum, eylem, bekliyor] = useActionState(kurulumYap, undefined);
   return (
-    <form action={eylem} className="flex flex-col gap-5">
+    <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-5">
       <Alan etiket="Firma adı" zorunlu>
         <Girdi name="firma" defaultValue="Kısa İnşaat" required maxLength={120} />
       </Alan>
@@ -22,6 +22,6 @@ export function KurulumFormu() {
       </Alan>
       <Mesaj durum={durum} />
       <KaydetButonu>Kurulumu Tamamla</KaydetButonu>
-    </form>
+    </Form>
   );
 }

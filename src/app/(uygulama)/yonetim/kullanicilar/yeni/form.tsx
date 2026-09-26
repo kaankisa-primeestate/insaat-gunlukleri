@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Alan, Girdi, KaydetButonu, Liste, Mesaj, Secim } from "@/components/form";
+import { Alan, Form, Girdi, KaydetButonu, Liste, Mesaj, Secim } from "@/components/form";
 import { ROL_ADI, type Rol } from "@/lib/sabitler";
 import { kullaniciEkle } from "../../eylemler";
 
@@ -16,11 +16,11 @@ export function KullaniciFormu({
   santiyeler: { id: string; ad: string }[];
   taseronId?: string;
 }) {
-  const [durum, eylem] = useActionState(kullaniciEkle, undefined);
+  const [durum, eylem, bekliyor] = useActionState(kullaniciEkle, undefined);
   const [rol, setRol] = useState<Rol | undefined>(taseronId ? "taseron" : undefined);
 
   return (
-    <form action={eylem} className="flex flex-col gap-5">
+    <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-5">
       <Alan etiket="Rol" zorunlu>
         <Secim
           ad="rol"
@@ -79,6 +79,6 @@ export function KullaniciFormu({
 
       <Mesaj durum={durum} />
       <KaydetButonu>Kullanıcıyı Oluştur</KaydetButonu>
-    </form>
+    </Form>
   );
 }

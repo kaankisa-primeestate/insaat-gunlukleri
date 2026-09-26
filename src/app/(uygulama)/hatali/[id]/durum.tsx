@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { Mesaj } from "@/components/form";
+import { Form, Mesaj } from "@/components/form";
 import { HATA_DURUM, type HataDurum } from "@/lib/sabitler";
 import { hataDurum } from "../eylemler";
 
@@ -10,7 +10,7 @@ export function DurumDugmeleri({ id, durum, taseron }: { id: string; durum: Hata
   const [sonuc, eylem, bekliyor] = useActionState(hataDurum, undefined);
   const secenekler: HataDurum[] = taseron ? ["tespit", "duzeltiliyor"] : ["tespit", "duzeltiliyor", "onaylandi"];
   return (
-    <form action={eylem} className="flex flex-col gap-2">
+    <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-2">
       <input type="hidden" name="id" value={id} />
       <p className="text-lg font-bold">Durumu değiştir</p>
       <div className={`grid gap-2 ${taseron ? "grid-cols-2" : "grid-cols-3"}`}>
@@ -29,6 +29,6 @@ export function DurumDugmeleri({ id, durum, taseron }: { id: string; durum: Hata
         ))}
       </div>
       <Mesaj durum={sonuc} />
-    </form>
+    </Form>
   );
 }

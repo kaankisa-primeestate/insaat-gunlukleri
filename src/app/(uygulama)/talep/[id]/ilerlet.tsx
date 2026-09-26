@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { ArrowRight } from "lucide-react";
-import { Mesaj } from "@/components/form";
+import { Form, Mesaj } from "@/components/form";
 import { TALEP_DURUM, TALEP_SIRASI, type TalepDurum } from "@/lib/sabitler";
 import { talepDurum } from "../eylemler";
 
@@ -20,7 +20,7 @@ export function TalepIlerlet({ id, durum }: { id: string; durum: TalepDurum }) {
   const sonraki = TALEP_SIRASI[i + 1];
   const digerleri = TALEP_SIRASI.slice(i + 2);
   return (
-    <form action={eylem} className="flex flex-col gap-2">
+    <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-2">
       <input type="hidden" name="id" value={id} />
       {sonraki && (
         <button
@@ -42,6 +42,6 @@ export function TalepIlerlet({ id, durum }: { id: string; durum: TalepDurum }) {
         </div>
       )}
       <Mesaj durum={sonuc} />
-    </form>
+    </Form>
   );
 }

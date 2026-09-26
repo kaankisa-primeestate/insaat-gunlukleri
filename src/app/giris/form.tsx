@@ -1,13 +1,13 @@
 "use client";
 
 import { useActionState } from "react";
-import { Alan, Girdi, KaydetButonu, Mesaj } from "@/components/form";
+import { Alan, Form, Girdi, KaydetButonu, Mesaj } from "@/components/form";
 import { girisYap } from "./eylem";
 
 export function GirisFormu() {
-  const [durum, eylem] = useActionState(girisYap, undefined);
+  const [durum, eylem, bekliyor] = useActionState(girisYap, undefined);
   return (
-    <form action={eylem} className="flex flex-col gap-5">
+    <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-5">
       <Alan etiket="Kullanıcı adı">
         <Girdi
           name="kullanici_adi"
@@ -23,6 +23,6 @@ export function GirisFormu() {
       </Alan>
       <Mesaj durum={durum} />
       <KaydetButonu>Giriş Yap</KaydetButonu>
-    </form>
+    </Form>
   );
 }

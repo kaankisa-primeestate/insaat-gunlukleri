@@ -30,3 +30,19 @@
   kaldıysa kırmızı etiket. Sesli uyarı ekrana ilk dokunuşta, günde bir kez
   (tarayıcılar dokunmadan ses çaldırmaz).
 - **Her kayıt formu:** Kaydet → ana sayfa, "Kaydedildi" yeşil şeridi.
+
+## Mükerrer kayıt ve düzeltme (pilot geri bildirimi)
+
+- **Aynı taşeron iki kez açılamaz.** Ad, Türkçe harf / büyük-küçük harf /
+  boşluk / noktalama farkı gözetmeden karşılaştırılır; vergi numarası
+  girildiyse o da. Kural veritabanında (`taseron_mukerrer` tetikleyicisi).
+- **Bir taşeronun bir şantiyede tek sözleşmesi olur.** Yanlışsa düzeltilir
+  ("Düzelt"), gerekirse silinir.
+- **Aynı şantiyede aynı işi yapan ikinci taşeron: uyarı, yasak değil.**
+  Kullanıcı "bir şantiyede iki elektrikçi olamaz" dedi; kesin yasak
+  konmadı, çünkü büyük şantiyede iki kalıpçı farklı blokta çalışabilir ya da
+  işi bırakan taşeronun yerine yenisi gelir. Uyarıda "Yine de kaydet"
+  gerekir; ana taşeron ile kendi alt taşeronu çakışma sayılmaz. Kesin yasak
+  istenirse `sozlesmeKaydet` içindeki onay adımı kaldırılır.
+- **Taşeron silme yalnızca hiç kaydı yoksa** (günlük, hata, talep, teslimat,
+  alt taşeron, giriş hesabı). Kaydı olan pasife alınır; geçmiş kaybolmaz.

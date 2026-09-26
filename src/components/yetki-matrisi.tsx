@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { Eye, Pencil } from "lucide-react";
-import { KaydetButonu, Mesaj } from "@/components/form";
+import { Form, KaydetButonu, Mesaj } from "@/components/form";
 import { SAYFALAR, varsayilanYetki, type Rol, type Sayfa } from "@/lib/sabitler";
 import { yetkiKaydet } from "@/app/(uygulama)/yonetim/eylemler";
 
@@ -34,7 +34,7 @@ export function YetkiMatrisi({
   kullaniciId?: string;
   taseronId?: string;
 }) {
-  const [durum, eylem] = useActionState(yetkiKaydet, undefined);
+  const [durum, eylem, bekliyor] = useActionState(yetkiKaydet, undefined);
   const ozel = new Map(mevcut.map((m) => [m.sayfa, m]));
   const [deger, setDeger] = useState(() =>
     Object.fromEntries(
@@ -50,7 +50,7 @@ export function YetkiMatrisi({
   }
 
   return (
-    <form action={eylem} className="flex flex-col gap-4">
+    <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-4">
       {kullaniciId && <input type="hidden" name="kullanici_id" value={kullaniciId} />}
       {taseronId && <input type="hidden" name="taseron_id" value={taseronId} />}
       <div className="overflow-hidden rounded-2xl border-2 border-cizgi">
@@ -86,7 +86,7 @@ export function YetkiMatrisi({
       </div>
       <Mesaj durum={durum} />
       <KaydetButonu>Yetkileri Kaydet</KaydetButonu>
-    </form>
+    </Form>
   );
 }
 

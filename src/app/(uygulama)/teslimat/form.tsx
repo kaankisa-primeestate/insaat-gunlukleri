@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Alan, Girdi, KaydetButonu, Mesaj, Secim } from "@/components/form";
+import { Alan, Form, Girdi, KaydetButonu, Mesaj, Secim } from "@/components/form";
 import { TaseronSecici, type TaseronSecenek } from "@/components/secimler";
 import { ARACLAR } from "@/lib/sabitler";
 import { teslimatKaydet } from "./eylemler";
@@ -19,12 +19,12 @@ export function TeslimatFormu({
   saatler: number[];
   talep?: { id: string; urun: string; miktar: number; birim: string; taseron_id: string };
 }) {
-  const [durum, eylem] = useActionState(teslimatKaydet, undefined);
+  const [durum, eylem, bekliyor] = useActionState(teslimatKaydet, undefined);
   const [saat, setSaat] = useState<number | null>(null);
   const dolu = saat != null ? (doluluk[saat] ?? 0) : 0;
 
   return (
-    <form action={eylem} className="flex flex-col gap-5">
+    <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-5">
       <input type="hidden" name="tarih" value={tarih} />
       {talep && <input type="hidden" name="talep_id" value={talep.id} />}
       <Alan etiket="Taşeron" zorunlu>
@@ -63,6 +63,6 @@ export function TeslimatFormu({
       </Alan>
       <Mesaj durum={durum} />
       <KaydetButonu />
-    </form>
+    </Form>
   );
 }

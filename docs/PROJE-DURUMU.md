@@ -44,6 +44,20 @@ kolaylıktır. Yeni tablo eklenirse RLS açılır ve politika yazılır.
 işlevi yeni satırı henüz görmez). Kimlik sunucuda/istemcide üretilip
 `insert` öyle yapılır.
 
+**Formlar `<Form>` bileşeniyle yazılır, `<form action>` ile değil.** React 19
+sunucu işlemi bitince formu sıfırlıyor; hata/uyarı dönse bile seçilen şantiye,
+taşeron gibi alanlar varsayılana dönüyor ve tekrar gönderimde yanlış değer
+kaydediliyordu (`src/components/form.tsx`).
+
+**Güncelleme ve silmede `.select("id")` ile etkilenen satır sayısı denetlenir.**
+RLS yetki vermezse Supabase hata döndürmez, sessizce 0 satır değiştirir;
+denetlenmezse ekran "Kaydedildi" der ama hiçbir şey değişmemiştir.
+
+**Veritabanı değişikliği = yeni geçiş dosyası.** Kullanıcı SQL'i Supabase SQL
+Editor'de elle çalıştırır. GitHub'dan kopyalarken dosya adını kopyaladı;
+SQL'i sohbete doğrudan yazmak daha güvenli. Kod yayına SQL'den önce
+çıkarsa ilgili ekran hata verir; kullanıcıya hemen çalıştırması söylenir.
+
 **Yönetici anahtarı (`supabaseYonetici`) yalnızca yetki denetlendikten sonra**
 kullanılır: kullanıcı oluşturma, imzalı dosya adresi, ilk kurulum.
 

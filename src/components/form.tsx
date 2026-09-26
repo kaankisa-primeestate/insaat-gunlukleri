@@ -1,14 +1,59 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
-import { useState, type ReactNode } from "react";
+import { createContext, startTransition, useContext, useState, type ReactNode, type Ref } from "react";
 import { Check, LoaderCircle } from "lucide-react";
 import { bugun } from "@/lib/sabitler";
 
-export type FormDurumu = { hata?: string; tamam?: string } | undefined;
+export type FormDurumu = { hata?: string; tamam?: string; uyari?: string } | undefined;
+
+const BekliyorBaglami = createContext(false);
+
+/**
+ * Sunucu işlemine giden form. React 19 `<form action>` kullanıldığında işlem
+ * bitince formu sıfırlar: hata ya da uyarı dönse bile kullanıcının seçtiği
+ * şantiye, taşeron, kat gibi alanlar varsayılana döner ve tekrar gönderimde
+ * yanlış değer kaydedilir. Bu bileşen gönderimi kendisi yapar, form sıfırlanmaz.
+ * Tarayıcının zorunlu alan denetimi yine çalışır (submit olayı ondan sonra gelir).
+ */
+export function Form({
+  eylem,
+  bekliyor,
+  onayla,
+  className,
+  children,
+  ref,
+}: {
+  eylem: (form: FormData) => void;
+  bekliyor: boolean;
+  /** Doluysa göndermeden önce bu soruyla onay istenir. */
+  onayla?: string;
+  className?: string;
+  children: ReactNode;
+  ref?: Ref<HTMLFormElement>;
+}) {
+  return (
+    <BekliyorBaglami.Provider value={bekliyor}>
+      <form
+        ref={ref}
+        className={className}
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (bekliyor) return;
+          if (onayla && !confirm(onayla)) return;
+          const veri = new FormData(e.currentTarget, (e.nativeEvent as SubmitEvent).submitter);
+          startTransition(() => eylem(veri));
+        }}
+      >
+        {children}
+      </form>
+    </BekliyorBaglami.Provider>
+  );
+}
 
 export function KaydetButonu({ children = "Kaydet", renk = "vurgu" }: { children?: ReactNode; renk?: "vurgu" | "koyu" | "kirmizi" | "yesil" }) {
-  const { pending } = useFormStatus();
+  const { pending: formBekliyor } = useFormStatus();
+  const pending = useContext(BekliyorBaglami) || formBekliyor;
   const renkler = {
     vurgu: "bg-vurgu text-black",
     koyu: "bg-koyu text-white",
@@ -28,13 +73,11 @@ export function KaydetButonu({ children = "Kaydet", renk = "vurgu" }: { children
 }
 
 export function Mesaj({ durum }: { durum: FormDurumu }) {
-  if (!durum?.hata && !durum?.tamam) return null;
+  if (!durum?.hata && !durum?.tamam && !durum?.uyari) return null;
+  const sinif = durum.hata ? "bg-kirmizi text-white" : durum.uyari ? "bg-sari text-black" : "bg-yesil text-white";
   return (
-    <p
-      role="alert"
-      className={`rounded-xl px-4 py-3 text-base font-semibold ${durum.hata ? "bg-kirmizi text-white" : "bg-yesil text-white"}`}
-    >
-      {durum.hata ?? durum.tamam}
+    <p role="alert" className={`rounded-xl px-4 py-3 text-base font-semibold ${sinif}`}>
+      {durum.hata ?? durum.uyari ?? durum.tamam}
     </p>
   );
 }

@@ -9,7 +9,7 @@ type T = { id: string; firma_adi: string; is_turleri: string[]; ust_taseron_id: 
 export default async function Taseronlar({ searchParams }: PageProps<"/taseronlar">) {
   const o = await oturum();
   if (o.taseron) redirect(`/taseronlar/${o.profil.taseron_id}`);
-  const { hepsi } = await searchParams;
+  const { hepsi, silindi } = await searchParams;
 
   // Varsayılan: seçili şantiyede çalışanlar. "Tümü" ile firmadaki bütün taşeronlar.
   const [{ data: tumu }, santiyede] = await Promise.all([
@@ -25,6 +25,7 @@ export default async function Taseronlar({ searchParams }: PageProps<"/taseronla
 
   return (
     <Sayfa baslik="Taşeronlar">
+      {silindi && <p className="rounded-xl bg-yesil px-4 py-3 font-bold text-white">✓ Taşeron silindi</p>}
       {o.yetki("taseronlar", true) && (
         <BuyukBag href="/taseronlar/yeni" sinif="bg-vurgu text-black">
           <Plus className="size-7" strokeWidth={3} /> Yeni Taşeron

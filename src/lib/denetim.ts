@@ -27,3 +27,14 @@ export function fotoYollari(form: FormData, firmaId: string, en = 6): string[] {
     .filter((y) => y.startsWith(firmaId + "/") && !y.includes(".."))
     .slice(0, en);
 }
+
+/**
+ * Veritabanı hatasını kullanıcıya gösterilecek metne çevirir. Kendi
+ * kurallarımızın (P0001) iletileri zaten Türkçe ve açıklayıcıdır.
+ */
+export function veritabaniHatasi(e: { code?: string; message: string }): string {
+  if (e.code === "P0001") return e.message;
+  if (e.code === "23505") return "Bu kayıt zaten var.";
+  if (e.code === "42501") return "Bu işlem için yetkiniz yok.";
+  return "Kaydedilemedi: " + e.message;
+}

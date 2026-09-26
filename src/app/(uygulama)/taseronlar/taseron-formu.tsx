@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { Alan, CokluSecim, Girdi, KaydetButonu, Liste, Mesaj } from "@/components/form";
+import { Alan, CokluSecim, Form, Girdi, KaydetButonu, Liste, Mesaj } from "@/components/form";
 import { IS_TURU_LISTESI } from "@/lib/sabitler";
 import { taseronKaydet } from "./eylemler";
 
@@ -27,9 +27,9 @@ export function TaseronFormu({
   /** Ana taşeron kendi alt taşeronunu açıyor. */
   altTaseronModu?: boolean;
 }) {
-  const [durum, eylem] = useActionState(taseronKaydet, undefined);
+  const [durum, eylem, bekliyor] = useActionState(taseronKaydet, undefined);
   return (
-    <form action={eylem} className="flex flex-col gap-5">
+    <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-5">
       {deger.id && <input type="hidden" name="id" value={deger.id} />}
       <Alan etiket="Firma adı" zorunlu>
         <Girdi name="firma_adi" required maxLength={120} defaultValue={deger.firma_adi} />
@@ -80,6 +80,6 @@ export function TaseronFormu({
 
       <Mesaj durum={durum} />
       <KaydetButonu>{deger.id ? "Kaydet" : "Taşeronu Kaydet"}</KaydetButonu>
-    </form>
+    </Form>
   );
 }
