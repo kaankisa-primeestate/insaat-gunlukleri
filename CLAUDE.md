@@ -1,1 +1,2 @@
 @AGENTS.md
+@docs/PROJE-DURUMU.md

@@ -1,0 +1,32 @@
+# Verilen Kararlar
+
+| Konu | Karar |
+|---|---|
+| Anayasa | `ANAYASA.md` (nihai prompt v3). Sapılmaz; ertelenenler `ERTELENENLER.md`'de |
+| Bağımsızlık | Program Kısa İnşaat web sitesinden tamamen bağımsız. Gerekirse sonra siteye bağlantı eklenir |
+| Maliyet | Pilot tamamen ücretsiz platformlarda |
+| Uygulama | Next.js 16 (PWA), Vercel Hobby, alan adı yok (`*.vercel.app`) |
+| Veri, giriş, dosya | Supabase Free, Frankfurt. PostgreSQL + RLS ile firma izolasyonu |
+| Yasal altyapı, SMS, e-posta | Şimdi yapılmaz; veri yapısında yerleri ayrılır |
+| Pilot | Kısa İnşaat — Polenium Manzara ve Polenium Celayir şantiyeleri |
+| Taşeron girişi | Pilotta taşeronlar kendi hesaplarıyla girer |
+| Giriş | Kullanıcı adı + şifre. Hesabı merkez açar. Supabase'e iç e-posta adresiyle (`kullanici@giris.insaat-gunlukleri.local`) kaydedilir, e-posta gönderilmez |
+| En önemli ölçüt | Sahada telefonda **pratik ve kullanıcı dostu** olması |
+
+## Tasarım kararları
+
+- **Taşeronu şantiyeye sözleşme bağlar.** Taşeron, sözleşmesi olan şantiyede
+  listelenir. Alt taşeron, ana taşeronunun şantiyesinde de listelenir.
+- **"Diğer taşeronları göremez" kuralı yetki matrisinden bağımsızdır**;
+  veritabanında sabittir, merkez yanlışlıkla açamaz.
+- **Hatalı işi merkez tarafı bildirir.** Taşeron kendi hakkındaki kaydı
+  "Düzeltiliyor" yapabilir, "Onaylandı" yapamaz; açıklamayı, önemi,
+  fotoğrafı değiştiremez (tetikleyici denetler).
+- **Taşeron talep açar ama durumunu ilerletemez.** Satın alındı / yolda /
+  teslim / kapanış merkez tarafının işi.
+- **Teslimat takviminde** herkes saatin dolu olduğunu görür, başka taşeronun
+  teslimat ayrıntısını görmez.
+- **Gecikme uyarısı:** tamamlanmamış sözleşmenin bitişine 7 gün veya daha az
+  kaldıysa kırmızı etiket. Sesli uyarı ekrana ilk dokunuşta, günde bir kez
+  (tarayıcılar dokunmadan ses çaldırmaz).
+- **Her kayıt formu:** Kaydet → ana sayfa, "Kaydedildi" yeşil şeridi.
