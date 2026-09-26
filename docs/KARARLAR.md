@@ -61,3 +61,12 @@
   (`SecimPenceresi`). 2–3 seçenekli, tek dokunuşluk alanlar (önem derecesi,
   Bugün/Dün, kişi sayısı eksi/artı) bilerek sayfada bırakıldı.
 - **Ana sayfada isim/rol kutusu yok**; üstte yalnızca şantiye seçici ve çıkış.
+
+## Şantiye ve taşeron görünürlüğü (saha denemesi)
+
+- **Taşeron, görevli olduğu şantiyede görünür.** Görevli olmak = o şantiyede
+  sözleşmesi olmak. İki şantiyede sözleşmesi varsa ikisinde de görünür.
+  Firmanın bütün taşeronları her şantiyede listelenmez (kullanıcı kararı).
+- **Şantiye girişte seçilir, oturum boyunca değişmez** (D8). Üstteki şantiye
+  seçici, kullanıcının yanlışlıkla şantiye değiştirip farkında olmadan
+  işlem yapmasına yol açtı. Başka şantiye için çıkış yapılıp yeniden girilir.
