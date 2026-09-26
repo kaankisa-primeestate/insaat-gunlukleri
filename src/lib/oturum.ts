@@ -27,24 +27,29 @@ import { SANTIYE_CEREZI } from "./santiye-cerezi";
  */
 export const oturumTemel = cache(async () => {
   const supabase = await supabaseSunucu();
-  const { data: auth } = await supabase.auth.getUser();
-  if (!auth.user) redirect("/giris");
+  // Kimlik, oturum anahtarının imzası doğrulanarak okunur; kimlik sunucusuna
+  // her sayfada ayrıca gidilmez. Pasif hesap aşağıdaki profil sorgusunda elenir.
+  const { data: kimlik } = await supabase.auth.getClaims();
+  const kullaniciId = kimlik?.claims?.sub;
+  if (!kullaniciId) redirect("/giris");
 
-  const { data: profil } = await supabase
-    .from("profiller")
-    .select("id, firma_id, kullanici_adi, ad_soyad, rol, taseron_id")
-    .eq("id", auth.user.id)
-    .eq("aktif", true)
-    .maybeSingle<Profil>();
-  if (!profil) redirect("/giris?hata=pasif");
-
-  const [{ data: firma }, { data: santiyeler }, { data: yetkiSatirlari }] = await Promise.all([
-    supabase.from("firmalar").select("id, ad").eq("id", profil.firma_id).single(),
+  // Tüm oturum bilgisi tek turda, paralel: veritabanına sırayla gidilmez.
+  // Firma ve yetki satırlarını RLS zaten kullanıcının kendisine süzer.
+  const [{ data: profil }, { data: firma }, { data: santiyeler }, { data: yetkiHepsi }] = await Promise.all([
+    supabase
+      .from("profiller")
+      .select("id, firma_id, kullanici_adi, ad_soyad, rol, taseron_id")
+      .eq("id", kullaniciId)
+      .eq("aktif", true)
+      .maybeSingle<Profil>(),
+    supabase.from("firmalar").select("id, ad").maybeSingle(),
     supabase.from("santiyeler").select("id, ad, bodrum_kat, kat_sayisi, aktif").eq("aktif", true).order("ad"),
-    profil.rol === "taseron"
-      ? supabase.from("yetkiler").select("sayfa, gorur, duzenler").eq("taseron_id", profil.taseron_id!)
-      : supabase.from("yetkiler").select("sayfa, gorur, duzenler").eq("kullanici_id", profil.id),
+    supabase.from("yetkiler").select("sayfa, gorur, duzenler, kullanici_id, taseron_id"),
   ]);
+  if (!profil || !firma) redirect("/giris?hata=pasif");
+  const yetkiSatirlari = (yetkiHepsi ?? []).filter((y) =>
+    profil.rol === "taseron" ? y.taseron_id === profil.taseron_id : y.kullanici_id === profil.id,
+  );
 
   const liste = (santiyeler ?? []) as Santiye[];
   // Şantiye girişte bir kez seçilir (çerez). Tek şantiyesi olan seçmez.

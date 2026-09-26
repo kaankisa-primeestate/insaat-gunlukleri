@@ -45,3 +45,30 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   outline: 3px solid var(--color-mavi);
   outline-offset: 2px;
 }
+
+/*
+ * Dokunuşa anında tepki: bağlantı ve düğmeler basılınca hemen kararır.
+ * Sunucudan cevap gelmeden de dokunuşun alındığı görülür; kullanıcı
+ * "basmadı" sanıp başka yere basmasın. touch-action: çift dokunuşla
+ * yakınlaştırma beklemesini kaldırır.
+ */
+a,
+button,
+label {
+  touch-action: manipulation;
+}
+a:active,
+button:not(:disabled):active {
+  filter: brightness(0.85);
+}
+
+/* Sayfa geçişinde üstte kayan yükleniyor çizgisi. */
+@keyframes yukleme {
+  0% { transform: translateX(-100%) scaleX(0.3); }
+  50% { transform: translateX(0) scaleX(0.6); }
+  100% { transform: translateX(100%) scaleX(0.3); }
+}
+.yukleme-cizgisi {
+  transform-origin: left;
+  animation: yukleme 1s ease-in-out infinite;
+}
