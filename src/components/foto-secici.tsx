@@ -17,14 +17,19 @@ export function FotoSecici({
   ad = "fotograflar",
   en = 6,
   zorunlu = false,
+  mevcut = [],
 }: {
   firmaId: string;
   klasor: string;
   ad?: string;
   en?: number;
   zorunlu?: boolean;
+  /** Düzenlemede kayıtlı fotoğraflar (depo yolu + görüntü adresi). */
+  mevcut?: { yol: string; adres: string }[];
 }) {
-  const [fotolar, setFotolar] = useState<Foto[]>([]);
+  const [fotolar, setFotolar] = useState<Foto[]>(() =>
+    mevcut.map((m) => ({ anahtar: m.yol, onizleme: m.adres, yol: m.yol })),
+  );
   const kamera = useRef<HTMLInputElement>(null);
   const galeri = useRef<HTMLInputElement>(null);
 

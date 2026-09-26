@@ -10,6 +10,8 @@ import { GunlukKarti, HataKarti, TalepKarti, type Gunluk, type Hata, type Talep 
 import { YetkiMatrisi } from "@/components/yetki-matrisi";
 import { sozlesmeTamamla } from "../eylemler";
 import { TaseronKaldir } from "./kaldir";
+import { gunlukDegisebilir } from "@/lib/gunluk";
+import { GunlukIslemleri } from "../../gunluk/islemler";
 
 const SEKMELER = [
   { kod: "bilgi", ad: "Bilgi" },
@@ -267,7 +269,7 @@ async function Kayitlar({ o, taseronId }: { o: O; taseronId: string }) {
     o.yetki("gunluk")
       ? o.supabase
           .from("gunlukler")
-          .select("id, is_tarihi, kisi_sayisi, katlar, is_kalemleri, notu, fotograflar, olusturma, profiller(ad_soyad)")
+          .select("id, is_tarihi, kisi_sayisi, katlar, is_kalemleri, notu, fotograflar, olusturma, olusturan, guncelleme, profiller!gunlukler_olusturan_fkey(ad_soyad)")
           .eq("taseron_id", taseronId)
           .order("is_tarihi", { ascending: false })
           .limit(100)
@@ -315,7 +317,15 @@ async function Kayitlar({ o, taseronId }: { o: O; taseronId: string }) {
       {olaylar.length === 0 && <Bos>Bu taşeron için henüz kayıt yok.</Bos>}
       {olaylar.map((x) =>
         x.tur === "g" ? (
-          <GunlukKarti key={"g" + x.v.id} g={x.v} adresler={adresler} taseronGoster={false} />
+          <GunlukKarti
+            key={"g" + x.v.id}
+            g={x.v}
+            adresler={adresler}
+            taseronGoster={false}
+            islemler={
+              gunlukDegisebilir(o, { olusturan: x.v.olusturan!, olusturma: x.v.olusturma }) ? <GunlukIslemleri id={x.v.id} /> : undefined
+            }
+          />
         ) : x.tur === "h" ? (
           <HataKarti key={"h" + x.v.id} h={x.v} adresler={adresler} taseronGoster={false} />
         ) : (

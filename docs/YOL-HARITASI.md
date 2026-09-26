@@ -29,8 +29,7 @@ Saha denemesinden gelen D6–D9 yapıldı (26 Eylül). Kalanlar:
 
 | Kod | İş |
 |---|---|
-| D2 | Günlük, hatalı iş, talep düzeltme ve silme (değişiklik geçmişe yazılır) |
-| D1 | Aynı gün aynı taşerona tek günlük; varsa mevcut açılır |
+| D2 | Hatalı iş ve talep düzeltme ve silme (günlük kısmı yapıldı) |
 | D3 | Şantiye adı / kat sayısı düzenleme |
 | D4 | Kullanıcı adı, telefon, rol düzenleme |
 | S6 | Otomatik günlük yedek (GitHub Actions, ücretsiz). Gerçek veri birikiyor; Supabase ücretsiz pakette yedek almıyor |

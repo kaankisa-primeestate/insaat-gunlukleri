@@ -8,11 +8,36 @@ import { SayiSecici, TaseronSecici, type TaseronSecenek } from "@/components/sec
 import { IS_TURLERI } from "@/lib/sabitler";
 import { gunlukKaydet } from "../eylemler";
 
-export function GunlukFormu({ firmaId, taseronlar, katlar }: { firmaId: string; taseronlar: TaseronSecenek[]; katlar: string[] }) {
+export type GunlukDeger = {
+  id: string;
+  taseron_id: string;
+  is_tarihi: string;
+  kisi_sayisi: number;
+  katlar: string[];
+  is_kalemleri: string[];
+  notu: string | null;
+};
+
+/** Yeni günlük; `deger` verilirse mevcut günlüğün düzeltilmesi. */
+export function GunlukFormu({
+  firmaId,
+  taseronlar,
+  katlar,
+  deger,
+  mevcutFotolar = [],
+}: {
+  firmaId: string;
+  taseronlar: TaseronSecenek[];
+  katlar: string[];
+  deger?: GunlukDeger;
+  mevcutFotolar?: { yol: string; adres: string }[];
+}) {
   const [durum, eylem, bekliyor] = useActionState(gunlukKaydet, undefined);
   // Kimlik formda üretilir: çift dokunmada aynı kayıt iki kez oluşmaz.
-  const [id] = useState(() => crypto.randomUUID());
-  const [taseron, setTaseron] = useState<TaseronSecenek | undefined>(taseronlar.length === 1 ? taseronlar[0] : undefined);
+  const [id] = useState(() => deger?.id ?? crypto.randomUUID());
+  const [taseron, setTaseron] = useState<TaseronSecenek | undefined>(
+    taseronlar.find((t) => t.id === deger?.taseron_id) ?? (taseronlar.length === 1 ? taseronlar[0] : undefined),
+  );
   const [digerSecili, setDigerSecili] = useState(false);
   // İşler, taşeronun yaptığı iş türüne göre başlıklara ayrılır; her başlıkta
   // önce "genel" seçeneği, sonra kalemler. Kayıtta "Sıva: Kaba sıva" olarak durur.
@@ -24,13 +49,20 @@ export function GunlukFormu({ firmaId, taseronlar, katlar }: { firmaId: string; 
           ...(IS_TURLERI[tur] ?? []).map((k) => ({ deger: `${tur}: ${k}`, ad: k, grup: tur })),
         ])
     : [];
+  // Düzenlenen kayıtta listede olmayan (elle yazılmış) değerler kaybolmasın.
+  const ekKalemler = (deger?.is_kalemleri ?? [])
+    .filter((k) => !kalemler.some((x) => x.deger === k))
+    .map((k) => ({ deger: k, ad: k, grup: "Diğer" }));
+  const katSecenekleri = [...katlar, ...(deger?.katlar ?? []).filter((k) => !katlar.includes(k))];
 
   return (
     <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-6">
       <input type="hidden" name="id" value={id} />
+      {deger && <input type="hidden" name="duzenle" value="1" />}
       <Alan etiket="Taşeron" zorunlu>
         <TaseronSecici
           taseronlar={taseronlar}
+          varsayilan={deger?.taseron_id}
           onChange={(t) => {
             setTaseron(t);
             setDigerSecili(false);
@@ -39,11 +71,11 @@ export function GunlukFormu({ firmaId, taseronlar, katlar }: { firmaId: string; 
       </Alan>
 
       <Alan etiket="Tarih">
-        <TarihSecici />
+        <TarihSecici varsayilan={deger?.is_tarihi} />
       </Alan>
 
       <Alan etiket="Kişi sayısı">
-        <SayiSecici ad="kisi_sayisi" varsayilan={1} />
+        <SayiSecici ad="kisi_sayisi" varsayilan={deger?.kisi_sayisi ?? 1} />
       </Alan>
 
       <Alan etiket="Kat" ipucu="Birden fazla kat seçebilirsiniz.">
@@ -53,7 +85,8 @@ export function GunlukFormu({ firmaId, taseronlar, katlar }: { firmaId: string; 
           coklu
           sutun={3}
           bosYazi="Kat seçmek için dokunun"
-          secenekler={katlar.map((k) => ({ deger: k, ad: k }))}
+          varsayilan={deger?.katlar}
+          secenekler={katSecenekleri.map((k) => ({ deger: k, ad: k }))}
         />
       </Alan>
 
@@ -66,7 +99,8 @@ export function GunlukFormu({ firmaId, taseronlar, katlar }: { firmaId: string; 
             coklu
             sutun={2}
             bosYazi="Yapılan işi seçmek için dokunun"
-            secenekler={[...kalemler, { deger: "Diğer", ad: "Diğer (yazarak)", grup: "Diğer" }]}
+            varsayilan={taseron.id === deger?.taseron_id ? deger.is_kalemleri : []}
+            secenekler={[...kalemler, ...ekKalemler, { deger: "Diğer", ad: "Diğer (yazarak)", grup: "Diğer" }]}
             onChange={(d) => setDigerSecili(d.includes("Diğer"))}
           />
           {digerSecili && <Girdi name="is_kalemi_diger" placeholder="Diğer: yapılan işi yazın" maxLength={80} />}
@@ -74,16 +108,16 @@ export function GunlukFormu({ firmaId, taseronlar, katlar }: { firmaId: string; 
       )}
 
       <Alan etiket="Kısa not">
-        <Metin name="notu" maxLength={300} placeholder="İsteğe bağlı" />
+        <Metin name="notu" maxLength={300} placeholder="İsteğe bağlı" defaultValue={deger?.notu ?? ""} />
       </Alan>
 
       <Alan etiket="Fotoğraf">
-        <FotoSecici firmaId={firmaId} klasor="gunluk" />
+        <FotoSecici firmaId={firmaId} klasor="gunluk" mevcut={mevcutFotolar} />
       </Alan>
 
       <Mesaj durum={durum} />
       <div className="sticky bottom-3">
-        <KaydetButonu />
+        <KaydetButonu>{deger ? "Değişiklikleri Kaydet" : "Kaydet"}</KaydetButonu>
       </div>
     </Form>
   );

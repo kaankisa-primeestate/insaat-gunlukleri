@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { CalendarClock, Users, Layers } from "lucide-react";
 import { Etiket } from "./kabuk";
@@ -12,6 +13,9 @@ export type Gunluk = {
   notu: string | null;
   fotograflar: string[];
   olusturma: string;
+  olusturan?: string;
+  /** Doluysa kayıt girildikten sonra düzenlenmiştir. */
+  guncelleme?: string | null;
   taseronlar?: { firma_adi: string } | null;
   profiller?: { ad_soyad: string } | null;
 };
@@ -48,13 +52,25 @@ function sonradanMi(isTarihi: string, olusturma: string) {
 export { Fotolar } from "./fotolar";
 import { Fotolar } from "./fotolar";
 
-export function GunlukKarti({ g, adresler, taseronGoster = true }: { g: Gunluk; adresler: Record<string, string>; taseronGoster?: boolean }) {
+export function GunlukKarti({
+  g,
+  adresler,
+  taseronGoster = true,
+  islemler,
+}: {
+  g: Gunluk;
+  adresler: Record<string, string>;
+  taseronGoster?: boolean;
+  /** Düzenle / Sil düğmeleri (yetkisi olana). */
+  islemler?: ReactNode;
+}) {
   return (
     <article className="flex flex-col gap-2 rounded-2xl border-2 border-cizgi p-3">
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-lg font-extrabold">{kisaTarih(g.is_tarihi)}</span>
         {taseronGoster && g.taseronlar && <span className="font-bold">· {g.taseronlar.firma_adi}</span>}
         {sonradanMi(g.is_tarihi, g.olusturma) && <Etiket sinif="bg-yuzey text-soluk border border-cizgi">sonradan girildi</Etiket>}
+        {g.guncelleme && <Etiket sinif="bg-yuzey text-soluk border border-cizgi">düzenlendi</Etiket>}
       </div>
       <div className="flex flex-wrap gap-x-4 gap-y-1 text-base">
         <span className="flex items-center gap-1"><Users className="size-5" /> {g.kisi_sayisi} kişi</span>
@@ -68,6 +84,7 @@ export function GunlukKarti({ g, adresler, taseronGoster = true }: { g: Gunluk; 
           <CalendarClock className="size-4" /> {g.profiller.ad_soyad}
         </p>
       )}
+      {islemler && <div className="flex flex-wrap gap-2 border-t-2 border-cizgi pt-2">{islemler}</div>}
     </article>
   );
 }
@@ -113,13 +130,21 @@ export function TalepKarti({ t, taseronGoster = true }: { t: Talep; taseronGoste
 }
 
 /** Bilgisayar ekranı için günlük tablosu: bir satır bir kayıt. */
-export function GunlukTablosu({ liste, adresler }: { liste: Gunluk[]; adresler: Record<string, string> }) {
+export function GunlukTablosu({
+  liste,
+  adresler,
+  islemler,
+}: {
+  liste: Gunluk[];
+  adresler: Record<string, string>;
+  islemler?: (g: Gunluk) => ReactNode;
+}) {
   return (
     <div className="overflow-x-auto rounded-2xl border-2 border-cizgi">
       <table className="w-full text-left text-base">
         <thead className="bg-koyu text-sm text-white">
           <tr>
-            {["Tarih", "Taşeron", "Kişi", "Kat", "Yapılan iş", "Not", "Fotoğraf", "Giren"].map((b) => (
+            {["Tarih", "Taşeron", "Kişi", "Kat", "Yapılan iş", "Not", "Fotoğraf", "Giren", ""].map((b) => (
               <th key={b} className="px-3 py-2 font-bold whitespace-nowrap">{b}</th>
             ))}
           </tr>
@@ -130,6 +155,7 @@ export function GunlukTablosu({ liste, adresler }: { liste: Gunluk[]; adresler: 
               <td className="px-3 py-2 font-bold whitespace-nowrap">
                 {kisaTarih(g.is_tarihi)}
                 {sonradanMi(g.is_tarihi, g.olusturma) && <span className="block text-xs font-semibold text-soluk">sonradan girildi</span>}
+                {g.guncelleme && <span className="block text-xs font-semibold text-soluk">düzenlendi</span>}
               </td>
               <td className="px-3 py-2 font-semibold">{g.taseronlar?.firma_adi}</td>
               <td className="px-3 py-2 text-center">{g.kisi_sayisi}</td>
@@ -140,6 +166,9 @@ export function GunlukTablosu({ liste, adresler }: { liste: Gunluk[]; adresler: 
                 <Fotolar yollar={g.fotograflar} adresler={adresler} boyut="size-12" />
               </td>
               <td className="px-3 py-2 text-sm whitespace-nowrap text-soluk">{g.profiller?.ad_soyad}</td>
+              <td className="px-3 py-2">
+                <div className="flex gap-2">{islemler?.(g)}</div>
+              </td>
             </tr>
           ))}
         </tbody>

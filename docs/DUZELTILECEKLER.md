@@ -10,8 +10,7 @@ getirilir; seçilen madde yapılır ve "Yapıldı" bölümüne taşınır.
 
 | # | Madde | Not |
 |---|---|---|
-| D1 | **Aynı gün aynı taşerona ikinci günlük açılmasın.** Kullanıcı aynı kaydı yanlışlıkla iki kez oluşturdu (ASM İnşaat Emir Grup, 25 Eylül). Bir taşeron için günde tek günlük; o günün tüm işleri, katları tek kayıtta seçilir. | Önerilen çözüm: aynı taşeron + aynı tarih varsa yeni kayıt yerine mevcut günlük açılsın ve üzerine eklensin/düzeltilsin. Veritabanında da tekil kural (taşeron + şantiye + tarih). Mevcut mükerrer kayıtlar kural konmadan önce birleştirilmeli ya da silinmeli; bunun için D2 gerekir. |
-| D2 | **Günlük, hatalı iş ve talep kayıtları düzeltilemiyor / silinemiyor.** Yanlış taşeron, yanlış tarih ya da mükerrer kayıt şu an ancak veritabanından düzeltilebilir. | Anayasa "silinmez, düzeltme kaydı eklenir" diyor (ertelenen yasal madde C5). Pilot için öneri: kaydı giren 24 saat içinde, merkez her zaman düzeltebilsin; yapılan değişiklik geçmişe yazılsın. |
+| D2 | **Hatalı iş ve talep kayıtları düzeltilemiyor / silinemiyor.** (Günlük kısmı yapıldı.) | Günlükteki kural: merkez her zaman, giren 24 saat içinde; değişiklik "düzenlendi" olarak görünür. |
 | D3 | Şantiye adı ve kat sayısı sonradan değiştirilemiyor. | |
 | D4 | Kullanıcının adı, telefonu ve rolü sonradan değiştirilemiyor (şifre, şantiye ataması, hesap kapatma var). | |
 | D5 | **"Dünden devam" — sürüp giden işte her gün formu baştan doldurmamak.** Taşeron bir işe başladığında 2–3 gün aynı yerde aynı işi yapıyor; her gün aynı günlüğü girmek zahmetli. | Ayrıntı aşağıda. D1 ve D2 ile birlikte yapılmalı (aynı ekran). |
@@ -70,6 +69,9 @@ fark etmezse sahte kayıt oluşur; günlüğün güvenilirliği biter. Bunun yer
    taşeronun sahada olduğu tek tek gözle onaylansın.)
 
 ## Yapıldı
+
+- D1 Aynı gün aynı taşerona ikinci günlük açılmıyor (program + veritabanı); mevcut kaydın bilgisi gösteriliyor
+- D2 (günlük) Günlük düzenleme ve silme: merkez her zaman, giren 24 saat içinde; düzenlenen kayıtta "düzenlendi" etiketi, kim/ne zaman tutuluyor; silinen kaydın fotoğrafları da siliniyor
 
 - D8 Şantiye girişte (şifreden sonra) bir kez seçilir; üstteki seçici kalktı, çıkış ana sayfanın altında
 - D6 Bilgisayarda tarih kutusuna tıklayınca takvim açılıyor (tüm tarih kutuları)

@@ -5,11 +5,18 @@ import { imzala } from "@/lib/dosya";
 import { Bos, Sayfa } from "@/components/kabuk";
 import { GunlukKarti, GunlukTablosu, type Gunluk } from "@/components/kartlar";
 import { tarihMi, uuidMi } from "@/lib/denetim";
+import { gunlukDegisebilir } from "@/lib/gunluk";
+import { GunlukIslemleri } from "./islemler";
 
 /** Geriye dönük görüntüleme: tarih aralığı + taşeron (+ üstteki şantiye) süzgeci. */
 export default async function Gunlukler({ searchParams }: PageProps<"/gunluk">) {
   const o = await yetkiIste("gunluk");
   const sp = await searchParams;
+  const bildirim =
+    sp.kayit ? { sinif: "bg-yesil text-white", yazi: "✓ Günlük düzeltildi" }
+    : sp.silindi ? { sinif: "bg-yesil text-white", yazi: "✓ Günlük silindi" }
+    : sp.yetki ? { sinif: "bg-kirmizi text-white", yazi: "Bu günlüğü değiştirme yetkiniz yok. Kaydı giren 24 saat içinde, merkez her zaman değiştirebilir." }
+    : null;
   const bas = tarihMi(sp.bas) ? sp.bas : undefined;
   const bit = tarihMi(sp.bit) ? sp.bit : undefined;
   const taseron = uuidMi(sp.taseron) ? sp.taseron : undefined;
@@ -18,7 +25,7 @@ export default async function Gunlukler({ searchParams }: PageProps<"/gunluk">) 
 
   let sorgu = o.supabase
     .from("gunlukler")
-    .select("id, is_tarihi, kisi_sayisi, katlar, is_kalemleri, notu, fotograflar, olusturma, taseronlar(firma_adi), profiller(ad_soyad)")
+    .select("id, is_tarihi, kisi_sayisi, katlar, is_kalemleri, notu, fotograflar, olusturma, olusturan, guncelleme, taseronlar(firma_adi), profiller!gunlukler_olusturan_fkey(ad_soyad)")
     .eq("santiye_id", o.santiye.id)
     .order("is_tarihi", { ascending: false })
     .order("olusturma", { ascending: false })
@@ -40,6 +47,7 @@ export default async function Gunlukler({ searchParams }: PageProps<"/gunluk">) 
 
   return (
     <Sayfa baslik={`Günlükler · ${o.santiye.ad}`} genis>
+      {bildirim && <p className={`rounded-xl px-4 py-3 font-bold ${bildirim.sinif}`}>{bildirim.yazi}</p>}
       {o.yetki("gunluk", true) && (
         <Link href="/gunluk/yeni" className="flex min-h-16 items-center justify-center gap-2 rounded-2xl bg-vurgu text-xl font-bold text-black">
           <Plus className="size-7" strokeWidth={3} /> Yeni Günlük
@@ -86,7 +94,12 @@ export default async function Gunlukler({ searchParams }: PageProps<"/gunluk">) 
             {kayitlar.reduce((a, b) => a + b.kisi_sayisi, 0)} kişi · {kayitlar.length} kayıt
           </p>
           {kayitlar.map((g) => (
-            <GunlukKarti key={g.id} g={g} adresler={adresler} />
+            <GunlukKarti
+              key={g.id}
+              g={g}
+              adresler={adresler}
+              islemler={gunlukDegisebilir(o, { olusturan: g.olusturan!, olusturma: g.olusturma }) ? <GunlukIslemleri id={g.id} /> : undefined}
+            />
           ))}
         </section>
       ))}
@@ -96,7 +109,11 @@ export default async function Gunlukler({ searchParams }: PageProps<"/gunluk">) 
           <p className="mb-2 font-bold text-soluk">
             {liste.length} kayıt · toplam {liste.reduce((a, b) => a + b.kisi_sayisi, 0)} kişi-gün
           </p>
-          <GunlukTablosu liste={liste} adresler={adresler} />
+          <GunlukTablosu
+            liste={liste}
+            adresler={adresler}
+            islemler={(g) => (gunlukDegisebilir(o, { olusturan: g.olusturan!, olusturma: g.olusturma }) ? <GunlukIslemleri id={g.id} /> : null)}
+          />
         </div>
       )}
     </Sayfa>
