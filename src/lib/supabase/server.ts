@@ -27,7 +27,7 @@ export async function supabaseSunucu() {
  * doğrulandıktan sonra kullanılır (kullanıcı oluşturma, imzalı dosya adresi).
  */
 export function supabaseYonetici() {
-  const key = process.env.SUPABASE_SECRET_KEY;
+  const key = process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!key) throw new Error("SUPABASE_SECRET_KEY tanımlı değil");
   return createPlainClient(SUPABASE_URL, key, {
     auth: { persistSession: false, autoRefreshToken: false },
