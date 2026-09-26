@@ -8,13 +8,13 @@ import { sozlesmeEkle } from "../../eylemler";
 
 export function SozlesmeFormu({
   taseronId,
-  isTuru,
+  isTurleri,
   firmaId,
   santiyeler,
   seciliSantiye,
 }: {
   taseronId: string;
-  isTuru: string;
+  isTurleri: string[];
   firmaId: string;
   santiyeler: { id: string; ad: string }[];
   seciliSantiye?: string;
@@ -40,7 +40,7 @@ export function SozlesmeFormu({
         <Secim ad="santiye_id" zorunlu sutun={2} varsayilan={seciliSantiye} secenekler={santiyeler.map((s) => ({ deger: s.id, ad: s.ad }))} />
       </Alan>
       <Alan etiket="İşin tarifi" zorunlu>
-        <Metin name="is_tarifi" required maxLength={500} rows={3} defaultValue={isTuru === "Diğer" ? "" : `${isTuru} işleri`} />
+        <Metin name="is_tarifi" required maxLength={500} rows={3} defaultValue={isTurleri.filter((t) => t !== "Diğer").length ? `${isTurleri.filter((t) => t !== "Diğer").join(", ")} işleri` : ""} />
       </Alan>
 
       <Alan etiket="Süre" zorunlu>

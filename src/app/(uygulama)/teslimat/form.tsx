@@ -56,7 +56,7 @@ export function TeslimatFormu({
         )}
       </Alan>
       <Alan etiket="Araç" zorunlu>
-        <Secim ad="arac" zorunlu sutun={4} secenekler={ARACLAR.map((a) => ({ deger: a, ad: a }))} />
+        <Secim ad="arac" zorunlu sutun={3} secenekler={ARACLAR.map((a) => ({ deger: a, ad: a }))} />
       </Alan>
       <Alan etiket="Ürün" zorunlu>
         <Girdi name="urun" required maxLength={80} defaultValue={talep ? `${Number(talep.miktar).toLocaleString("tr-TR")} ${talep.birim} ${talep.urun}` : ""} />

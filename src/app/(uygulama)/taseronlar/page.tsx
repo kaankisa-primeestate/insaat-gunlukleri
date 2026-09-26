@@ -4,7 +4,7 @@ import { ChevronRight, Plus, CornerDownRight } from "lucide-react";
 import { oturum } from "@/lib/oturum";
 import { BuyukBag, Bos, GecikmeEtiketi, Sayfa } from "@/components/kabuk";
 
-type T = { id: string; firma_adi: string; is_turu: string; ust_taseron_id: string | null; aktif: boolean };
+type T = { id: string; firma_adi: string; is_turleri: string[]; ust_taseron_id: string | null; aktif: boolean };
 
 export default async function Taseronlar({ searchParams }: PageProps<"/taseronlar">) {
   const o = await oturum();
@@ -13,7 +13,7 @@ export default async function Taseronlar({ searchParams }: PageProps<"/taseronla
 
   // Varsayılan: seçili şantiyede çalışanlar. "Tümü" ile firmadaki bütün taşeronlar.
   const [{ data: tumu }, santiyede] = await Promise.all([
-    o.supabase.from("taseronlar").select("id, firma_adi, is_turu, ust_taseron_id, aktif").order("firma_adi"),
+    o.supabase.from("taseronlar").select("id, firma_adi, is_turleri, ust_taseron_id, aktif").order("firma_adi"),
     o.santiye ? o.supabase.rpc("santiye_taseronlari", { p_santiye: o.santiye.id }) : Promise.resolve({ data: [] }),
   ]);
   const gecikme = new Map(((santiyede.data ?? []) as { id: string; gecikme: number | null }[]).map((t) => [t.id, t.gecikme]));
@@ -81,7 +81,7 @@ function Satir({ t, gecikme }: { t: T; gecikme?: number | null }) {
       <div className="min-w-0 flex-1">
         <p className="text-lg font-bold break-words">{t.firma_adi}</p>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-soluk">{t.is_turu}</span>
+          <span className="text-soluk">{t.is_turleri.join(", ")}</span>
           <GecikmeEtiketi gun={gecikme} />
         </div>
       </div>

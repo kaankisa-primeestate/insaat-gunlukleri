@@ -11,9 +11,9 @@ export async function taseronKaydet(_: FormDurumu, form: FormData): Promise<Form
   const o = await oturum();
   const id = form.get("id");
   const firmaAdi = metin(form, "firma_adi", 120);
-  const isTuru = String(form.get("is_turu") ?? "");
+  const isTurleri = [...new Set(form.getAll("is_turleri").map(String))].filter((t) => IS_TURU_LISTESI.includes(t));
   if (!firmaAdi || firmaAdi.length < 2) return { hata: "Firma adı gerekli." };
-  if (!IS_TURU_LISTESI.includes(isTuru)) return { hata: "Yapacağı işi seçin." };
+  if (!isTurleri.length) return { hata: "Yapacağı en az bir işi seçin." };
 
   const iban = metin(form, "iban", 40)?.replace(/\s+/g, "").toUpperCase() ?? null;
   if (iban && !/^TR\d{24}$/.test(iban)) return { hata: "IBAN TR ile başlamalı ve 26 karakter olmalı." };
@@ -24,7 +24,7 @@ export async function taseronKaydet(_: FormDurumu, form: FormData): Promise<Form
     telefon: metin(form, "telefon", 20),
     vergi_no: metin(form, "vergi_no", 20),
     iban,
-    is_turu: isTuru,
+    is_turleri: isTurleri,
   };
 
   if (o.taseron) {

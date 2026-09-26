@@ -23,7 +23,7 @@ export default async function TaseronSayfasi({ params, searchParams }: PageProps
 
   const { data: t } = await o.supabase
     .from("taseronlar")
-    .select("id, firma_adi, yetkili, telefon, vergi_no, iban, is_turu, ust_taseron_id, alt_taseron_yetkisi, aktif")
+    .select("id, firma_adi, yetkili, telefon, vergi_no, iban, is_turleri, ust_taseron_id, alt_taseron_yetkisi, aktif")
     .eq("id", id)
     .maybeSingle();
   if (!t) notFound();
@@ -46,7 +46,9 @@ export default async function TaseronSayfasi({ params, searchParams }: PageProps
     >
       {sp.kayit && <p className="rounded-xl bg-yesil px-4 py-3 font-bold text-white">✓ Kaydedildi</p>}
       <div className="flex flex-wrap items-center gap-2">
-        <Etiket sinif="bg-koyu text-white">{t.is_turu}</Etiket>
+        {(t.is_turleri as string[]).map((tur) => (
+          <Etiket key={tur} sinif="bg-koyu text-white">{tur}</Etiket>
+        ))}
         {t.ust_taseron_id && <Etiket sinif="bg-yuzey border border-cizgi">Alt taşeron</Etiket>}
         {!t.aktif && <Etiket sinif="bg-gri text-white">Pasif</Etiket>}
       </div>
@@ -94,7 +96,7 @@ async function Bilgi({ o, t, kendisi }: { o: O; t: T; kendisi: boolean }) {
           .eq("taseron_id", t.id)
           .order("bitis_hesap")
       : Promise.resolve({ data: null }),
-    o.supabase.from("taseronlar").select("id, firma_adi, is_turu").eq("ust_taseron_id", t.id).order("firma_adi"),
+    o.supabase.from("taseronlar").select("id, firma_adi, is_turleri").eq("ust_taseron_id", t.id).order("firma_adi"),
     t.ust_taseron_id
       ? o.supabase.from("taseronlar").select("id, firma_adi").eq("id", t.ust_taseron_id).maybeSingle()
       : Promise.resolve({ data: null }),
@@ -128,6 +130,15 @@ async function Bilgi({ o, t, kendisi }: { o: O; t: T; kendisi: boolean }) {
           </>
         )}
       </dl>
+
+      {!o.taseron && o.yetki("taseronlar", true) && (
+        <Link
+          href={`/taseronlar/${t.id}/duzenle`}
+          className="flex min-h-14 items-center justify-center gap-2 rounded-2xl border-2 border-yazi text-lg font-bold"
+        >
+          <Pencil className="size-6" /> Bilgileri Düzenle
+        </Link>
+      )}
 
       {sozlesmeler && (
         <section className="flex flex-col gap-3">
@@ -190,7 +201,7 @@ async function Bilgi({ o, t, kendisi }: { o: O; t: T; kendisi: boolean }) {
           {(altlar ?? []).map((a) => (
             <Link key={a.id} href={`/taseronlar/${a.id}`} className="flex min-h-14 items-center gap-2 rounded-2xl border-2 border-cizgi px-3 font-bold">
               <CornerDownRight className="size-5 text-soluk" /> {a.firma_adi}
-              <span className="font-normal text-soluk">· {a.is_turu}</span>
+              <span className="font-normal text-soluk">· {(a.is_turleri as string[]).join(", ")}</span>
             </Link>
           ))}
           {altEkleyebilir && (

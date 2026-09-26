@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { Alan, Girdi, KaydetButonu, Liste, Mesaj, Secim } from "@/components/form";
+import { Alan, CokluSecim, Girdi, KaydetButonu, Liste, Mesaj } from "@/components/form";
 import { IS_TURU_LISTESI } from "@/lib/sabitler";
 import { taseronKaydet } from "./eylemler";
 
@@ -12,7 +12,7 @@ export type TaseronBilgi = {
   telefon?: string | null;
   vergi_no?: string | null;
   iban?: string | null;
-  is_turu?: string;
+  is_turleri?: string[];
   ust_taseron_id?: string | null;
   alt_taseron_yetkisi?: boolean;
 };
@@ -34,8 +34,8 @@ export function TaseronFormu({
       <Alan etiket="Firma adı" zorunlu>
         <Girdi name="firma_adi" required maxLength={120} defaultValue={deger.firma_adi} />
       </Alan>
-      <Alan etiket="Yapacağı iş" zorunlu>
-        <Secim ad="is_turu" zorunlu sutun={3} varsayilan={deger.is_turu} secenekler={IS_TURU_LISTESI.map((t) => ({ deger: t, ad: t }))} />
+      <Alan etiket="Yapacağı işler" zorunlu ipucu="Birden fazla seçebilirsiniz.">
+        <CokluSecim ad="is_turleri" sutun={3} varsayilan={deger.is_turleri} secenekler={IS_TURU_LISTESI.map((t) => ({ deger: t, ad: t }))} />
       </Alan>
       <Alan etiket="Yetkili kişi">
         <Girdi name="yetkili" maxLength={80} defaultValue={deger.yetkili ?? ""} autoComplete="off" />

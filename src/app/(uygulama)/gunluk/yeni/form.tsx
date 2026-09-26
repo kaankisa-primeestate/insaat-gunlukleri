@@ -4,7 +4,7 @@ import { useActionState, useState } from "react";
 import { Alan, Girdi, KaydetButonu, Mesaj, Metin, Secim, TarihSecici } from "@/components/form";
 import { FotoSecici } from "@/components/foto-secici";
 import { SayiSecici, TaseronSecici, type TaseronSecenek } from "@/components/secimler";
-import { IS_TURLERI } from "@/lib/sabitler";
+import { isKalemleri } from "@/lib/sabitler";
 import { gunlukKaydet } from "../eylemler";
 
 export function GunlukFormu({ firmaId, taseronlar, katlar }: { firmaId: string; taseronlar: TaseronSecenek[]; katlar: string[] }) {
@@ -13,7 +13,7 @@ export function GunlukFormu({ firmaId, taseronlar, katlar }: { firmaId: string; 
   const [id] = useState(() => crypto.randomUUID());
   const [taseron, setTaseron] = useState<TaseronSecenek | undefined>(taseronlar.length === 1 ? taseronlar[0] : undefined);
   const [kalem, setKalem] = useState("");
-  const kalemler = taseron ? (IS_TURLERI[taseron.is_turu] ?? []) : [];
+  const kalemler = taseron ? isKalemleri(taseron.is_turleri) : [];
 
   return (
     <form action={eylem} className="flex flex-col gap-6">

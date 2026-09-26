@@ -8,7 +8,7 @@ export default async function YeniSozlesme({ params, searchParams }: PageProps<"
   if (o.taseron || !o.yetki("taseronlar", true)) redirect("/?yetki=yok");
   const { id } = await params;
   const { yeni } = await searchParams;
-  const { data: t } = await o.supabase.from("taseronlar").select("id, firma_adi, is_turu").eq("id", id).maybeSingle();
+  const { data: t } = await o.supabase.from("taseronlar").select("id, firma_adi, is_turleri").eq("id", id).maybeSingle();
   if (!t) notFound();
   return (
     <Sayfa baslik="Sözleşme Ekle" geri={`/taseronlar/${id}`} geriAd={t.firma_adi}>
@@ -19,7 +19,7 @@ export default async function YeniSozlesme({ params, searchParams }: PageProps<"
       )}
       <SozlesmeFormu
         taseronId={t.id}
-        isTuru={t.is_turu}
+        isTurleri={t.is_turleri}
         firmaId={o.firma.id}
         santiyeler={o.santiyeler.map((s) => ({ id: s.id, ad: s.ad }))}
         seciliSantiye={o.santiye?.id}

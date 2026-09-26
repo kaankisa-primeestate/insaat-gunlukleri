@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Minus, Plus, AlertTriangle } from "lucide-react";
 
-export type TaseronSecenek = { id: string; firma_adi: string; is_turu: string; gecikme: number | null };
+export type TaseronSecenek = { id: string; firma_adi: string; is_turleri: string[]; gecikme: number | null };
 
 /** Taşeron seçimi: büyük düğmeler, zorunlu. Gecikmedeki taşeron kırmızı etiketli. */
 export function TaseronSecici({
@@ -37,7 +37,7 @@ export function TaseronSecici({
           />
           <span className="flex min-h-18 flex-col justify-center rounded-xl border-2 border-cizgi bg-yuzey px-3 py-2 peer-checked:border-yazi peer-checked:bg-koyu peer-checked:text-white peer-checked:ring-2 peer-checked:ring-yazi peer-focus-visible:outline-3 peer-focus-visible:outline-mavi">
             <span className="text-base leading-tight font-bold break-words">{t.firma_adi}</span>
-            <span className="text-sm opacity-80">{t.is_turu}</span>
+            <span className="text-sm opacity-80">{t.is_turleri.join(", ")}</span>
             {t.gecikme != null && t.gecikme <= 7 && (
               <span className="mt-1 inline-flex w-fit items-center gap-1 rounded-md bg-kirmizi px-1.5 text-xs font-bold text-white">
                 <AlertTriangle className="size-3" /> {t.gecikme < 0 ? "Gecikti" : "Süre doluyor"}

@@ -6,6 +6,7 @@ import { tarihMi, uuidMi } from "@/lib/denetim";
 import { Bos, Sayfa } from "@/components/kabuk";
 import type { TaseronSecenek } from "@/components/secimler";
 import { TeslimatFormu } from "./form";
+import { GunSecici } from "./gun-secici";
 import { teslimatSil } from "./eylemler";
 
 const SAATLER = Array.from({ length: 15 }, (_, i) => i + 6); // 06:00 – 20:00
@@ -38,30 +39,16 @@ export default async function Teslimat({ searchParams }: PageProps<"/teslimat">)
   const doluluk = new Map(((yogunluk ?? []) as { saat: number; adet: number }[]).map((y) => [y.saat, Number(y.adet)]));
   const ayrinti = (kendi ?? []) as unknown as { id: string; saat: number; arac: string; urun: string; taseronlar: { firma_adi: string } | null }[];
 
-  const gunler = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(b + "T12:00:00");
-    d.setDate(d.getDate() + i);
-    return d.toISOString().slice(0, 10);
-  });
-
   return (
     <Sayfa baslik={`Teslimat Takvimi · ${o.santiye.ad}`}>
       {sp.kayit && <p className="rounded-xl bg-yesil px-4 py-3 font-bold text-white">✓ Teslimat kaydedildi</p>}
 
-      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
-        {gunler.map((g) => (
-          <Link
-            key={g}
-            href={`/teslimat?tarih=${g}${yeni ? "&yeni=1" : ""}${talepId ? `&talep=${talepId}` : ""}`}
-            replace
-            className={`flex min-h-14 shrink-0 items-center rounded-xl border-2 px-3 font-bold ${g === tarih ? "border-yazi bg-koyu text-white" : "border-cizgi bg-yuzey"}`}
-          >
-            {g === b ? "Bugün" : kisaTarih(g)}
-          </Link>
-        ))}
-      </div>
+      <GunSecici tarih={tarih} bugun={b} ek={`${yeni ? "&yeni=1" : ""}${talepId ? `&talep=${talepId}` : ""}`} />
 
-      {o.yetki("teslimat", true) &&
+      {o.yetki("teslimat", true) && tarih < b && (
+        <p className="rounded-xl bg-yuzey px-4 py-3 text-soluk">Geçmiş güne teslimat girilmez; yalnızca görüntülenir.</p>
+      )}
+      {o.yetki("teslimat", true) && tarih >= b &&
         (yeni ? (
           <section className="flex flex-col gap-3 rounded-2xl border-2 border-yazi p-4">
             <h2 className="text-xl font-bold">Teslimat gir · {kisaTarih(tarih)}</h2>

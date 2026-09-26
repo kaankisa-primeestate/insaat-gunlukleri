@@ -43,6 +43,7 @@ export const IS_TURLERI: Record<string, string[]> = {
   "Duvar": ["Tuğla", "Bims", "Gazbeton", "Bölme"],
   "Sıva": ["İç sıva", "Dış sıva", "Kaba sıva", "Saten"],
   "Alçı": ["Alçı sıva", "Alçıpan", "Asma tavan", "Kartonpiyer"],
+  "Alçıpan": ["Bölme duvar", "Asma tavan", "Duvar kaplama", "Derz"],
   "Boya": ["Astar", "İç boya", "Dış boya", "Rötuş"],
   "Seramik": ["Zemin", "Duvar", "Islak hacim", "Balkon"],
   "Mermer": ["Merdiven", "Denizlik", "Tezgah", "Zemin", "Cephe"],
@@ -59,6 +60,11 @@ export const IS_TURLERI: Record<string, string[]> = {
   "Diğer": [],
 };
 export const IS_TURU_LISTESI = Object.keys(IS_TURLERI);
+
+/** Taşeronun yaptığı tüm işlerin kalemleri, tekrarsız. */
+export function isKalemleri(turler: string[]): string[] {
+  return [...new Set(turler.flatMap((t) => IS_TURLERI[t] ?? []))];
+}
 
 export const BIRIMLER = ["Adet", "Kamyon", "Ton", "Kg", "m³", "m²", "m", "Torba", "Paket", "Palet", "Rulo", "Litre"];
 export const ARACLAR = ["Kamyon", "Kamyonet", "Tır", "Mikser", "Pompa", "Vinç", "Panelvan", "Traktör"];
