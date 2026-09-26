@@ -61,11 +61,6 @@ export const IS_TURLERI: Record<string, string[]> = {
 };
 export const IS_TURU_LISTESI = Object.keys(IS_TURLERI);
 
-/** Taşeronun yaptığı tüm işlerin kalemleri, tekrarsız. */
-export function isKalemleri(turler: string[]): string[] {
-  return [...new Set(turler.flatMap((t) => IS_TURLERI[t] ?? []))];
-}
-
 export const BIRIMLER = ["Adet", "Kamyon", "Ton", "Kg", "m³", "m²", "m", "Torba", "Paket", "Palet", "Rulo", "Litre"];
 export const ARACLAR = ["Kamyon", "Kamyonet", "Tır", "Mikser", "Pompa", "Vinç", "Panelvan", "Traktör"];
 

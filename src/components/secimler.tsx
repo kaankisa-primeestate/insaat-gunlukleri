@@ -2,10 +2,33 @@
 
 import { useState } from "react";
 import { Minus, Plus, AlertTriangle } from "lucide-react";
+import { SecimPenceresi, type PencereSecenegi } from "./secim-penceresi";
 
 export type TaseronSecenek = { id: string; firma_adi: string; is_turleri: string[]; gecikme: number | null };
 
-/** Taşeron seçimi: büyük düğmeler, zorunlu. Gecikmedeki taşeron kırmızı etiketli. */
+function gecikmeEtiketi(g: number | null) {
+  if (g == null || g > 7) return undefined;
+  return (
+    <span className="mt-1 inline-flex w-fit items-center gap-1 rounded-md bg-kirmizi px-1.5 text-xs font-bold text-white">
+      <AlertTriangle className="size-3" /> {g < 0 ? "Gecikti" : "Süre doluyor"}
+    </span>
+  );
+}
+
+export function taseronSecenekleri(taseronlar: TaseronSecenek[], grup?: string, onEk = ""): PencereSecenegi[] {
+  return taseronlar.map((t) => ({
+    deger: onEk + t.id,
+    ad: t.firma_adi,
+    alt: t.is_turleri.join(", "),
+    grup,
+    etiket: gecikmeEtiketi(t.gecikme),
+  }));
+}
+
+/**
+ * Taşeron seçimi (zorunlu): dokununca açılan pencereden. Gecikmedeki taşeron
+ * kırmızı etiketli. Tek taşeron varsa kendiliğinden seçilir.
+ */
 export function TaseronSecici({
   taseronlar,
   varsayilan,
@@ -13,7 +36,7 @@ export function TaseronSecici({
 }: {
   taseronlar: TaseronSecenek[];
   varsayilan?: string;
-  onChange?: (t: TaseronSecenek) => void;
+  onChange?: (t: TaseronSecenek | undefined) => void;
 }) {
   if (taseronlar.length === 0) {
     return (
@@ -22,31 +45,17 @@ export function TaseronSecici({
       </p>
     );
   }
+  const ilk = varsayilan ?? (taseronlar.length === 1 ? taseronlar[0].id : undefined);
   return (
-    <div className="grid grid-cols-2 gap-2">
-      {taseronlar.map((t) => (
-        <label key={t.id} className="min-w-0 cursor-pointer">
-          <input
-            type="radio"
-            name="taseron_id"
-            value={t.id}
-            required
-            defaultChecked={varsayilan === t.id || taseronlar.length === 1}
-            onChange={() => onChange?.(t)}
-            className="peer sr-only"
-          />
-          <span className="flex min-h-18 flex-col justify-center rounded-xl border-2 border-cizgi bg-yuzey px-3 py-2 peer-checked:border-yazi peer-checked:bg-koyu peer-checked:text-white peer-checked:ring-2 peer-checked:ring-yazi peer-focus-visible:outline-3 peer-focus-visible:outline-mavi">
-            <span className="text-base leading-tight font-bold break-words">{t.firma_adi}</span>
-            <span className="text-sm opacity-80">{t.is_turleri.join(", ")}</span>
-            {t.gecikme != null && t.gecikme <= 7 && (
-              <span className="mt-1 inline-flex w-fit items-center gap-1 rounded-md bg-kirmizi px-1.5 text-xs font-bold text-white">
-                <AlertTriangle className="size-3" /> {t.gecikme < 0 ? "Gecikti" : "Süre doluyor"}
-              </span>
-            )}
-          </span>
-        </label>
-      ))}
-    </div>
+    <SecimPenceresi
+      ad="taseron_id"
+      baslik="Taşeron seçin"
+      zorunlu
+      bosYazi="Taşeron seçmek için dokunun"
+      varsayilan={ilk ? [ilk] : []}
+      secenekler={taseronSecenekleri(taseronlar)}
+      onChange={(d) => onChange?.(taseronlar.find((t) => t.id === d[0]))}
+    />
   );
 }
 

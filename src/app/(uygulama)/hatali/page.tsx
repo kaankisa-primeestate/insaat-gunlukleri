@@ -17,7 +17,7 @@ export default async function HataliIsler({ searchParams }: PageProps<"/hatali">
 
   let sorgu = o.supabase
     .from("hatali_isler")
-    .select("id, is_tarihi, aciklama, kat, onem, durum, fotograflar, taseronlar(firma_adi)")
+    .select("id, is_tarihi, aciklama, kat, onem, durum, fotograflar, taseronlar(firma_adi), sorumlu:profiller!hatali_isler_sorumlu_kullanici_id_fkey(ad_soyad)")
     .eq("santiye_id", o.santiye.id)
     .order("is_tarihi", { ascending: false })
     .limit(300);

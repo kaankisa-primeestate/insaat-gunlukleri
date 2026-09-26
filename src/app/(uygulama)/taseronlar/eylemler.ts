@@ -18,10 +18,17 @@ export async function taseronKaydet(_: FormDurumu, form: FormData): Promise<Form
   const iban = metin(form, "iban", 40)?.replace(/\s+/g, "").toUpperCase() ?? null;
   if (iban && !/^TR\d{24}$/.test(iban)) return { hata: "IBAN TR ile başlamalı ve 26 karakter olmalı." };
 
+  // Yetkili satırları ad ve telefon olarak eşleşir; ikisi de boş satır atılır.
+  const adlar = form.getAll("yetkili_ad").map((x) => String(x).trim().slice(0, 80));
+  const teller = form.getAll("yetkili_tel").map((x) => String(x).trim().slice(0, 20));
+  const yetkililer = adlar
+    .map((ad, i) => ({ ad, telefon: teller[i] ?? "" }))
+    .filter((y) => y.ad || y.telefon)
+    .slice(0, 10);
+
   const kayit: Record<string, unknown> = {
     firma_adi: firmaAdi,
-    yetkili: metin(form, "yetkili", 80),
-    telefon: metin(form, "telefon", 20),
+    yetkililer,
     vergi_no: metin(form, "vergi_no", 20),
     iban,
     is_turleri: isTurleri,

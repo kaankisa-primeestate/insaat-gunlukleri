@@ -5,6 +5,7 @@ import { Sayfa } from "@/components/kabuk";
 import { YetkiMatrisi } from "@/components/yetki-matrisi";
 import { kullaniciDurum, santiyeAta } from "../../eylemler";
 import { SifreFormu } from "./sifre";
+import { SecimPenceresi } from "@/components/secim-penceresi";
 
 export default async function Kullanici({ params, searchParams }: PageProps<"/yonetim/kullanicilar/[id]">) {
   const o = await merkezIste();
@@ -52,12 +53,14 @@ export default async function Kullanici({ params, searchParams }: PageProps<"/yo
           <h2 className="text-xl font-bold">Sorumlu olduğu şantiyeler</h2>
           <form action={santiyeAta} className="flex flex-col gap-2">
             <input type="hidden" name="id" value={k.id} />
-            {o.santiyeler.map((s) => (
-              <label key={s.id} className="flex min-h-14 items-center gap-3 rounded-xl border-2 border-cizgi bg-yuzey px-4 text-lg font-semibold">
-                <input type="checkbox" name="santiye" value={s.id} defaultChecked={atananlar.has(s.id)} className="size-7 accent-yesil" />
-                {s.ad}
-              </label>
-            ))}
+            <SecimPenceresi
+              ad="santiye"
+              baslik="Sorumlu olduğu şantiyeler"
+              coklu
+              bosYazi="Şantiye seçmek için dokunun"
+              varsayilan={[...atananlar]}
+              secenekler={o.santiyeler.map((s) => ({ deger: s.id, ad: s.ad }))}
+            />
             <button className="min-h-14 rounded-2xl bg-koyu text-lg font-bold text-white">Şantiyeleri Kaydet</button>
           </form>
         </section>

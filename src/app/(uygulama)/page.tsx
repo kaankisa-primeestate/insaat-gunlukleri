@@ -3,7 +3,6 @@ import {
   AlertTriangle,
   BookOpen,
   ClipboardList,
-  HardHat,
   LogOut,
   Package,
   Plus,
@@ -13,7 +12,7 @@ import {
   Building2,
 } from "lucide-react";
 import { oturum } from "@/lib/oturum";
-import { bugun, ROL_ADI } from "@/lib/sabitler";
+import { bugun } from "@/lib/sabitler";
 import { cikisYap } from "@/app/giris/eylem";
 import { KameraDugmesi } from "@/components/kamera-dugmesi";
 import { SantiyeSecici } from "@/components/santiye-secici";
@@ -47,33 +46,28 @@ export default async function AnaSayfa({ searchParams }: PageProps<"/">) {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4 px-4 pt-3 pb-16">
-      <header className="flex items-center gap-3">
-        <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-vurgu">
-          <HardHat className="size-7 text-black" strokeWidth={2.4} />
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-lg leading-tight font-extrabold">{o.profil.ad_soyad}</p>
-          <p className="truncate text-sm text-soluk">
-            {ROL_ADI[o.profil.rol]} · {o.firma.ad}
-          </p>
-        </div>
-        <form action={cikisYap}>
-          <button
-            type="submit"
-            className="flex min-h-12 min-w-12 flex-col items-center justify-center rounded-xl text-xs font-semibold text-soluk active:bg-yuzey"
-          >
-            <LogOut className="size-6" />
-            Çıkış
-          </button>
-        </form>
-      </header>
 
       {yetkiUyarisi === "yok" && (
         <p className="rounded-xl bg-kirmizi px-4 py-3 font-semibold text-white">Bu sayfayı görme yetkiniz yok.</p>
       )}
       {kayit && <p className="rounded-xl bg-yesil px-4 py-3 text-lg font-bold text-white">✓ Kaydedildi</p>}
 
-      <SantiyeSecici santiyeler={o.santiyeler} secili={s?.id} />
+      {/* Kim olduğu ve rolü girişte belli; üstte yalnızca şantiye ve çıkış kalır. */}
+      <div className="flex items-center gap-2">
+        <div className="min-w-0 flex-1">
+          <SantiyeSecici santiyeler={o.santiyeler} secili={s?.id} />
+        </div>
+        <form action={cikisYap}>
+          <button
+            type="submit"
+            aria-label={`Çıkış (${o.profil.ad_soyad})`}
+            className="flex min-h-14 min-w-14 flex-col items-center justify-center rounded-xl text-xs font-semibold text-soluk active:bg-yuzey"
+          >
+            <LogOut className="size-6" />
+            Çıkış
+          </button>
+        </form>
+      </div>
 
       {!s && (
         <div className="rounded-2xl bg-yuzey p-5 text-center">

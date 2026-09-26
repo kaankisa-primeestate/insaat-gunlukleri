@@ -2,7 +2,8 @@
 
 import { useActionState, useState } from "react";
 import { TriangleAlert } from "lucide-react";
-import { Alan, Form, Girdi, KaydetButonu, Mesaj, Metin, Secim } from "@/components/form";
+import { Alan, Form, Girdi, KaydetButonu, Mesaj, Metin } from "@/components/form";
+import { SecimPenceresi } from "@/components/secim-penceresi";
 import { BelgeYukleyici } from "@/components/belge-yukleyici";
 import { bugun, tarihYaz } from "@/lib/sabitler";
 import { sozlesmeKaydet } from "../../eylemler";
@@ -81,11 +82,12 @@ export function SozlesmeFormu({
       <input type="hidden" name="taseron_id" value={taseronId} />
       {deger && <input type="hidden" name="id" value={deger.id} />}
       <Alan etiket="Şantiye" zorunlu>
-        <Secim
+        <SecimPenceresi
           ad="santiye_id"
+          baslik="Şantiye"
           zorunlu
-          sutun={2}
-          varsayilan={deger?.santiye_id ?? seciliSantiye}
+          bosYazi="Şantiye seçmek için dokunun"
+          varsayilan={[deger?.santiye_id ?? seciliSantiye].filter(Boolean) as string[]}
           secenekler={santiyeler.map((s) => ({ deger: s.id, ad: s.ad }))}
         />
       </Alan>
@@ -141,20 +143,22 @@ export function SozlesmeFormu({
                 />
               </label>
             </div>
-            <div className="grid grid-cols-3 gap-2">
-              {[
+            {/* Hazır süreler: seçilince gün kutusunu doldurur, forma ayrıca gitmez. */}
+            <SecimPenceresi
+              ad=""
+              baslik="Hazır süre"
+              sutun={3}
+              bosYazi="Hazır süre seç (1 ay, 3 ay…)"
+              secenekler={[
                 [30, "1 ay"],
                 [60, "2 ay"],
                 [90, "3 ay"],
                 [120, "4 ay"],
                 [180, "6 ay"],
                 [365, "1 yıl"],
-              ].map(([g, ad]) => (
-                <button key={g} type="button" onClick={() => setSure(String(g))} className={secenekDugmesi(Number(sure) === g)}>
-                  {ad}
-                </button>
-              ))}
-            </div>
+              ].map(([g, ad]) => ({ deger: String(g), ad: String(ad), alt: `${g} gün` }))}
+              onChange={(d) => d[0] && setSure(d[0])}
+            />
           </div>
         )}
         {hesap && kalan != null && (

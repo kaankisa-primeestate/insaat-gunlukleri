@@ -1,7 +1,8 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Alan, Form, Girdi, KaydetButonu, Liste, Mesaj, Secim } from "@/components/form";
+import { Alan, Form, Girdi, KaydetButonu, Mesaj } from "@/components/form";
+import { SecimPenceresi } from "@/components/secim-penceresi";
 import { ROL_ADI, type Rol } from "@/lib/sabitler";
 import { kullaniciEkle } from "../../eylemler";
 
@@ -22,29 +23,28 @@ export function KullaniciFormu({
   return (
     <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-5">
       <Alan etiket="Rol" zorunlu>
-        <Secim
+        <SecimPenceresi
           ad="rol"
-          sutun={2}
+          baslik="Rol"
           zorunlu
-          varsayilan={rol}
-          onChange={(r) => setRol(r as Rol)}
+          sutun={1}
+          bosYazi="Rol seçmek için dokunun"
+          varsayilan={rol ? [rol] : []}
+          onChange={(d) => setRol(d[0] as Rol | undefined)}
           secenekler={ROLLER.map((r) => ({ deger: r, ad: ROL_ADI[r] }))}
         />
       </Alan>
 
       {rol === "taseron" && (
         <Alan etiket="Taşeron firması" zorunlu>
-          <Liste name="taseron_id" required defaultValue={taseronId ?? ""}>
-            <option value="" disabled>
-              Seçin…
-            </option>
-            {taseronlar.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.firma_adi}
-                {t.ust_taseron_id ? " (alt taşeron)" : ""}
-              </option>
-            ))}
-          </Liste>
+          <SecimPenceresi
+            ad="taseron_id"
+            baslik="Taşeron firması"
+            zorunlu
+            bosYazi="Taşeron seçmek için dokunun"
+            varsayilan={taseronId ? [taseronId] : []}
+            secenekler={taseronlar.map((t) => ({ deger: t.id, ad: t.firma_adi, alt: t.ust_taseron_id ? "Alt taşeron" : undefined }))}
+          />
         </Alan>
       )}
 
@@ -61,20 +61,20 @@ export function KullaniciFormu({
         <Girdi name="sifre" required minLength={6} autoComplete="new-password" />
       </Alan>
 
-      {rol && rol !== "taseron" && rol !== "merkez" && (
-        <Alan
-          etiket="Şantiyeler"
-          ipucu={rol === "sef" ? "Şef yalnızca işaretlenen şantiyeleri görür." : "Merkez personeli ve satın alma tüm şantiyeleri görür."}
-        >
-          <div className="flex flex-col gap-2">
-            {santiyeler.map((s) => (
-              <label key={s.id} className="flex min-h-14 items-center gap-3 rounded-xl border-2 border-cizgi bg-yuzey px-4 text-lg font-semibold">
-                <input type="checkbox" name="santiye" value={s.id} className="size-7 accent-yesil" />
-                {s.ad}
-              </label>
-            ))}
-          </div>
+      {rol === "sef" && (
+        <Alan etiket="Şantiyeler" zorunlu ipucu="Şef yalnızca seçilen şantiyeleri görür.">
+          <SecimPenceresi
+            ad="santiye"
+            baslik="Sorumlu olduğu şantiyeler"
+            coklu
+            zorunlu
+            bosYazi="Şantiye seçmek için dokunun"
+            secenekler={santiyeler.map((s) => ({ deger: s.id, ad: s.ad }))}
+          />
         </Alan>
+      )}
+      {(rol === "personel" || rol === "satinalma") && (
+        <p className="rounded-xl bg-yuzey px-4 py-3 text-soluk">Bu rol tüm şantiyeleri görür; şantiye seçimi gerekmez.</p>
       )}
 
       <Mesaj durum={durum} />

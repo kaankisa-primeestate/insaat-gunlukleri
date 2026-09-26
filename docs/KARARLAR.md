@@ -46,3 +46,18 @@
   istenirse `sozlesmeKaydet` içindeki onay adımı kaldırılır.
 - **Taşeron silme yalnızca hiç kaydı yoksa** (günlük, hata, talep, teslimat,
   alt taşeron, giriş hesabı). Kaydı olan pasife alınır; geçmiş kaybolmaz.
+
+## Saha kullanımı (pilot geri bildirimi, 2. tur)
+
+- **Hatalı iş kişiye de yazılabilir** (kalfa, şef, merkez personeli).
+  Anayasadaki "taşeron seçilmeden kayıt oluşmaz" kuralı kullanıcı isteğiyle
+  "taşeron ya da kişi, biri zorunlu" oldu. Kişiye yazılan işi taşeronlar
+  görmez; kişi kendi işini "Onaylandı" yapamaz, onayı başkası verir.
+- **Günlükte birden çok kat ve birden çok iş** seçilir. İşler taşeronun iş
+  türlerine göre başlıklı; kayıtta "Sıva: Kaba sıva" biçiminde durur.
+- **Taşeronda birden çok yetkili** (ad + telefon), en çok 10.
+- **Uzun seçim listeleri sayfada açık durmaz**: alanda seçilen görünür,
+  dokununca alttan pencere açılır, "Tamam" ile kapanır
+  (`SecimPenceresi`). 2–3 seçenekli, tek dokunuşluk alanlar (önem derecesi,
+  Bugün/Dün, kişi sayısı eksi/artı) bilerek sayfada bırakıldı.
+- **Ana sayfada isim/rol kutusu yok**; üstte yalnızca şantiye seçici ve çıkış.

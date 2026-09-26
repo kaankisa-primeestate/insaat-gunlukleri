@@ -7,8 +7,8 @@ export type Gunluk = {
   id: string;
   is_tarihi: string;
   kisi_sayisi: number;
-  kat: string | null;
-  is_kalemi: string | null;
+  katlar: string[];
+  is_kalemleri: string[];
   notu: string | null;
   fotograflar: string[];
   olusturma: string;
@@ -25,6 +25,8 @@ export type Hata = {
   durum: HataDurum;
   fotograflar: string[];
   taseronlar?: { firma_adi: string } | null;
+  /** Hatalı iş bir kullanıcıya (kalfa, şef) yazıldıysa. */
+  sorumlu?: { ad_soyad: string } | null;
 };
 
 export type Talep = {
@@ -69,8 +71,8 @@ export function GunlukKarti({ g, adresler, taseronGoster = true }: { g: Gunluk; 
       </div>
       <div className="flex flex-wrap gap-x-4 gap-y-1 text-base">
         <span className="flex items-center gap-1"><Users className="size-5" /> {g.kisi_sayisi} kişi</span>
-        {g.kat && <span className="flex items-center gap-1"><Layers className="size-5" /> {g.kat}</span>}
-        {g.is_kalemi && <span className="font-semibold">{g.is_kalemi}</span>}
+        {g.katlar.length > 0 && <span className="flex items-center gap-1"><Layers className="size-5" /> {g.katlar.join(", ")}</span>}
+        {g.is_kalemleri.length > 0 && <span className="font-semibold">{g.is_kalemleri.join(", ")}</span>}
       </div>
       {g.notu && <p className="text-soluk">{g.notu}</p>}
       <Fotolar yollar={g.fotograflar} adresler={adresler} />
@@ -98,7 +100,7 @@ export function HataKarti({ h, adresler, taseronGoster = true }: { h: Hata; adre
         <p className="font-bold break-words">{h.aciklama}</p>
         <p className="text-sm text-soluk">
           {kisaTarih(h.is_tarihi)}
-          {taseronGoster && h.taseronlar ? ` · ${h.taseronlar.firma_adi}` : ""}
+          {taseronGoster && (h.taseronlar ?? h.sorumlu) ? ` · ${h.taseronlar?.firma_adi ?? h.sorumlu?.ad_soyad}` : ""}
           {h.kat ? ` · ${h.kat}` : ""}
         </p>
       </div>

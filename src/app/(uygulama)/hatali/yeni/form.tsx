@@ -3,11 +3,22 @@
 import { useActionState, useState } from "react";
 import { Alan, Form, KaydetButonu, Mesaj, Metin, Secim, TarihSecici } from "@/components/form";
 import { FotoSecici } from "@/components/foto-secici";
-import { TaseronSecici, type TaseronSecenek } from "@/components/secimler";
-import { ONEM } from "@/lib/sabitler";
+import { SecimPenceresi } from "@/components/secim-penceresi";
+import { taseronSecenekleri, type TaseronSecenek } from "@/components/secimler";
+import { ONEM, ROL_ADI, type Rol } from "@/lib/sabitler";
 import { hataKaydet } from "../eylemler";
 
-export function HataFormu({ firmaId, taseronlar, katlar }: { firmaId: string; taseronlar: TaseronSecenek[]; katlar: string[] }) {
+export function HataFormu({
+  firmaId,
+  taseronlar,
+  personel,
+  katlar,
+}: {
+  firmaId: string;
+  taseronlar: TaseronSecenek[];
+  personel: { id: string; ad_soyad: string; rol: Rol }[];
+  katlar: string[];
+}) {
   const [durum, eylem, bekliyor] = useActionState(hataKaydet, undefined);
   const [id] = useState(() => crypto.randomUUID());
   return (
@@ -16,8 +27,18 @@ export function HataFormu({ firmaId, taseronlar, katlar }: { firmaId: string; ta
       <Alan etiket="Fotoğraf" zorunlu>
         <FotoSecici firmaId={firmaId} klasor="hatali" zorunlu />
       </Alan>
-      <Alan etiket="Taşeron" zorunlu>
-        <TaseronSecici taseronlar={taseronlar} />
+      <Alan etiket="Kimin işi?" zorunlu ipucu="Bir taşeron ya da bir kişi (kalfa, şef…) seçin.">
+        {/* Değer "t:" ile taşeron, "k:" ile kullanıcı kimliği taşır. */}
+        <SecimPenceresi
+          ad="sorumlu"
+          baslik="Kimin işi?"
+          zorunlu
+          bosYazi="Taşeron ya da kişi seçmek için dokunun"
+          secenekler={[
+            ...taseronSecenekleri(taseronlar, "Taşeronlar", "t:"),
+            ...personel.map((p) => ({ deger: "k:" + p.id, ad: p.ad_soyad, alt: ROL_ADI[p.rol], grup: "Personel" })),
+          ]}
+        />
       </Alan>
       <Alan etiket="Önem derecesi" zorunlu>
         <Secim
@@ -39,7 +60,7 @@ export function HataFormu({ firmaId, taseronlar, katlar }: { firmaId: string; ta
         <TarihSecici />
       </Alan>
       <Alan etiket="Kat">
-        <Secim ad="kat" sutun={4} secenekler={katlar.map((k) => ({ deger: k, ad: k }))} />
+        <SecimPenceresi ad="kat" baslik="Hangi kat?" sutun={3} bosYazi="Kat seçmek için dokunun" secenekler={katlar.map((k) => ({ deger: k, ad: k }))} />
       </Alan>
       <Mesaj durum={durum} />
       <div className="sticky bottom-3">

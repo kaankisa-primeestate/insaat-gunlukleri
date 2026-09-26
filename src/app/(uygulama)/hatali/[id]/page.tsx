@@ -12,7 +12,7 @@ export default async function HataDetay({ params }: PageProps<"/hatali/[id]">) {
   const { id } = await params;
   const { data: h } = await o.supabase
     .from("hatali_isler")
-    .select("id, is_tarihi, aciklama, kat, onem, durum, fotograflar, olusturma, taseron_id, taseronlar(firma_adi), santiyeler(ad), profiller(ad_soyad)")
+    .select("id, is_tarihi, aciklama, kat, onem, durum, fotograflar, olusturma, taseron_id, taseronlar(firma_adi), santiyeler(ad), bildiren:profiller!hatali_isler_olusturan_fkey(ad_soyad), sorumlu:profiller!hatali_isler_sorumlu_kullanici_id_fkey(ad_soyad)")
     .eq("id", id)
     .maybeSingle();
   if (!h) notFound();
@@ -31,7 +31,8 @@ export default async function HataDetay({ params }: PageProps<"/hatali/[id]">) {
   const adresler = await imzala(h.fotograflar);
   const taseron = h.taseronlar as unknown as { firma_adi: string } | null;
   const santiye = h.santiyeler as unknown as { ad: string } | null;
-  const bildiren = h.profiller as unknown as { ad_soyad: string } | null;
+  const bildiren = h.bildiren as unknown as { ad_soyad: string } | null;
+  const sorumlu = h.sorumlu as unknown as { ad_soyad: string } | null;
 
   return (
     <Sayfa baslik="Hatalı İş" geri="/hatali" geriAd="Hatalı İşler">
@@ -42,10 +43,19 @@ export default async function HataDetay({ params }: PageProps<"/hatali/[id]">) {
       <p className="text-xl font-bold break-words">{h.aciklama}</p>
       <Fotolar yollar={h.fotograflar} adresler={adresler} />
       <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 rounded-2xl bg-yuzey p-4">
-        <dt className="font-bold">Taşeron</dt>
-        <dd>
-          {o.taseron ? taseron?.firma_adi : <Link href={`/taseronlar/${h.taseron_id}`} className="underline">{taseron?.firma_adi}</Link>}
-        </dd>
+        {h.taseron_id ? (
+          <>
+            <dt className="font-bold">Taşeron</dt>
+            <dd>
+              {o.taseron ? taseron?.firma_adi : <Link href={`/taseronlar/${h.taseron_id}`} className="underline">{taseron?.firma_adi}</Link>}
+            </dd>
+          </>
+        ) : (
+          <>
+            <dt className="font-bold">Sorumlu</dt>
+            <dd>{sorumlu?.ad_soyad}</dd>
+          </>
+        )}
         <dt className="font-bold">Şantiye</dt>
         <dd>{santiye?.ad}</dd>
         <dt className="font-bold">Tarih</dt>

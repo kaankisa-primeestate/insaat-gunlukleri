@@ -14,7 +14,8 @@ export async function talepKaydet(_: FormDurumu, form: FormData): Promise<FormDu
 
   const id = form.get("id");
   const taseronId = form.get("taseron_id");
-  const urun = metin(form, "urun", 80);
+  const secim = metin(form, "urun_secim", 80);
+  const urun = secim === "Diğer" ? metin(form, "urun_diger", 80) : secim;
   const miktar = Number(String(form.get("miktar") ?? "").replace(",", "."));
   const birim = String(form.get("birim") ?? "");
   if (!uuidMi(taseronId)) return { hata: "Hangi taşeron için olduğunu seçin." };

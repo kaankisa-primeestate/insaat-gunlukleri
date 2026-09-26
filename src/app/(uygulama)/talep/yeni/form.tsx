@@ -1,7 +1,8 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Alan, Form, Girdi, KaydetButonu, Mesaj, Metin, Secim } from "@/components/form";
+import { Alan, Form, Girdi, KaydetButonu, Mesaj, Metin } from "@/components/form";
+import { SecimPenceresi } from "@/components/secim-penceresi";
 import { TaseronSecici, type TaseronSecenek } from "@/components/secimler";
 import { BIRIMLER } from "@/lib/sabitler";
 import { talepKaydet } from "../eylemler";
@@ -11,7 +12,7 @@ const SIK_URUNLER = ["Kum", "Çakıl", "Çimento", "Hazır beton", "İnşaat dem
 export function TalepFormu({ taseronlar }: { taseronlar: TaseronSecenek[] }) {
   const [durum, eylem, bekliyor] = useActionState(talepKaydet, undefined);
   const [id] = useState(() => crypto.randomUUID());
-  const [urun, setUrun] = useState("");
+  const [diger, setDiger] = useState(false);
   return (
     <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-6">
       <input type="hidden" name="id" value={id} />
@@ -19,25 +20,21 @@ export function TalepFormu({ taseronlar }: { taseronlar: TaseronSecenek[] }) {
         <TaseronSecici taseronlar={taseronlar} />
       </Alan>
       <Alan etiket="Ürün" zorunlu>
-        <div className="flex flex-wrap gap-2">
-          {SIK_URUNLER.map((u) => (
-            <button
-              key={u}
-              type="button"
-              onClick={() => setUrun(u)}
-              className={`min-h-12 rounded-xl border-2 px-3 font-semibold ${urun === u ? "border-yazi bg-koyu text-white" : "border-cizgi bg-yuzey"}`}
-            >
-              {u}
-            </button>
-          ))}
-        </div>
-        <Girdi name="urun" required maxLength={80} value={urun} onChange={(e) => setUrun(e.target.value)} placeholder="veya yazın" />
+        <SecimPenceresi
+          ad="urun_secim"
+          baslik="Ürün"
+          zorunlu
+          bosYazi="Ürün seçmek için dokunun"
+          secenekler={[...SIK_URUNLER, "Diğer"].map((u) => ({ deger: u, ad: u === "Diğer" ? "Diğer (yazarak)" : u }))}
+          onChange={(d) => setDiger(d[0] === "Diğer")}
+        />
+        {diger && <Girdi name="urun_diger" required maxLength={80} placeholder="Ürünü yazın" autoFocus />}
       </Alan>
       <Alan etiket="Miktar" zorunlu>
         <Girdi name="miktar" type="number" inputMode="decimal" step="any" min="0" required className="text-2xl font-bold" />
       </Alan>
       <Alan etiket="Birim" zorunlu>
-        <Secim ad="birim" zorunlu sutun={4} varsayilan="Adet" secenekler={BIRIMLER.map((b) => ({ deger: b, ad: b }))} />
+        <SecimPenceresi ad="birim" baslik="Birim" zorunlu sutun={3} varsayilan={["Adet"]} secenekler={BIRIMLER.map((b) => ({ deger: b, ad: b }))} />
       </Alan>
       <Alan etiket="Not">
         <Metin name="notu" maxLength={300} placeholder="İsteğe bağlı: marka, ölçü, aciliyet" />

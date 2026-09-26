@@ -10,7 +10,7 @@ export default async function TaseronDuzenle({ params }: PageProps<"/taseronlar/
   const [{ data: t }, { data: anaTaseronlar }] = await Promise.all([
     o.supabase
       .from("taseronlar")
-      .select("id, firma_adi, yetkili, telefon, vergi_no, iban, is_turleri, ust_taseron_id, alt_taseron_yetkisi")
+      .select("id, firma_adi, yetkililer, vergi_no, iban, is_turleri, ust_taseron_id, alt_taseron_yetkisi")
       .eq("id", id)
       .maybeSingle(),
     o.supabase.from("taseronlar").select("id, firma_adi").is("ust_taseron_id", null).eq("aktif", true).order("firma_adi"),

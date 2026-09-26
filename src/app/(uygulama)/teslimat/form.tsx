@@ -1,7 +1,8 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Alan, Form, Girdi, KaydetButonu, Mesaj, Secim } from "@/components/form";
+import { Alan, Form, Girdi, KaydetButonu, Mesaj } from "@/components/form";
+import { SecimPenceresi } from "@/components/secim-penceresi";
 import { TaseronSecici, type TaseronSecenek } from "@/components/secimler";
 import { ARACLAR } from "@/lib/sabitler";
 import { teslimatKaydet } from "./eylemler";
@@ -31,24 +32,31 @@ export function TeslimatFormu({
         <TaseronSecici taseronlar={taseronlar} varsayilan={talep?.taseron_id} />
       </Alan>
       <Alan etiket="Saat" zorunlu>
-        <div className="grid grid-cols-4 gap-2">
-          {saatler.map((s) => {
+        <SecimPenceresi
+          ad="saat"
+          baslik={`Saat seçin`}
+          zorunlu
+          sutun={3}
+          bosYazi="Saat seçmek için dokunun"
+          onChange={(d) => setSaat(d[0] ? Number(d[0]) : null)}
+          secenekler={saatler.map((s) => {
             const n = doluluk[s] ?? 0;
-            return (
-              <label key={s} className="cursor-pointer">
-                <input type="radio" name="saat" value={s} required className="peer sr-only" onChange={() => setSaat(s)} />
+            return {
+              deger: String(s),
+              ad: `${String(s).padStart(2, "0")}:00`,
+              // Doluluk pencerede de görünür: boş saati seçmek kolaylaşsın.
+              etiket: (
                 <span
-                  className={`flex min-h-14 flex-col items-center justify-center rounded-xl border-2 font-bold peer-checked:ring-4 peer-checked:ring-yazi ${
-                    n === 0 ? "border-cizgi bg-yuzey" : n === 1 ? "border-sari bg-sari text-black" : "border-kirmizi bg-kirmizi text-white"
+                  className={`mt-1 w-fit rounded-md px-1.5 text-xs font-bold ${
+                    n === 0 ? "bg-yesil text-white" : n === 1 ? "bg-sari text-black" : "bg-kirmizi text-white"
                   }`}
                 >
-                  {String(s).padStart(2, "0")}:00
-                  {n > 0 && <span className="text-xs">{n} araç</span>}
+                  {n === 0 ? "Boş" : `${n} araç`}
                 </span>
-              </label>
-            );
+              ),
+            };
           })}
-        </div>
+        />
         {dolu > 0 && (
           <p className="rounded-xl bg-sari px-4 py-3 font-semibold text-black">
             Bu saatte {dolu} teslimat daha var. Mümkünse boş bir saat seçin.
@@ -56,7 +64,7 @@ export function TeslimatFormu({
         )}
       </Alan>
       <Alan etiket="Araç" zorunlu>
-        <Secim ad="arac" zorunlu sutun={3} secenekler={ARACLAR.map((a) => ({ deger: a, ad: a }))} />
+        <SecimPenceresi ad="arac" baslik="Araç" zorunlu sutun={2} bosYazi="Araç seçmek için dokunun" secenekler={ARACLAR.map((a) => ({ deger: a, ad: a }))} />
       </Alan>
       <Alan etiket="Ürün" zorunlu>
         <Girdi name="urun" required maxLength={80} defaultValue={talep ? `${Number(talep.miktar).toLocaleString("tr-TR")} ${talep.birim} ${talep.urun}` : ""} />

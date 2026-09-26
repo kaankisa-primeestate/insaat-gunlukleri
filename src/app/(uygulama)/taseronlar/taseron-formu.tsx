@@ -1,15 +1,18 @@
 "use client";
 
-import { useActionState } from "react";
-import { Alan, CokluSecim, Form, Girdi, KaydetButonu, Liste, Mesaj } from "@/components/form";
+import { useActionState, useState } from "react";
+import { Alan, Form, Girdi, KaydetButonu, Mesaj } from "@/components/form";
+import { SecimPenceresi } from "@/components/secim-penceresi";
+import { Plus, Trash2 } from "lucide-react";
 import { IS_TURU_LISTESI } from "@/lib/sabitler";
 import { taseronKaydet } from "./eylemler";
+
+export type Yetkili = { ad: string; telefon: string };
 
 export type TaseronBilgi = {
   id?: string;
   firma_adi?: string;
-  yetkili?: string | null;
-  telefon?: string | null;
+  yetkililer?: Yetkili[];
   vergi_no?: string | null;
   iban?: string | null;
   is_turleri?: string[];
@@ -35,13 +38,19 @@ export function TaseronFormu({
         <Girdi name="firma_adi" required maxLength={120} defaultValue={deger.firma_adi} />
       </Alan>
       <Alan etiket="Yapacağı işler" zorunlu ipucu="Birden fazla seçebilirsiniz.">
-        <CokluSecim ad="is_turleri" sutun={3} varsayilan={deger.is_turleri} secenekler={IS_TURU_LISTESI.map((t) => ({ deger: t, ad: t }))} />
+        <SecimPenceresi
+          ad="is_turleri"
+          baslik="Yapacağı işler"
+          coklu
+          zorunlu
+          sutun={2}
+          bosYazi="İş seçmek için dokunun"
+          varsayilan={deger.is_turleri}
+          secenekler={IS_TURU_LISTESI.map((t) => ({ deger: t, ad: t }))}
+        />
       </Alan>
-      <Alan etiket="Yetkili kişi">
-        <Girdi name="yetkili" maxLength={80} defaultValue={deger.yetkili ?? ""} autoComplete="off" />
-      </Alan>
-      <Alan etiket="Telefon">
-        <Girdi name="telefon" type="tel" inputMode="tel" maxLength={20} defaultValue={deger.telefon ?? ""} />
+      <Alan etiket="Yetkililer" ipucu="Aynı firmada birden fazla yetkili ve telefon girebilirsiniz.">
+        <Yetkililer baslangic={deger.yetkililer ?? []} />
       </Alan>
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Alan etiket="Vergi no">
@@ -55,16 +64,16 @@ export function TaseronFormu({
       {!altTaseronModu && (
         <>
           <Alan etiket="Ana taşeron" ipucu="Bu firma başka bir taşeronun alt taşeronuysa seçin. Ana taşeron alt taşeronunu görür, tersi olmaz.">
-            <Liste name="ust_taseron_id" defaultValue={deger.ust_taseron_id ?? ""}>
-              <option value="">Yok — doğrudan firmaya bağlı</option>
-              {anaTaseronlar
-                .filter((t) => t.id !== deger.id)
-                .map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.firma_adi}
-                  </option>
-                ))}
-            </Liste>
+            <SecimPenceresi
+              ad="ust_taseron_id"
+              baslik="Ana taşeron"
+              bosYazi="Yok — doğrudan firmaya bağlı"
+              varsayilan={deger.ust_taseron_id ? [deger.ust_taseron_id] : []}
+              secenekler={[
+                { deger: "", ad: "Yok — doğrudan firmaya bağlı" },
+                ...anaTaseronlar.filter((t) => t.id !== deger.id).map((t) => ({ deger: t.id, ad: t.firma_adi })),
+              ]}
+            />
           </Alan>
           <label className="flex min-h-14 items-center gap-3 rounded-xl border-2 border-cizgi bg-yuzey px-4 font-semibold">
             <input
@@ -81,5 +90,44 @@ export function TaseronFormu({
       <Mesaj durum={durum} />
       <KaydetButonu>{deger.id ? "Kaydet" : "Taşeronu Kaydet"}</KaydetButonu>
     </Form>
+  );
+}
+
+/** Yetkili satırları: ad + telefon, satır eklenip çıkarılabilir. */
+function Yetkililer({ baslangic }: { baslangic: Yetkili[] }) {
+  const [satirlar, setSatirlar] = useState(() =>
+    (baslangic.length ? baslangic : [{ ad: "", telefon: "" }]).map((y) => ({ ...y, anahtar: crypto.randomUUID() })),
+  );
+  return (
+    <div className="flex flex-col gap-3">
+      {satirlar.map((y, i) => (
+        <div key={y.anahtar} className="flex flex-col gap-2 rounded-xl border-2 border-cizgi p-3">
+          <div className="flex items-center justify-between">
+            <span className="font-bold">{i + 1}. yetkili</span>
+            {satirlar.length > 1 && (
+              <button
+                type="button"
+                aria-label={`${i + 1}. yetkiliyi kaldır`}
+                onClick={() => setSatirlar((l) => l.filter((x) => x.anahtar !== y.anahtar))}
+                className="grid size-11 place-items-center rounded-xl text-kirmizi active:bg-yuzey"
+              >
+                <Trash2 className="size-6" />
+              </button>
+            )}
+          </div>
+          <Girdi name="yetkili_ad" placeholder="Ad soyad" maxLength={80} defaultValue={y.ad} autoComplete="off" />
+          <Girdi name="yetkili_tel" placeholder="Telefon" type="tel" inputMode="tel" maxLength={20} defaultValue={y.telefon} autoComplete="off" />
+        </div>
+      ))}
+      {satirlar.length < 10 && (
+        <button
+          type="button"
+          onClick={() => setSatirlar((l) => [...l, { ad: "", telefon: "", anahtar: crypto.randomUUID() }])}
+          className="flex min-h-14 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-cizgi font-bold"
+        >
+          <Plus className="size-6" /> Yetkili ekle
+        </button>
+      )}
+    </div>
   );
 }

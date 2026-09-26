@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Fragment } from "react";
 import { notFound } from "next/navigation";
 import { FileText, Pencil, Phone, Plus, UserPlus, CornerDownRight } from "lucide-react";
 import { oturum } from "@/lib/oturum";
@@ -24,7 +25,7 @@ export default async function TaseronSayfasi({ params, searchParams }: PageProps
 
   const { data: t } = await o.supabase
     .from("taseronlar")
-    .select("id, firma_adi, yetkili, telefon, vergi_no, iban, is_turleri, ust_taseron_id, alt_taseron_yetkisi, aktif")
+    .select("id, firma_adi, yetkililer, vergi_no, iban, is_turleri, ust_taseron_id, alt_taseron_yetkisi, aktif")
     .eq("id", id)
     .maybeSingle();
   if (!t) notFound();
@@ -80,8 +81,7 @@ type O = Awaited<ReturnType<typeof oturum>>;
 type T = {
   id: string;
   firma_adi: string;
-  yetkili: string | null;
-  telefon: string | null;
+  yetkililer: { ad: string; telefon: string }[];
   vergi_no: string | null;
   iban: string | null;
   ust_taseron_id: string | null;
@@ -110,17 +110,19 @@ async function Bilgi({ o, t, kendisi }: { o: O; t: T; kendisi: boolean }) {
   return (
     <div className="flex flex-col gap-5">
       <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 rounded-2xl bg-yuzey p-4">
-        {t.yetkili && (<><dt className="font-bold">Yetkili</dt><dd>{t.yetkili}</dd></>)}
-        {t.telefon && (
-          <>
-            <dt className="font-bold">Telefon</dt>
-            <dd>
-              <a href={`tel:${t.telefon}`} className="inline-flex items-center gap-1 font-semibold text-mavi underline">
-                <Phone className="size-4" /> {t.telefon}
-              </a>
+        {t.yetkililer.map((y, i) => (
+          <Fragment key={i}>
+            <dt className="font-bold">{t.yetkililer.length > 1 ? `${i + 1}. yetkili` : "Yetkili"}</dt>
+            <dd className="flex flex-col">
+              {y.ad && <span>{y.ad}</span>}
+              {y.telefon && (
+                <a href={`tel:${y.telefon.replace(/\s+/g, "")}`} className="inline-flex min-h-10 items-center gap-1 font-semibold text-mavi underline">
+                  <Phone className="size-4" /> {y.telefon}
+                </a>
+              )}
             </dd>
-          </>
-        )}
+          </Fragment>
+        ))}
         {t.vergi_no && (<><dt className="font-bold">Vergi no</dt><dd>{t.vergi_no}</dd></>)}
         {t.iban && (<><dt className="font-bold">IBAN</dt><dd className="break-all">{t.iban}</dd></>)}
         {ust && (
@@ -233,7 +235,7 @@ async function Kayitlar({ o, taseronId }: { o: O; taseronId: string }) {
     o.yetki("gunluk")
       ? o.supabase
           .from("gunlukler")
-          .select("id, is_tarihi, kisi_sayisi, kat, is_kalemi, notu, fotograflar, olusturma, profiller(ad_soyad)")
+          .select("id, is_tarihi, kisi_sayisi, katlar, is_kalemleri, notu, fotograflar, olusturma, profiller(ad_soyad)")
           .eq("taseron_id", taseronId)
           .order("is_tarihi", { ascending: false })
           .limit(100)

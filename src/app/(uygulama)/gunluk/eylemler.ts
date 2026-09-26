@@ -20,6 +20,15 @@ export async function gunlukKaydet(_: FormDurumu, form: FormData): Promise<FormD
   if (!tarihMi(tarih) || tarih > bugun()) return { hata: "Geçerli bir tarih seçin (ileri tarih olmaz)." };
   if (!(kisi >= 0 && kisi <= 500)) return { hata: "Kişi sayısını girin." };
 
+  // Seçimler listeden gelir; boyu ve uzunluğu sınırlanır. "Diğer" seçildiyse
+  // yazılan iş onun yerine geçer.
+  const katlar = [...new Set(form.getAll("katlar").map(String))].filter((k) => k.length <= 30).slice(0, 100);
+  const diger = metin(form, "is_kalemi_diger", 80);
+  const isKalemleri = [...new Set(form.getAll("is_kalemleri").map(String))]
+    .filter((k) => k.length <= 80)
+    .map((k) => (k === "Diğer" && diger ? diger : k))
+    .slice(0, 30);
+
   const { error } = await o.supabase.from("gunlukler").insert({
     ...(uuidMi(id) ? { id } : {}),
     firma_id: o.firma.id,
@@ -27,8 +36,8 @@ export async function gunlukKaydet(_: FormDurumu, form: FormData): Promise<FormD
     taseron_id: taseronId,
     is_tarihi: tarih,
     kisi_sayisi: kisi,
-    kat: metin(form, "kat", 30),
-    is_kalemi: metin(form, "is_kalemi_diger", 80) ?? metin(form, "is_kalemi", 80),
+    katlar,
+    is_kalemleri: isKalemleri,
     notu: metin(form, "notu", 300),
     fotograflar: fotoYollari(form, o.firma.id),
   });

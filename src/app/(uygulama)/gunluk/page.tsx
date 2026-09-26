@@ -18,7 +18,7 @@ export default async function Gunlukler({ searchParams }: PageProps<"/gunluk">) 
 
   let sorgu = o.supabase
     .from("gunlukler")
-    .select("id, is_tarihi, kisi_sayisi, kat, is_kalemi, notu, fotograflar, olusturma, taseronlar(firma_adi), profiller(ad_soyad)")
+    .select("id, is_tarihi, kisi_sayisi, katlar, is_kalemleri, notu, fotograflar, olusturma, taseronlar(firma_adi), profiller(ad_soyad)")
     .eq("santiye_id", o.santiye.id)
     .order("is_tarihi", { ascending: false })
     .order("olusturma", { ascending: false })

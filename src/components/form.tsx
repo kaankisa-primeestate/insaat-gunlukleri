@@ -106,10 +106,6 @@ export function Metin(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) 
   return <textarea rows={2} {...props} className={`${girdiSinifi} py-3 ${props.className ?? ""}`} />;
 }
 
-export function Liste(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select {...props} className={`${girdiSinifi} ${props.className ?? ""}`} />;
-}
-
 type Secenek = { deger: string; ad: ReactNode; renk?: string };
 
 /**
@@ -150,33 +146,6 @@ export function Secim({
               s.renk ?? "peer-checked:bg-koyu peer-checked:text-white"
             }`}
           >
-            {s.ad}
-          </span>
-        </label>
-      ))}
-    </div>
-  );
-}
-
-/** Birden fazla seçilebilen büyük düğmeler (onay kutusu). */
-export function CokluSecim({
-  ad,
-  secenekler,
-  varsayilan = [],
-  sutun = 3,
-}: {
-  ad: string;
-  secenekler: Secenek[];
-  varsayilan?: string[];
-  sutun?: 2 | 3 | 4;
-}) {
-  const izgara = { 2: "grid-cols-2", 3: "grid-cols-3", 4: "grid-cols-4" }[sutun];
-  return (
-    <div className={`grid ${izgara} gap-2`}>
-      {secenekler.map((s) => (
-        <label key={s.deger} className="min-w-0 cursor-pointer">
-          <input type="checkbox" name={ad} value={s.deger} defaultChecked={varsayilan.includes(s.deger)} className="peer sr-only" />
-          <span className="flex min-h-14 items-center justify-center rounded-xl border-2 border-cizgi bg-yuzey px-2 py-2 text-center text-base font-semibold break-words peer-checked:border-yazi peer-checked:bg-koyu peer-checked:text-white peer-checked:ring-2 peer-checked:ring-yazi peer-focus-visible:outline-3 peer-focus-visible:outline-mavi">
             {s.ad}
           </span>
         </label>
