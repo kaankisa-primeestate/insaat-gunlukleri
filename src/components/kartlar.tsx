@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { CalendarClock, Users, Layers } from "lucide-react";
 import { Etiket } from "./kabuk";
+import { HavaEtiketi, type Hava } from "./hava";
 import { HATA_DURUM, ONEM, TALEP_DURUM, kisaTarih, type HataDurum, type Onem, type TalepDurum } from "@/lib/sabitler";
 
 export type Gunluk = {
@@ -134,17 +135,20 @@ export function GunlukTablosu({
   liste,
   adresler,
   islemler,
+  hava,
 }: {
   liste: Gunluk[];
   adresler: Record<string, string>;
   islemler?: (g: Gunluk) => ReactNode;
+  /** Tarihe göre şantiyenin o günkü havası. */
+  hava?: Map<string, Hava>;
 }) {
   return (
     <div className="overflow-x-auto rounded-2xl border-2 border-cizgi">
       <table className="w-full text-left text-base">
         <thead className="bg-koyu text-sm text-white">
           <tr>
-            {["Tarih", "Taşeron", "Kişi", "Kat", "Yapılan iş", "Not", "Fotoğraf", "Giren", ""].map((b) => (
+            {["Tarih", ...(hava ? ["Hava"] : []), "Taşeron", "Kişi", "Kat", "Yapılan iş", "Not", "Fotoğraf", "Giren", ""].map((b) => (
               <th key={b} className="px-3 py-2 font-bold whitespace-nowrap">{b}</th>
             ))}
           </tr>
@@ -157,6 +161,11 @@ export function GunlukTablosu({
                 {sonradanMi(g.is_tarihi, g.olusturma) && <span className="block text-xs font-semibold text-soluk">sonradan girildi</span>}
                 {g.guncelleme && <span className="block text-xs font-semibold text-soluk">düzenlendi</span>}
               </td>
+              {hava && (
+                <td className="px-3 py-2 text-sm whitespace-nowrap">
+                  {hava.get(g.is_tarihi) ? <HavaEtiketi h={hava.get(g.is_tarihi)!} sinif="flex-col items-start" /> : "–"}
+                </td>
+              )}
               <td className="px-3 py-2 font-semibold">{g.taseronlar?.firma_adi}</td>
               <td className="px-3 py-2 text-center">{g.kisi_sayisi}</td>
               <td className="px-3 py-2">{g.katlar.join(", ")}</td>

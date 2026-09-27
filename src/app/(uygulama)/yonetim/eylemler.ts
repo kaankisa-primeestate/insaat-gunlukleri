@@ -8,6 +8,7 @@ import { merkezIste, oturum } from "@/lib/oturum";
 import { supabaseYonetici } from "@/lib/supabase/server";
 import { girisEpostasi, SAYFALAR, type Rol } from "@/lib/sabitler";
 import { kullaniciAdiDenetle, metin, uuidMi } from "@/lib/denetim";
+import { konumAra } from "@/lib/hava";
 import type { FormDurumu } from "@/components/form";
 
 const ROLLER: Rol[] = ["merkez", "personel", "sef", "satinalma", "taseron"];
@@ -176,4 +177,32 @@ export async function yetkiSifirla(form: FormData) {
   if (uuidMi(k)) await o.supabase.from("yetkiler").delete().eq("kullanici_id", k);
   else if (uuidMi(t)) await o.supabase.from("yetkiler").delete().eq("taseron_id", t);
   revalidatePath("/", "layout");
+}
+
+/** Şantiye konumu için ilçe / şehir arama (hava durumu bu noktadan alınır). */
+export async function santiyeKonumAra(sorgu: string) {
+  await merkezIste();
+  const q = String(sorgu ?? "").trim().slice(0, 60);
+  if (q.length < 2) return [];
+  return konumAra(q);
+}
+
+export async function santiyeKonumKaydet(id: string, enlem: number, boylam: number, ad: string): Promise<FormDurumu> {
+  const o = await merkezIste();
+  if (!uuidMi(id)) return { hata: "Geçersiz istek." };
+  if (!Number.isFinite(enlem) || !Number.isFinite(boylam) || Math.abs(enlem) > 90 || Math.abs(boylam) > 180)
+    return { hata: "Konum geçersiz." };
+  const { data, error } = await o.supabase
+    .from("santiyeler")
+    .update({
+      enlem: Math.round(enlem * 1e5) / 1e5,
+      boylam: Math.round(boylam * 1e5) / 1e5,
+      konum_adi: String(ad ?? "").trim().slice(0, 120) || null,
+    })
+    .eq("id", id)
+    .select("id");
+  if (error) return { hata: "Kaydedilemedi: " + error.message };
+  if (!data?.length) return { hata: "Bu şantiyeyi düzenleme yetkiniz yok." };
+  revalidatePath("/", "layout");
+  return { tamam: "Konum kaydedildi." };
 }

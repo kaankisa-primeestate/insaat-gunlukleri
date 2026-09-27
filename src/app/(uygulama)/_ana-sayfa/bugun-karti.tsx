@@ -1,8 +1,9 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { AlertTriangle, BookOpen, CalendarDays, ChevronRight, ClipboardList, HardHat, Settings, Truck, Users, Building2 } from "lucide-react";
 import { GecikmeSesi } from "@/components/gecikme-sesi";
 import type { AnaSayfaVerisi } from "./veri";
+import { AnlikHava } from "./anlik-hava";
 
 /**
  * Tasarım B, "Bugün Kartı": açık zemin, ortada günün durumunu özetleyen
@@ -40,6 +41,13 @@ export function BugunKarti({ v }: { v: AnaSayfaVerisi }) {
         <p className="mt-1 flex items-center gap-1.5 text-[15px] text-soluk">
           <CalendarDays className="size-4" /> {v.tarih}
         </p>
+        {v.santiye && (
+          <div className="mt-1">
+            <Suspense fallback={<p className="h-6" />}>
+              <AnlikHava konum={v.konum} merkez={v.merkez} />
+            </Suspense>
+          </div>
+        )}
       </div>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-2 lg:items-start">

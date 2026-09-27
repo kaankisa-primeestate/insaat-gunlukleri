@@ -1,9 +1,10 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
-import { createContext, startTransition, useContext, useState, type ReactNode, type Ref } from "react";
+import { createContext, startTransition, useContext, useRef, useState, type ReactNode, type Ref } from "react";
 import { Check, LoaderCircle } from "lucide-react";
 import { bugun } from "@/lib/sabitler";
+import { SesleYaz } from "./sesle-yaz";
 
 export type FormDurumu = { hata?: string; tamam?: string; uyari?: string } | undefined;
 
@@ -102,8 +103,15 @@ export function Girdi(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className={`${girdiSinifi} ${props.className ?? ""}`} />;
 }
 
+/** Çok satırlı yazı kutusu; köşesinde sesle yazma mikrofonu (destekleyen tarayıcıda). */
 export function Metin(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return <textarea rows={2} {...props} className={`${girdiSinifi} py-3 ${props.className ?? ""}`} />;
+  const ref = useRef<HTMLTextAreaElement>(null);
+  return (
+    <div className="relative">
+      <textarea rows={2} {...props} ref={ref} className={`${girdiSinifi} min-h-20 py-3 pr-16 ${props.className ?? ""}`} />
+      <SesleYaz hedef={ref} />
+    </div>
+  );
 }
 
 type Secenek = { deger: string; ad: ReactNode; renk?: string };

@@ -49,6 +49,7 @@ bozulmaz.
 | S3 | Vercel Pro veya Cloudflare'e geçiş (Vercel Hobby ticari kullanıma kapalı) | Satışa açılınca |
 | S4 | Fotoğrafları Cloudflare R2'ye taşıma (Supabase ücretsiz alan 1 GB) | Alan dolmaya yaklaşınca |
 | S5 | Ayrı arka uç sunucusu (NestJS/.NET) | Gerekmiyor; Next.js + Supabase yetiyor |
+| S7 | Hava durumu lisansı: Open-Meteo'nun ücretsiz kullanımı ticari olmayan kullanım içindir. Satıştan önce ücretli pakete ya da ticari kullanıma açık sağlayıcıya geçilir (değişiklik yalnızca `src/lib/hava.ts`) | Pilotta ücretsiz sürüm |
 | S6 | Otomatik günlük yedek (GitHub Actions ile veritabanı dökümü) | Yok. Supabase ücretsiz pakette yedek almıyor; gerçek veri birikince öncelikli |
 
 ## 2. Faz (anayasada zaten sonraya bırakılmış)

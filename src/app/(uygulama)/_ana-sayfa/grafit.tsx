@@ -1,8 +1,9 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { AlertTriangle, BookOpen, Building2, ChevronRight, ClipboardList, HardHat, MapPin, Settings, Truck, Users } from "lucide-react";
 import { GecikmeSesi } from "@/components/gecikme-sesi";
 import type { AnaSayfaVerisi } from "./veri";
+import { AnlikHava } from "./anlik-hava";
 
 /**
  * Tasarım A, "Grafit Başlık": üstte koyu blok (şantiye, tarih, sayaçlar),
@@ -38,6 +39,13 @@ export function Grafit({ v }: { v: AnaSayfaVerisi }) {
           </p>
           <h1 className="mt-1 text-[30px] leading-tight font-extrabold tracking-tight break-words">{v.santiye}</h1>
           <p className="mt-0.5 text-white/70">{v.tarih}</p>
+          {v.santiye && (
+            <div className="mt-1">
+              <Suspense fallback={<p className="h-6" />}>
+                <AnlikHava konum={v.konum} merkez={v.merkez} koyu />
+              </Suspense>
+            </div>
+          )}
         </div>
         {sayaclar.length > 0 && (
           <div className={`mt-5 grid gap-2 ${sayaclar.length === 3 ? "grid-cols-3" : sayaclar.length === 2 ? "grid-cols-2" : "grid-cols-1"}`}>

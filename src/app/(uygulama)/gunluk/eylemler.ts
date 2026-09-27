@@ -1,9 +1,11 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { oturum } from "@/lib/oturum";
 import { supabaseYonetici } from "@/lib/supabase/server";
+import { havaTamamla } from "@/lib/hava";
 import { bugun, kisaTarih } from "@/lib/sabitler";
 import { fotoYollari, metin, tarihMi, uuidMi, veritabaniHatasi } from "@/lib/denetim";
 import type { FormDurumu } from "@/components/form";
@@ -82,6 +84,9 @@ export async function gunlukKaydet(_: FormDurumu, form: FormData): Promise<FormD
   });
   // Aynı kimlikle ikinci gönderim (çift dokunma) sessizce yok sayılır.
   if (error && error.code !== "23505") return { hata: veritabaniHatasi(error) };
+  // O günün havası kayda bağlanır; kullanıcı beklemez, yanıttan sonra yazılır.
+  const santiye = o.santiye;
+  after(() => havaTamamla(santiye, o.firma.id, [tarih]));
   revalidatePath("/gunluk");
   redirect("/gunluk?kayit=yeni");
 }

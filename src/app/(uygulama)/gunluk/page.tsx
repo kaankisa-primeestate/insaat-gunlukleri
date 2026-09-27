@@ -7,6 +7,10 @@ import { GunlukKarti, GunlukTablosu, type Gunluk } from "@/components/kartlar";
 import { tarihMi, uuidMi } from "@/lib/denetim";
 import { gunlukDegisebilir } from "@/lib/gunluk";
 import { GunlukIslemleri } from "./islemler";
+import { after } from "next/server";
+import { havaTamamla } from "@/lib/hava";
+import { HavaEtiketi, type Hava } from "@/components/hava";
+import { kisaTarih } from "@/lib/sabitler";
 
 /** Geriye dönük görüntüleme: tarih aralığı + taşeron (+ üstteki şantiye) süzgeci. */
 export default async function Gunlukler({ searchParams }: PageProps<"/gunluk">) {
@@ -40,7 +44,18 @@ export default async function Gunlukler({ searchParams }: PageProps<"/gunluk">) 
     o.supabase.rpc("santiye_taseronlari", { p_santiye: o.santiye.id }),
   ]);
   const liste = (data ?? []) as unknown as Gunluk[];
-  const adresler = await imzala(liste.flatMap((g) => g.fotograflar));
+  const tarihler = [...new Set(liste.map((g) => g.is_tarihi))];
+  const [adresler, { data: havaSatirlari }] = await Promise.all([
+    imzala(liste.flatMap((g) => g.fotograflar)),
+    o.supabase.from("hava_durumu").select("tarih, kod, en_yuksek, en_dusuk, yagis, ruzgar, kesin").eq("santiye_id", o.santiye.id).in("tarih", tarihler.length ? tarihler : ["1970-01-01"]),
+  ]);
+  const hava = new Map((havaSatirlari ?? []).map((h) => [h.tarih as string, h as Hava & { kesin: boolean }]));
+  // Eksik ya da kesinleşmemiş günlerin havası yanıttan sonra tamamlanır; bir sonraki açılışta görünür.
+  const tamamlanacak = tarihler.filter((t) => !hava.get(t)?.kesin);
+  if (tamamlanacak.length) {
+    const santiye = o.santiye;
+    after(() => havaTamamla(santiye, o.firma.id, tamamlanacak));
+  }
 
   // Güne göre grupla; her günün toplam kişi sayısı başlıkta.
   const gunler = new Map<string, Gunluk[]>();
@@ -87,9 +102,12 @@ export default async function Gunlukler({ searchParams }: PageProps<"/gunluk">) 
       <div className="flex flex-col gap-5 lg:hidden">
       {[...gunler.entries()].map(([gun, kayitlar]) => (
         <section key={gun} className="flex flex-col gap-2">
-          <p className="text-sm font-bold text-soluk">
-            {kayitlar.reduce((a, b) => a + b.kisi_sayisi, 0)} kişi · {kayitlar.length} kayıt
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm font-bold text-soluk">
+            <span>
+              {kisaTarih(gun)} · {kayitlar.reduce((a, b) => a + b.kisi_sayisi, 0)} kişi · {kayitlar.length} kayıt
+            </span>
+            {hava.get(gun) && <HavaEtiketi h={hava.get(gun)!} sinif="text-yazi" />}
+          </div>
           {kayitlar.map((g) => (
             <GunlukKarti
               key={g.id}
@@ -109,6 +127,7 @@ export default async function Gunlukler({ searchParams }: PageProps<"/gunluk">) 
           <GunlukTablosu
             liste={liste}
             adresler={adresler}
+            hava={hava}
             islemler={(g) => (gunlukDegisebilir(o, { olusturan: g.olusturan!, olusturma: g.olusturma }) ? <GunlukIslemleri id={g.id} /> : null)}
           />
         </div>

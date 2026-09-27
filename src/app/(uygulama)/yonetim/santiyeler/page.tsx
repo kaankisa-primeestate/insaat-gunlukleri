@@ -2,10 +2,11 @@ import { merkezIste } from "@/lib/oturum";
 import { Sayfa, Etiket } from "@/components/kabuk";
 import { santiyeGuncelle } from "../eylemler";
 import { SantiyeFormu } from "./form";
+import { KonumAyarla } from "./konum";
 
 export default async function Santiyeler() {
   const o = await merkezIste();
-  const { data } = await o.supabase.from("santiyeler").select("id, ad, adres, bodrum_kat, kat_sayisi, aktif").order("ad");
+  const { data } = await o.supabase.from("santiyeler").select("id, ad, adres, bodrum_kat, kat_sayisi, aktif, konum_adi, enlem").order("ad");
   return (
     <Sayfa baslik="Şantiyeler" geri="/yonetim" geriAd="Yönetim">
       <ul className="flex flex-col gap-3">
@@ -21,6 +22,7 @@ export default async function Santiyeler() {
               </div>
               {!s.aktif && <Etiket sinif="bg-gri text-white">Kapalı</Etiket>}
             </div>
+            <KonumAyarla id={s.id} mevcut={s.enlem != null ? (s.konum_adi ?? "Girildi") : null} />
             <form action={santiyeGuncelle} className="mt-3">
               <input type="hidden" name="id" value={s.id} />
               <input type="hidden" name="aktif" value={s.aktif ? "0" : "1"} />

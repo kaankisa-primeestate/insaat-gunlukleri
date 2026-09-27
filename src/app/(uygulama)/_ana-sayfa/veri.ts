@@ -12,6 +12,7 @@ export type AnaSayfaVerisi = {
   selam: string;
   firma: string;
   santiye: string | null;
+  konum: { enlem: number | null; boylam: number | null };
   tarih: string;
   merkez: boolean;
   /** Bölümler; yetkisi olmayanınki null. */
@@ -58,6 +59,7 @@ export async function anaSayfaVerisi(o: Oturum): Promise<AnaSayfaVerisi> {
     selam,
     firma: o.firma.ad,
     santiye: s?.ad ?? null,
+    konum: { enlem: s?.enlem ?? null, boylam: s?.boylam ?? null },
     tarih: new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", weekday: "long", timeZone: "Europe/Istanbul" }).format(new Date()),
     merkez: o.merkez,
     gunluk:

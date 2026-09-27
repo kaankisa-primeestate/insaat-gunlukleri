@@ -15,7 +15,15 @@ export type Profil = {
   taseron_id: string | null;
 };
 
-export type Santiye = { id: string; ad: string; bodrum_kat: number; kat_sayisi: number; aktif: boolean };
+export type Santiye = {
+  id: string;
+  ad: string;
+  bodrum_kat: number;
+  kat_sayisi: number;
+  aktif: boolean;
+  enlem: number | null;
+  boylam: number | null;
+};
 
 export { SANTIYE_CEREZI } from "./santiye-cerezi";
 import { SANTIYE_CEREZI } from "./santiye-cerezi";
@@ -43,7 +51,7 @@ export const oturumTemel = cache(async () => {
       .eq("aktif", true)
       .maybeSingle<Profil>(),
     supabase.from("firmalar").select("id, ad").maybeSingle(),
-    supabase.from("santiyeler").select("id, ad, bodrum_kat, kat_sayisi, aktif").eq("aktif", true).order("ad"),
+    supabase.from("santiyeler").select("id, ad, bodrum_kat, kat_sayisi, aktif, enlem, boylam").eq("aktif", true).order("ad"),
     supabase.from("yetkiler").select("sayfa, gorur, duzenler, kullanici_id, taseron_id"),
   ]);
   if (!profil || !firma) redirect("/giris?hata=pasif");

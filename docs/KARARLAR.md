@@ -98,3 +98,28 @@ Anayasadan üç sapma, üçü de kullanıcı isteğiyle:
 - Ana sayfaya yeni bilgi: **"Bugün X / Y taşeron günlüğü girildi"** ve
   günlüğü henüz girilmeyen taşeronların adları. Y = şantiyede sözleşmesi olan
   taşeronlar (günlük formundaki liste). Sayaçlar dokunulunca bölüme gider.
+
+## Sesle yazma ve hava durumu öne alındı (27 Eylül)
+
+Kullanıcı isteğiyle Faz 2'den (A2, A3) öne çekildi.
+
+- **Sesle yazma:** Tüm not/açıklama kutularının köşesinde mikrofon.
+  Telefonun kendi tanıması kullanılır (Android'de Google, iPhone'da Siri),
+  ücretsiz. Söylenen yazının sonuna eklenir, karakter sınırı aşılmaz.
+  Desteklemeyen tarayıcıda düğme görünmez; klavyedeki mikrofon yine çalışır.
+- **Hava durumu şantiye başına, gün başına tek kayıt.** Aynı günün beş
+  günlüğü beş ayrı hava taşımaz; günlük listesinde gün başlığında görünür.
+  Kaydı yalnızca sunucu yazar, kullanıcı değiştiremez (delil). Bugünün
+  değeri tahmindir; gün bitince kesin değerle bir kez yenilenir.
+- **Konum ilçe düzeyinde yeterli.** Merkez, Yönetim > Şantiyeler'de ilçe
+  adıyla arar ya da şantiyedeyken telefonun konumunu kullanır. Adres
+  alanından otomatik çıkarılmadı: serbest adres metni güvenilir biçimde
+  koordinata çevrilemiyor (ücretsiz servis ilçe/şehir arıyor).
+- **Öne çıkan değerler:** 1 mm ve üstü yağış (mavi), 40 km/s ve üstü rüzgâr
+  (kırmızı). Beton, iskele ve vinç kararlarının dayanağı bunlar.
+- **Sağlayıcı Open-Meteo, lisans uyarısıyla:** ücretsiz kullanımı ticari
+  olmayan kullanım içindir. Pilot için seçildi çünkü geçmiş günleri de
+  veriyor (geriye dönük günlük için gerekli). Satıştan önce değişmeli
+  (ERTELENENLER S7).
+- Open-Meteo en çok 92 gün geriye gider; daha eski tarihli günlüğün havası
+  boş kalır.
