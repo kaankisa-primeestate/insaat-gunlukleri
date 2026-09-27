@@ -70,3 +70,20 @@
 - **Şantiye girişte seçilir, oturum boyunca değişmez** (D8). Üstteki şantiye
   seçici, kullanıcının yanlışlıkla şantiye değiştirip farkında olmadan
   işlem yapmasına yol açtı. Başka şantiye için çıkış yapılıp yeniden girilir.
+
+## Ana sayfa sadeleşti, fotoğraf her kayıtta (saha denemesi)
+
+Anayasadan üç sapma, üçü de kullanıcı isteğiyle:
+
+- **Kamera ana sayfadan bölüm sayfalarına taşındı.** Anayasa ana sayfada
+  "Yeni Günlük Ekle + 📷" istiyordu; dört hızlı düğme (günlük, hatalı iş,
+  talep, teslimat) bölüm kutularıyla aynı yere gidip yer kaplıyordu.
+  Artık Günlükler, Hatalı İşler, Talepler ve Teslimat sayfalarının her
+  birinde tek düğme var: **"➕ Yeni Ekle 📷"**. Fotoğraf alanı formun en
+  üstünde; kamera formu açan dokunuşla değil, formdaki alana dokununca açılır.
+- **Hatalı işte fotoğraf zorunlu değil** (anayasa: zorunlu). Kullanıcı:
+  "isterse fotoğraf çekmeden de kaydedebilir". Talep (ürün fotoğrafı) ve
+  teslimat kayıtlarına da isteğe bağlı fotoğraf eklendi, en çok 6.
+- **Kaydet ana sayfaya değil, bölüm sayfasına döner** ve üstte
+  "✓ Kaydedildi" yazar. Kullanıcı kaydın listeye düştüğünü görür; ikinci
+  kaydı girmek için de tek dokunuş yeter.

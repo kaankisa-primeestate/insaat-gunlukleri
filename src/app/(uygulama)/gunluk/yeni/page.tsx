@@ -11,7 +11,7 @@ export default async function YeniGunluk() {
   const { data } = await o.supabase.rpc("santiye_taseronlari", { p_santiye: o.santiye.id });
 
   return (
-    <Sayfa baslik="Yeni Günlük" geriAd="Vazgeç" sag={<span className="font-bold text-soluk">{o.santiye.ad}</span>}>
+    <Sayfa baslik="Yeni Günlük" geri="/gunluk" geriAd="Vazgeç" sag={<span className="font-bold text-soluk">{o.santiye.ad}</span>}>
       <GunlukFormu
         firmaId={o.firma.id}
         taseronlar={(data ?? []) as TaseronSecenek[]}

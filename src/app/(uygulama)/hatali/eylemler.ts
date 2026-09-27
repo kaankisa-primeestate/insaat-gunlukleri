@@ -22,7 +22,6 @@ export async function hataKaydet(_: FormDurumu, form: FormData): Promise<FormDur
   const aciklama = metin(form, "aciklama", 300);
   const fotograflar = fotoYollari(form, o.firma.id);
 
-  if (!fotograflar.length) return { hata: "Fotoğraf zorunlu." };
   if (!uuidMi(taseronId) && !uuidMi(kullaniciId)) return { hata: "Kimin işi olduğunu seçin." };
   if (!tarihMi(tarih) || tarih > bugun()) return { hata: "Geçerli bir tarih seçin." };
   if (!(onem in ONEM)) return { hata: "Önem derecesini seçin." };
@@ -42,7 +41,7 @@ export async function hataKaydet(_: FormDurumu, form: FormData): Promise<FormDur
   });
   if (error && error.code !== "23505") return { hata: veritabaniHatasi(error) };
   revalidatePath("/hatali");
-  redirect("/?kayit=1");
+  redirect("/hatali?kayit=1");
 }
 
 export async function hataDurum(_: FormDurumu, form: FormData): Promise<FormDurumu> {

@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { AlertTriangle } from "lucide-react";
 import { yetkiIste } from "@/lib/oturum";
 import { imzala } from "@/lib/dosya";
 import { HATA_DURUM, type HataDurum } from "@/lib/sabitler";
-import { Bos, Sayfa } from "@/components/kabuk";
+import { Bos, Sayfa, YeniEkle } from "@/components/kabuk";
 import { HataKarti, type Hata } from "@/components/kartlar";
 
 const ONEM_SIRA = { acil: 0, normal: 1, dusuk: 2 };
@@ -13,7 +12,7 @@ const ALANLAR =
 /** Açık işler önem sırasına göre; onaylananlar ayrı sekmede. */
 export default async function HataliIsler({ searchParams }: PageProps<"/hatali">) {
   const o = await yetkiIste("hatali");
-  const { durum } = await searchParams;
+  const { durum, kayit } = await searchParams;
   const filtre: HataDurum | "acik" = durum && typeof durum === "string" && durum in HATA_DURUM ? (durum as HataDurum) : "acik";
   if (!o.santiye) return <Sayfa baslik="Hatalı İşler"><Bos>Şantiye seçili değil.</Bos></Sayfa>;
 
@@ -39,11 +38,8 @@ export default async function HataliIsler({ searchParams }: PageProps<"/hatali">
 
   return (
     <Sayfa baslik={`Hatalı İşler · ${o.santiye.ad}`} genis>
-      {o.yetki("hatali", true) && !o.taseron && (
-        <Link href="/hatali/yeni" className="flex min-h-16 items-center justify-center gap-2 rounded-2xl bg-kirmizi text-xl font-bold text-white">
-          <AlertTriangle className="size-7" /> Hatalı İş Bildir
-        </Link>
-      )}
+      {kayit && <p className="rounded-xl bg-yesil px-4 py-3 text-lg font-bold text-white">✓ Kaydedildi</p>}
+      {o.yetki("hatali", true) && !o.taseron && <YeniEkle href="/hatali/yeni" />}
       <nav className="grid grid-cols-4 gap-1 rounded-2xl bg-yuzey p-1 lg:hidden">
         {sekmeler.map((s) => (
           <Link

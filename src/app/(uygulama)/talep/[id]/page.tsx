@@ -5,13 +5,15 @@ import { yetkiIste } from "@/lib/oturum";
 import { TALEP_DURUM, TALEP_SIRASI, tarihYaz, type TalepDurum } from "@/lib/sabitler";
 import { Etiket, Sayfa } from "@/components/kabuk";
 import { TalepIlerlet } from "./ilerlet";
+import { imzala } from "@/lib/dosya";
+import { Fotolar } from "@/components/fotolar";
 
 export default async function TalepDetay({ params }: PageProps<"/talep/[id]">) {
   const o = await yetkiIste("talep");
   const { id } = await params;
   const { data: t } = await o.supabase
     .from("talepler")
-    .select("id, urun, miktar, birim, notu, durum, is_tarihi, taseron_id, taseronlar(firma_adi), santiyeler(ad), profiller(ad_soyad)")
+    .select("id, urun, miktar, birim, notu, durum, is_tarihi, fotograflar, taseron_id, taseronlar(firma_adi), santiyeler(ad), profiller(ad_soyad)")
     .eq("id", id)
     .maybeSingle();
   if (!t) notFound();
@@ -25,6 +27,7 @@ export default async function TalepDetay({ params }: PageProps<"/talep/[id]">) {
     const { data } = await o.supabase.from("profiller").select("id, ad_soyad").in("id", ids);
     for (const p of data ?? []) kisiler.set(p.id, p.ad_soyad);
   }
+  const adresler = await imzala(t.fotograflar as string[]);
   const durum = t.durum as TalepDurum;
   const taseron = t.taseronlar as unknown as { firma_adi: string } | null;
   const acan = t.profiller as unknown as { ad_soyad: string } | null;
@@ -36,6 +39,7 @@ export default async function TalepDetay({ params }: PageProps<"/talep/[id]">) {
         {Number(t.miktar).toLocaleString("tr-TR")} {t.birim} {t.urun}
       </p>
       <Etiket sinif={TALEP_DURUM[durum].renk}>{TALEP_DURUM[durum].ad}</Etiket>
+      <Fotolar yollar={t.fotograflar as string[]} adresler={adresler} />
 
       {/* Süreç çubuğu */}
       <ol className="grid grid-cols-5 gap-1">

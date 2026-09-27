@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { Alan, Form, Girdi, KaydetButonu, Mesaj } from "@/components/form";
 import { SecimPenceresi } from "@/components/secim-penceresi";
+import { FotoSecici } from "@/components/foto-secici";
 import { TaseronSecici, type TaseronSecenek } from "@/components/secimler";
 import { ARACLAR } from "@/lib/sabitler";
 import { teslimatKaydet } from "./eylemler";
@@ -13,7 +14,9 @@ export function TeslimatFormu({
   doluluk,
   saatler,
   talep,
+  firmaId,
 }: {
+  firmaId: string;
   tarih: string;
   taseronlar: TaseronSecenek[];
   doluluk: Record<number, number>;
@@ -28,6 +31,9 @@ export function TeslimatFormu({
     <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-5">
       <input type="hidden" name="tarih" value={tarih} />
       {talep && <input type="hidden" name="talep_id" value={talep.id} />}
+      <Alan etiket="Fotoğraf" ipucu="İsteğe bağlı: irsaliye ya da malzeme.">
+        <FotoSecici firmaId={firmaId} klasor="teslimat" />
+      </Alan>
       <Alan etiket="Taşeron" zorunlu>
         <TaseronSecici taseronlar={taseronlar} varsayilan={talep?.taseron_id} />
       </Alan>

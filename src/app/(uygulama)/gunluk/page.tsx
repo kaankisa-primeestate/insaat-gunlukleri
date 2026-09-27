@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { Plus, Filter } from "lucide-react";
+import { Filter } from "lucide-react";
 import { yetkiIste } from "@/lib/oturum";
 import { imzala } from "@/lib/dosya";
-import { Bos, Sayfa } from "@/components/kabuk";
+import { Bos, Sayfa, YeniEkle } from "@/components/kabuk";
 import { GunlukKarti, GunlukTablosu, type Gunluk } from "@/components/kartlar";
 import { tarihMi, uuidMi } from "@/lib/denetim";
 import { gunlukDegisebilir } from "@/lib/gunluk";
@@ -13,7 +13,8 @@ export default async function Gunlukler({ searchParams }: PageProps<"/gunluk">) 
   const o = await yetkiIste("gunluk");
   const sp = await searchParams;
   const bildirim =
-    sp.kayit ? { sinif: "bg-yesil text-white", yazi: "✓ Günlük düzeltildi" }
+    sp.kayit === "yeni" ? { sinif: "bg-yesil text-white", yazi: "✓ Günlük kaydedildi" }
+    : sp.kayit ? { sinif: "bg-yesil text-white", yazi: "✓ Günlük düzeltildi" }
     : sp.silindi ? { sinif: "bg-yesil text-white", yazi: "✓ Günlük silindi" }
     : sp.yetki ? { sinif: "bg-kirmizi text-white", yazi: "Bu günlüğü değiştirme yetkiniz yok. Kaydı giren 24 saat içinde, merkez her zaman değiştirebilir." }
     : null;
@@ -48,11 +49,7 @@ export default async function Gunlukler({ searchParams }: PageProps<"/gunluk">) 
   return (
     <Sayfa baslik={`Günlükler · ${o.santiye.ad}`} genis>
       {bildirim && <p className={`rounded-xl px-4 py-3 font-bold ${bildirim.sinif}`}>{bildirim.yazi}</p>}
-      {o.yetki("gunluk", true) && (
-        <Link href="/gunluk/yeni" className="flex min-h-16 items-center justify-center gap-2 rounded-2xl bg-vurgu text-xl font-bold text-black">
-          <Plus className="size-7" strokeWidth={3} /> Yeni Günlük
-        </Link>
-      )}
+      {o.yetki("gunluk", true) && <YeniEkle href="/gunluk/yeni" />}
 
       <details className="rounded-2xl border-2 border-cizgi" open={Boolean(bas || bit || taseron)}>
         <summary className="flex min-h-14 cursor-pointer items-center gap-2 px-4 text-lg font-bold">

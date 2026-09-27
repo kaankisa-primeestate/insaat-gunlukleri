@@ -3,19 +3,23 @@
 import { useActionState, useState } from "react";
 import { Alan, Form, Girdi, KaydetButonu, Mesaj, Metin } from "@/components/form";
 import { SecimPenceresi } from "@/components/secim-penceresi";
+import { FotoSecici } from "@/components/foto-secici";
 import { TaseronSecici, type TaseronSecenek } from "@/components/secimler";
 import { BIRIMLER } from "@/lib/sabitler";
 import { talepKaydet } from "../eylemler";
 
 const SIK_URUNLER = ["Kum", "Çakıl", "Çimento", "Hazır beton", "İnşaat demiri", "Tuğla", "Bims", "Alçı", "Kablo", "Boru", "Boya", "Seramik"];
 
-export function TalepFormu({ taseronlar }: { taseronlar: TaseronSecenek[] }) {
+export function TalepFormu({ taseronlar, firmaId }: { taseronlar: TaseronSecenek[]; firmaId: string }) {
   const [durum, eylem, bekliyor] = useActionState(talepKaydet, undefined);
   const [id] = useState(() => crypto.randomUUID());
   const [diger, setDiger] = useState(false);
   return (
     <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-6">
       <input type="hidden" name="id" value={id} />
+      <Alan etiket="Fotoğraf" ipucu="İsteğe bağlı: ürünün, etiketinin ya da örneğinin fotoğrafı.">
+        <FotoSecici firmaId={firmaId} klasor="talep" />
+      </Alan>
       <Alan etiket="Hangi taşeron için?" zorunlu>
         <TaseronSecici taseronlar={taseronlar} />
       </Alan>

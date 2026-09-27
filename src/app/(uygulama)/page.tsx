@@ -4,8 +4,6 @@ import {
   BookOpen,
   ClipboardList,
   LogOut,
-  Package,
-  Plus,
   Settings,
   Truck,
   Users,
@@ -14,7 +12,6 @@ import {
 import { oturum } from "@/lib/oturum";
 import { bugun } from "@/lib/sabitler";
 import { cikisYap } from "@/app/giris/eylem";
-import { KameraDugmesi } from "@/components/kamera-dugmesi";
 import { GecikmeSesi } from "@/components/gecikme-sesi";
 
 export default async function AnaSayfa({ searchParams }: PageProps<"/">) {
@@ -80,52 +77,6 @@ export default async function AnaSayfa({ searchParams }: PageProps<"/">) {
         </Link>
       )}
 
-      {s && (
-        <section className="flex flex-col gap-3 lg:grid lg:grid-cols-2">
-          {o.yetki("gunluk", true) && (
-            <div className="flex gap-3">
-              <Link
-                href="/gunluk/yeni"
-                className="flex min-h-20 flex-1 items-center justify-center gap-2 rounded-2xl bg-vurgu px-3 text-xl font-extrabold text-black active:scale-[0.98]"
-              >
-                <Plus className="size-8" strokeWidth={3} />
-                Yeni Günlük Ekle
-              </Link>
-              <KameraDugmesi hedef="/gunluk/yeni" etiket="Fotoğraf çekip günlük başlat" />
-            </div>
-          )}
-          {o.yetki("hatali", true) && !o.taseron && (
-            <div className="flex gap-3">
-              <Link
-                href="/hatali/yeni"
-                className="flex min-h-20 flex-1 items-center justify-center gap-2 rounded-2xl bg-kirmizi px-3 text-xl font-extrabold text-white active:scale-[0.98]"
-              >
-                <AlertTriangle className="size-8" strokeWidth={2.6} />
-                Hatalı İş Bildir
-              </Link>
-              <KameraDugmesi hedef="/hatali/yeni" etiket="Fotoğraf çekip hatalı iş bildir" />
-            </div>
-          )}
-          <div className="grid grid-cols-2 gap-3 lg:col-span-2">
-            {o.yetki("talep", true) && (
-              <Link
-                href="/talep/yeni"
-                className="flex min-h-18 items-center justify-center gap-2 rounded-2xl bg-koyu px-2 text-lg font-bold text-white active:scale-[0.98]"
-              >
-                <Package className="size-7" /> Talep Aç
-              </Link>
-            )}
-            {o.yetki("teslimat", true) && (
-              <Link
-                href="/teslimat?yeni=1"
-                className="flex min-h-18 items-center justify-center gap-2 rounded-2xl bg-koyu px-2 text-lg font-bold text-white active:scale-[0.98]"
-              >
-                <Truck className="size-7" /> Teslimat Gir
-              </Link>
-            )}
-          </div>
-        </section>
-      )}
 
       <nav className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {s && o.yetki("gunluk") && <Kutu href="/gunluk" ikon={<BookOpen />} ad="Günlükler" />}

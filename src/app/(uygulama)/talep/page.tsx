@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { Package } from "lucide-react";
 import { yetkiIste } from "@/lib/oturum";
-import { Bos, Sayfa } from "@/components/kabuk";
+import { Bos, Sayfa, YeniEkle } from "@/components/kabuk";
 import { TalepKarti, type Talep } from "@/components/kartlar";
 
 const SEKMELER = {
@@ -12,7 +11,7 @@ const SEKMELER = {
 
 export default async function Talepler({ searchParams }: PageProps<"/talep">) {
   const o = await yetkiIste("talep");
-  const { sekme: s } = await searchParams;
+  const { sekme: s, kayit } = await searchParams;
   const sekme = (typeof s === "string" && s in SEKMELER ? s : "bekleyen") as keyof typeof SEKMELER;
   if (!o.santiye) return <Sayfa baslik="Talepler"><Bos>Şantiye seçili değil.</Bos></Sayfa>;
 
@@ -27,11 +26,8 @@ export default async function Talepler({ searchParams }: PageProps<"/talep">) {
 
   return (
     <Sayfa baslik={`Talepler · ${o.santiye.ad}`} genis>
-      {o.yetki("talep", true) && (
-        <Link href="/talep/yeni" className="flex min-h-16 items-center justify-center gap-2 rounded-2xl bg-vurgu text-xl font-bold text-black">
-          <Package className="size-7" /> Talep Aç
-        </Link>
-      )}
+      {kayit && <p className="rounded-xl bg-yesil px-4 py-3 text-lg font-bold text-white">✓ Kaydedildi</p>}
+      {o.yetki("talep", true) && <YeniEkle href="/talep/yeni" />}
       <nav className="grid grid-cols-3 gap-1 rounded-2xl bg-yuzey p-1 lg:max-w-xl">
         {Object.entries(SEKMELER).map(([k, v]) => (
           <Link

@@ -1,12 +1,13 @@
-import Link from "next/link";
-import { Truck, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { yetkiIste } from "@/lib/oturum";
 import { bugun, kisaTarih } from "@/lib/sabitler";
 import { tarihMi, uuidMi } from "@/lib/denetim";
-import { Bos, Sayfa } from "@/components/kabuk";
+import { Bos, Sayfa, YeniEkle } from "@/components/kabuk";
 import type { TaseronSecenek } from "@/components/secimler";
 import { TeslimatFormu } from "./form";
 import { GunSecici } from "./gun-secici";
+import { imzala } from "@/lib/dosya";
+import { Fotolar } from "@/components/fotolar";
 import { teslimatSil } from "./eylemler";
 
 const SAATLER = Array.from({ length: 15 }, (_, i) => i + 6); // 06:00 – 20:00
@@ -29,7 +30,7 @@ export default async function Teslimat({ searchParams }: PageProps<"/teslimat">)
     o.supabase.rpc("teslimat_yogunluk", { p_santiye: o.santiye.id, p_tarih: tarih }),
     o.supabase
       .from("teslimatlar")
-      .select("id, saat, arac, urun, taseronlar(firma_adi)")
+      .select("id, saat, arac, urun, fotograflar, taseronlar(firma_adi)")
       .eq("santiye_id", o.santiye.id)
       .eq("tarih", tarih)
       .order("saat"),
@@ -37,7 +38,15 @@ export default async function Teslimat({ searchParams }: PageProps<"/teslimat">)
     talepId ? o.supabase.from("talepler").select("id, urun, miktar, birim, taseron_id").eq("id", talepId).maybeSingle() : Promise.resolve({ data: null }),
   ]);
   const doluluk = new Map(((yogunluk ?? []) as { saat: number; adet: number }[]).map((y) => [y.saat, Number(y.adet)]));
-  const ayrinti = (kendi ?? []) as unknown as { id: string; saat: number; arac: string; urun: string; taseronlar: { firma_adi: string } | null }[];
+  const ayrinti = (kendi ?? []) as unknown as {
+    id: string;
+    saat: number;
+    arac: string;
+    urun: string;
+    fotograflar: string[];
+    taseronlar: { firma_adi: string } | null;
+  }[];
+  const adresler = await imzala(ayrinti.flatMap((x) => x.fotograflar));
 
   return (
     <Sayfa baslik={`Teslimat Takvimi · ${o.santiye.ad}`} genis>
@@ -56,6 +65,7 @@ export default async function Teslimat({ searchParams }: PageProps<"/teslimat">)
           <section className="flex flex-col gap-3 rounded-2xl border-2 border-yazi p-4">
             <h2 className="text-xl font-bold">Teslimat gir · {kisaTarih(tarih)}</h2>
             <TeslimatFormu
+              firmaId={o.firma.id}
               tarih={tarih}
               taseronlar={(taseronlar ?? []) as TaseronSecenek[]}
               doluluk={Object.fromEntries(doluluk)}
@@ -64,12 +74,7 @@ export default async function Teslimat({ searchParams }: PageProps<"/teslimat">)
             />
           </section>
         ) : (
-          <Link
-            href={`/teslimat?tarih=${tarih}&yeni=1`}
-            className="flex min-h-16 items-center justify-center gap-2 rounded-2xl bg-vurgu text-xl font-bold text-black"
-          >
-            <Truck className="size-7" /> Teslimat Gir
-          </Link>
+          <YeniEkle href={`/teslimat?tarih=${tarih}&yeni=1`} />
         ))}
 
       </div>
@@ -93,6 +98,7 @@ export default async function Teslimat({ searchParams }: PageProps<"/teslimat">)
                 {n === 0 && <span className="text-soluk">—</span>}
                 {burada.map((x) => (
                   <div key={x.id} className="flex items-center gap-2">
+                    <Fotolar yollar={x.fotograflar} adresler={adresler} boyut="size-10" />
                     <span className="min-w-0 flex-1 font-semibold break-words">
                       {x.arac} · {x.urun}
                       {!o.taseron && x.taseronlar ? ` · ${x.taseronlar.firma_adi}` : ""}

@@ -9,8 +9,8 @@ export default async function YeniTalep() {
   if (!o.santiye) redirect("/");
   const { data } = await o.supabase.rpc("santiye_taseronlari", { p_santiye: o.santiye.id });
   return (
-    <Sayfa baslik="Talep Aç" geriAd="Vazgeç" sag={<span className="font-bold text-soluk">{o.santiye.ad}</span>}>
-      <TalepFormu taseronlar={(data ?? []) as TaseronSecenek[]} />
+    <Sayfa baslik="Talep Aç" geri="/talep" geriAd="Vazgeç" sag={<span className="font-bold text-soluk">{o.santiye.ad}</span>}>
+      <TalepFormu taseronlar={(data ?? []) as TaseronSecenek[]} firmaId={o.firma.id} />
     </Sayfa>
   );
 }

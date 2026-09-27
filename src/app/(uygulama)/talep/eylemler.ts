@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { oturum } from "@/lib/oturum";
 import { BIRIMLER, TALEP_DURUM, bugun, type TalepDurum } from "@/lib/sabitler";
-import { metin, uuidMi } from "@/lib/denetim";
+import { fotoYollari, metin, uuidMi } from "@/lib/denetim";
 import type { FormDurumu } from "@/components/form";
 
 export async function talepKaydet(_: FormDurumu, form: FormData): Promise<FormDurumu> {
@@ -32,11 +32,12 @@ export async function talepKaydet(_: FormDurumu, form: FormData): Promise<FormDu
     miktar,
     birim,
     notu: metin(form, "notu", 300),
+    fotograflar: fotoYollari(form, o.firma.id),
     is_tarihi: bugun(),
   });
   if (error && error.code !== "23505") return { hata: "Kaydedilemedi: " + error.message };
   revalidatePath("/talep");
-  redirect("/?kayit=1");
+  redirect("/talep?kayit=1");
 }
 
 export async function talepDurum(_: FormDurumu, form: FormData): Promise<FormDurumu> {

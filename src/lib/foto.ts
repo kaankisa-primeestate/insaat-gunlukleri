@@ -20,17 +20,3 @@ export async function kucult(dosya: File, uzunKenar = 1280, kalite = 0.6): Promi
     canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Sıkıştırılamadı"))), "image/jpeg", kalite),
   );
 }
-
-/**
- * Ana sayfadaki kamera düğmesiyle çekilen fotoğraf, kayıt formu açılana
- * kadar burada bekler. Sayfa geçişi tarayıcı içinde olduğu için bellek korunur.
- */
-let bekleyen: File[] = [];
-export function fotoBirak(dosyalar: File[]) {
-  bekleyen = dosyalar;
-}
-export function fotoAl(): File[] {
-  const d = bekleyen;
-  bekleyen = [];
-  return d;
-}

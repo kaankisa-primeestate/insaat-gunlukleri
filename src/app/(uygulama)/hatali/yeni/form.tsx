@@ -24,8 +24,8 @@ export function HataFormu({
   return (
     <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-6">
       <input type="hidden" name="id" value={id} />
-      <Alan etiket="Fotoğraf" zorunlu>
-        <FotoSecici firmaId={firmaId} klasor="hatali" zorunlu />
+      <Alan etiket="Fotoğraf" ipucu="İsteğe bağlı.">
+        <FotoSecici firmaId={firmaId} klasor="hatali" />
       </Alan>
       <Alan etiket="Kimin işi?" zorunlu ipucu="Bir taşeron ya da bir kişi (kalfa, şef…) seçin.">
         {/* Değer "t:" ile taşeron, "k:" ile kullanıcı kimliği taşır. */}

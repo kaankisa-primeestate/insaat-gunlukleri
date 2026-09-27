@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Camera, ImagePlus, LoaderCircle, X, CircleAlert } from "lucide-react";
 import { supabaseTarayici } from "@/lib/supabase/client";
-import { fotoAl, kucult } from "@/lib/foto";
+import { kucult } from "@/lib/foto";
 
 type Foto = { anahtar: string; onizleme: string; yol?: string; hata?: boolean };
 
@@ -53,16 +53,6 @@ export function FotoSecici({
       }
     }
   }
-
-  // Ana sayfadaki kamera düğmesiyle çekilmiş fotoğraf varsa hemen yükle.
-  useEffect(() => {
-    const t = setTimeout(() => {
-      const bekleyen = fotoAl();
-      if (bekleyen.length) void ekle(bekleyen);
-    }, 0);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const yukleniyor = fotolar.some((f) => !f.yol && !f.hata);
   const hazir = fotolar.filter((f) => f.yol);

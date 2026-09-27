@@ -14,7 +14,7 @@ export default async function YeniHata() {
     o.supabase.rpc("santiye_personeli", { p_santiye: o.santiye.id }),
   ]);
   return (
-    <Sayfa baslik="Hatalı İş Bildir" geriAd="Vazgeç" sag={<span className="font-bold text-soluk">{o.santiye.ad}</span>}>
+    <Sayfa baslik="Hatalı İş Bildir" geri="/hatali" geriAd="Vazgeç" sag={<span className="font-bold text-soluk">{o.santiye.ad}</span>}>
       <HataFormu
         firmaId={o.firma.id}
         taseronlar={(taseronlar ?? []) as TaseronSecenek[]}

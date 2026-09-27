@@ -59,6 +59,9 @@ export function GunlukFormu({
     <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-6">
       <input type="hidden" name="id" value={id} />
       {deger && <input type="hidden" name="duzenle" value="1" />}
+      <Alan etiket="Fotoğraf" ipucu="İsteğe bağlı.">
+        <FotoSecici firmaId={firmaId} klasor="gunluk" mevcut={mevcutFotolar} />
+      </Alan>
       <Alan etiket="Taşeron" zorunlu>
         <TaseronSecici
           taseronlar={taseronlar}
@@ -111,9 +114,6 @@ export function GunlukFormu({
         <Metin name="notu" maxLength={300} placeholder="İsteğe bağlı" defaultValue={deger?.notu ?? ""} />
       </Alan>
 
-      <Alan etiket="Fotoğraf">
-        <FotoSecici firmaId={firmaId} klasor="gunluk" mevcut={mevcutFotolar} />
-      </Alan>
 
       <Mesaj durum={durum} />
       <div className="sticky bottom-3">

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ChevronLeft } from "lucide-react";
+import { Camera, ChevronLeft, Plus } from "lucide-react";
 
 /** Alt sayfaların ortak çerçevesi: büyük geri düğmesi ve başlık. */
 export function Sayfa({
@@ -60,6 +60,24 @@ export function BuyukBag({ href, children, sinif = "bg-yuzey border-2 border-ciz
   return (
     <Link href={href} className={`flex min-h-16 items-center gap-3 rounded-2xl px-4 text-lg font-bold active:scale-[0.98] ${sinif}`}>
       {children}
+    </Link>
+  );
+}
+
+/**
+ * Bölüm sayfalarının en üstündeki tek kayıt düğmesi. Adı yalnızca "Yeni Ekle":
+ * neyin ekleneceğini bulunulan sayfa söyler. Kamera simgesi, açılan formda
+ * isteğe bağlı fotoğraf çekilebildiğini gösterir.
+ */
+export function YeniEkle({ href, kamera = true }: { href: string; kamera?: boolean }) {
+  return (
+    <Link
+      href={href}
+      className="flex min-h-18 items-center justify-center gap-3 rounded-2xl bg-vurgu px-4 text-xl font-extrabold text-black active:scale-[0.98] lg:max-w-md"
+    >
+      <Plus className="size-8" strokeWidth={3} />
+      Yeni Ekle
+      {kamera && <Camera className="size-7" strokeWidth={2.4} />}
     </Link>
   );
 }

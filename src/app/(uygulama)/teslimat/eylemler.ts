@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { oturum } from "@/lib/oturum";
 import { bugun } from "@/lib/sabitler";
-import { metin, tarihMi, uuidMi } from "@/lib/denetim";
+import { fotoYollari, metin, tarihMi, uuidMi } from "@/lib/denetim";
 import type { FormDurumu } from "@/components/form";
 
 export async function teslimatKaydet(_: FormDurumu, form: FormData): Promise<FormDurumu> {
@@ -32,10 +32,11 @@ export async function teslimatKaydet(_: FormDurumu, form: FormData): Promise<For
     saat,
     arac,
     urun,
+    fotograflar: fotoYollari(form, o.firma.id),
   });
   if (error) return { hata: "Kaydedilemedi: " + error.message };
   revalidatePath("/teslimat");
-  redirect("/?kayit=1");
+  redirect(`/teslimat?tarih=${tarih}&kayit=1`);
 }
 
 export async function teslimatSil(form: FormData) {

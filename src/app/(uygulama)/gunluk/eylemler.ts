@@ -71,7 +71,7 @@ export async function gunlukKaydet(_: FormDurumu, form: FormData): Promise<FormD
     if (error) return { hata: veritabaniHatasi(error) };
     if (!data?.length) return { hata: "Bu günlüğü düzenleme yetkiniz yok. Kaydı giren kişi 24 saat içinde, merkez her zaman düzenleyebilir." };
     revalidatePath("/gunluk");
-    redirect("/gunluk?kayit=1");
+    redirect("/gunluk?kayit=duzeltildi");
   }
 
   const { error } = await o.supabase.from("gunlukler").insert({
@@ -83,7 +83,7 @@ export async function gunlukKaydet(_: FormDurumu, form: FormData): Promise<FormD
   // Aynı kimlikle ikinci gönderim (çift dokunma) sessizce yok sayılır.
   if (error && error.code !== "23505") return { hata: veritabaniHatasi(error) };
   revalidatePath("/gunluk");
-  redirect("/?kayit=1");
+  redirect("/gunluk?kayit=yeni");
 }
 
 export async function gunlukSil(_: FormDurumu, form: FormData): Promise<FormDurumu> {
