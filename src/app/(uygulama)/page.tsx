@@ -1,143 +1,58 @@
 import Link from "next/link";
-import {
-  AlertTriangle,
-  BookOpen,
-  ClipboardList,
-  LogOut,
-  Settings,
-  Truck,
-  Users,
-  Building2,
-} from "lucide-react";
+import { LogOut } from "lucide-react";
 import { oturum } from "@/lib/oturum";
-import { bugun } from "@/lib/sabitler";
 import { cikisYap } from "@/app/giris/eylem";
-import { GecikmeSesi } from "@/components/gecikme-sesi";
+import { anaSayfaVerisi } from "./_ana-sayfa/veri";
+import { BugunKarti } from "./_ana-sayfa/bugun-karti";
+import { Grafit } from "./_ana-sayfa/grafit";
+
+/**
+ * Ana sayfa tasarımı. İki tasarım hazır duruyor, aynı veriyi çizer:
+ * "b" Bugün Kartı (varsayılan), "a" Grafit Başlık. Değiştirmek için bu satır
+ * değişir; yayındaki sitede `?tasarim=a` ile öteki denenebilir.
+ */
+const TASARIM: "a" | "b" = "b";
 
 export default async function AnaSayfa({ searchParams }: PageProps<"/">) {
   const o = await oturum();
-  const { yetki: yetkiUyarisi, kayit } = await searchParams;
-  const s = o.santiye;
-
-  // Özet sayılar ve gecikme uyarıları seçili şantiye için.
-  const [hatalar, talepler, teslimatlar, taseronlar] = s
-    ? await Promise.all([
-        o.yetki("hatali")
-          ? o.supabase.from("hatali_isler").select("id", { count: "exact", head: true }).eq("santiye_id", s.id).neq("durum", "onaylandi")
-          : null,
-        o.yetki("talep")
-          ? o.supabase.from("talepler").select("id", { count: "exact", head: true }).eq("santiye_id", s.id).not("durum", "in", "(teslim_alindi,kapandi)")
-          : null,
-        o.yetki("teslimat")
-          ? o.supabase.rpc("teslimat_yogunluk", { p_santiye: s.id, p_tarih: bugun() })
-          : null,
-        o.supabase.rpc("santiye_taseronlari", { p_santiye: s.id }),
-      ])
-    : [null, null, null, null];
-
-  const gecikenler = ((taseronlar?.data ?? []) as { id: string; firma_adi: string; gecikme: number | null }[]).filter(
-    (t) => t.gecikme != null && t.gecikme <= 7,
-  );
-  const bugunTeslimat = ((teslimatlar?.data ?? []) as { adet: number }[]).reduce((a, b) => a + Number(b.adet), 0);
+  const { yetki: yetkiUyarisi, kayit, tasarim } = await searchParams;
+  const v = await anaSayfaVerisi(o);
+  const secilen = tasarim === "a" || tasarim === "b" ? tasarim : TASARIM;
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4 px-4 pt-3 pb-16 lg:max-w-5xl lg:px-8 lg:pt-8">
+    <div className="flex flex-1 flex-col bg-yuzey">
+      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4 px-4 pt-3 pb-16 lg:max-w-5xl lg:px-8 lg:pt-8">
+        {yetkiUyarisi === "yok" && (
+          <p className="rounded-xl bg-kirmizi px-4 py-3 font-semibold text-white">Bu sayfayı görme yetkiniz yok.</p>
+        )}
+        {kayit && <p className="rounded-xl bg-yesil px-4 py-3 text-lg font-bold text-white">✓ Kaydedildi</p>}
 
-      {yetkiUyarisi === "yok" && (
-        <p className="rounded-xl bg-kirmizi px-4 py-3 font-semibold text-white">Bu sayfayı görme yetkiniz yok.</p>
-      )}
-      {kayit && <p className="rounded-xl bg-yesil px-4 py-3 text-lg font-bold text-white">✓ Kaydedildi</p>}
-
-
-      {!s && (
-        <div className="rounded-2xl bg-yuzey p-5 text-center">
-          <p className="font-semibold">Henüz size bağlı bir şantiye yok.</p>
-          {o.merkez ? (
-            <Link href="/yonetim/santiyeler" className="mt-3 inline-block rounded-xl bg-vurgu px-5 py-3 font-bold text-black">
-              Şantiye Ekle
-            </Link>
-          ) : (
-            <p className="mt-1 text-soluk">Merkezin sizi bir şantiyeye eklemesi gerekiyor.</p>
-          )}
-        </div>
-      )}
-
-      {gecikenler.length > 0 && (
-        <Link href="/taseronlar" className="flex items-start gap-3 rounded-2xl bg-kirmizi p-4 text-white">
-          <AlertTriangle className="size-8 shrink-0" />
-          <div>
-            <p className="text-lg font-extrabold">Gecikme uyarısı</p>
-            <p className="font-semibold">
-              {gecikenler
-                .map((t) => `${t.firma_adi} (${t.gecikme! < 0 ? `${-t.gecikme!} gün gecikti` : `${t.gecikme} gün kaldı`})`)
-                .join(", ")}
-            </p>
+        {!v.santiye && (
+          <div className="rounded-2xl bg-zemin p-5 text-center">
+            <p className="font-semibold">Henüz size bağlı bir şantiye yok.</p>
+            {o.merkez ? (
+              <Link href="/yonetim/santiyeler" className="mt-3 inline-block rounded-xl bg-vurgu px-5 py-3 font-bold text-black">
+                Şantiye Ekle
+              </Link>
+            ) : (
+              <p className="mt-1 text-soluk">Merkezin sizi bir şantiyeye eklemesi gerekiyor.</p>
+            )}
           </div>
-          <GecikmeSesi adet={gecikenler.length} />
-        </Link>
-      )}
-
-
-      <nav className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {s && o.yetki("gunluk") && <Kutu href="/gunluk" ikon={<BookOpen />} ad="Günlükler" />}
-        {s && o.yetki("hatali") && (
-          <Kutu href="/hatali" ikon={<AlertTriangle />} ad="Hatalı İşler" sayi={hatalar?.count} sayiAd="açık" kirmizi />
         )}
-        {s && o.yetki("talep") && <Kutu href="/talep" ikon={<ClipboardList />} ad="Talepler" sayi={talepler?.count} sayiAd="bekleyen" />}
-        {s && o.yetki("teslimat") && <Kutu href="/teslimat" ikon={<Truck />} ad="Teslimat Takvimi" sayi={bugunTeslimat} sayiAd="bugün" />}
-        {o.taseron ? (
-          <Kutu href={`/taseronlar/${o.profil.taseron_id}`} ikon={<Building2 />} ad="Firmam" />
-        ) : (
-          <Kutu href="/taseronlar" ikon={<Users />} ad="Taşeronlar" />
-        )}
-        {o.merkez && <Kutu href="/yonetim" ikon={<Settings />} ad="Yönetim" />}
-      </nav>
 
-      {/* Şantiye girişte seçilir; başka şantiyeye geçmek için çıkış yapılır. */}
-      <form action={cikisYap} className="mt-2 lg:hidden">
-        <button
-          type="submit"
-          className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl border-2 border-cizgi text-lg font-semibold text-soluk active:bg-yuzey"
-        >
-          <LogOut className="size-6" />
-          Çıkış{o.santiyeler.length > 1 ? " (şantiye değiştirmek için)" : ""}
-        </button>
-      </form>
+        {secilen === "a" ? <Grafit v={v} /> : <BugunKarti v={v} />}
+
+        {/* Şantiye girişte seçilir; başka şantiyeye geçmek için çıkış yapılır. */}
+        <form action={cikisYap} className="mt-2 lg:hidden">
+          <button
+            type="submit"
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl text-[15px] font-semibold text-soluk active:bg-gri-acik"
+          >
+            <LogOut className="size-5" />
+            Çıkış{o.santiyeler.length > 1 ? " (şantiye değiştirmek için)" : ""}
+          </button>
+        </form>
+      </div>
     </div>
-  );
-}
-
-function Kutu({
-  href,
-  ikon,
-  ad,
-  sayi,
-  sayiAd,
-  kirmizi,
-}: {
-  href: string;
-  ikon: React.ReactNode;
-  ad: string;
-  sayi?: number | null;
-  sayiAd?: string;
-  kirmizi?: boolean;
-}) {
-  return (
-    <Link
-      href={href}
-      className="relative flex min-h-24 flex-col justify-between gap-2 rounded-2xl border-2 border-cizgi bg-yuzey p-3 active:scale-[0.98] [&_svg]:size-7"
-    >
-      {ikon}
-      <span className="text-lg leading-tight font-bold">{ad}</span>
-      {!!sayi && (
-        <span
-          className={`absolute top-2 right-2 rounded-lg px-2 py-0.5 text-sm font-extrabold ${
-            kirmizi ? "bg-kirmizi text-white" : "bg-koyu text-white"
-          }`}
-        >
-          {sayi} {sayiAd}
-        </span>
-      )}
-    </Link>
   );
 }

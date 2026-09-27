@@ -22,6 +22,20 @@
   --color-mavi: #1f5fbf;
   --color-gri: #4a5260;
 
+  /* Ana sayfa kartları: yumuşak ikon zeminleri, turuncu geçiş, ince ayraç.
+     Üzerlerine koyu ton yazılır: kırmızı/kırmızı-açık 4.9, mavi/mavi-açık 5.2,
+     yeşil/yeşil-açık 4.6, kahve/sarı-açık 5.4, siyah/vurgu-koyu 9.8,
+     parlak kırmızı/koyu 5.3, parlak mavi/koyu 6.8, vurgu/koyu 8.4. */
+  --color-kirmizi-parlak: #ff6b6b;
+  --color-mavi-parlak: #6fb4ff;
+  --color-vurgu-koyu: #f59e0b;
+  --color-sari-acik: #fff3d6;
+  --color-kahve: #8a5a00;
+  --color-kirmizi-acik: #fde3e4;
+  --color-mavi-acik: #e3edfb;
+  --color-yesil-acik: #dff2e6;
+  --color-gri-acik: #eceef1;
+
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 

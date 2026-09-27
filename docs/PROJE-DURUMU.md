@@ -76,8 +76,13 @@ yazılmaz. Güneş altında okunurluk için yüksek kontrast; her çift ölçül
 
 **Ekran ilkeleri** (anayasadan): büyük dokunma alanı (en az 48 px, çoğu 56–80),
 çoktan seçmeli, zorunlu alan sarı çizgi + "Zorunlu" etiketi, her kayıtta tarih
-seçici (bugün varsayılan), kamera "Yeni kayıt" düğmesinin yanında,
-Kaydet → ana sayfa.
+seçici (bugün varsayılan), her bölümde kamera ikonlu tek "Yeni Ekle"
+düğmesi, Kaydet → bölüm sayfası ("✓ Kaydedildi").
+
+**Ana sayfa** iki tasarımla hazır: `_ana-sayfa/bugun-karti.tsx` (B, yayında)
+ve `_ana-sayfa/grafit.tsx` (A, yedek). Veri tek yerde (`_ana-sayfa/veri.ts`);
+tasarım `page.tsx` içindeki `TASARIM` satırıyla değişir, yayında
+`/?tasarim=a` ile öteki denenir.
 
 ## Test
 

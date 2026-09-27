@@ -41,7 +41,7 @@ Saha denemesinden gelen D6–D9 yapıldı (26 Eylül). Kalanlar:
 |---|---|
 | D5 | "Bugünün Günlüğü": dünden devam kartları (Aynen devam / Değiştir / Gelmedi) |
 | A2 | Sesle yazma: not ve açıklama kutularında mikrofon (telefonun Türkçe tanıması) |
-| A3 | Hava durumu günlüğe kendiliğinden (Open-Meteo, ücretsiz, anahtarsız) |
+| A3 | Hava durumu günlüğe kendiliğinden (Open-Meteo, ücretsiz, anahtarsız); ana sayfadaki "Bugün" kartında da görünür. Önce şantiyeye konum (enlem/boylam) alanı gerekir |
 
 ## Faz 3 — Taşeron içeride
 

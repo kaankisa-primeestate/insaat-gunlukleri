@@ -87,3 +87,14 @@ Anayasadan üç sapma, üçü de kullanıcı isteğiyle:
 - **Kaydet ana sayfaya değil, bölüm sayfasına döner** ve üstte
   "✓ Kaydedildi" yazar. Kullanıcı kaydın listeye düştüğünü görür; ikinci
   kaydı girmek için de tek dokunuş yeter.
+
+## Ana sayfa tasarımı (27 Eylül)
+
+- Dört öneri görüldü; **B "Bugün Kartı" seçildi**. Kullanıcı A "Grafit
+  Başlık"ı da beğendi: A silinmedi, yedek olarak duruyor ve `/?tasarim=a`
+  ile denenebiliyor. Sahada kullandıkça olgunlaşacak.
+- Koyu tasarım (C) önerilmedi: anayasa güneş altında okunurluk için açık
+  zemin istiyor.
+- Ana sayfaya yeni bilgi: **"Bugün X / Y taşeron günlüğü girildi"** ve
+  günlüğü henüz girilmeyen taşeronların adları. Y = şantiyede sözleşmesi olan
+  taşeronlar (günlük formundaki liste). Sayaçlar dokunulunca bölüme gider.
