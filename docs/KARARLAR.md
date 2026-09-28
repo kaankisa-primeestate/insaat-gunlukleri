@@ -161,3 +161,13 @@ Kullanıcı isteğiyle Faz 2'den (A2, A3) öne çekildi.
 - Alt taşeron tanımlama: merkez firmanın Düzenle formunda "Kendi alt
   taşeronunu tanımlayabilsin"i işaretler; taşeron Firmam > Alt taşeronlar >
   Alt Taşeron Ekle.
+
+## Sesle yazma kapandı (28 Eylül)
+
+Android, tanıma her başlayıp durduğunda sistem sesi ("bip") çalıyor; site
+bunu kapatamıyor ve motor konuşurken de birkaç saniyede bir kendini
+kapatıyor. Seçenekler konuşuldu (uzun dinleme + elle yeniden başlatma,
+klavye mikrofonu, ücretli sunucu tanıması). Kullanıcı mevcut düğmeyle
+birlikte uzun notlarda klavyenin mikrofonunu kullanıyor; sorun kapandı,
+kodda değişiklik yapılmadı. Ücretli sunucu tanıması (sessiz, süresiz)
+satış aşamasında yeniden düşünülebilir.
