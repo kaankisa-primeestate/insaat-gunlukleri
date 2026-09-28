@@ -1,0 +1,73 @@
+# Her gece veritabanının şifreli yedeği (S6).
+#
+# Supabase ücretsiz pakette yedek almıyor. Bu iş her gece bütün kayıtları
+# (günlükler, hatalı işler, talepler, taşeronlar, kullanıcılar) döker, şifreler
+# ve GitHub'da 30 gün saklar. Şifre olmadan dosya açılamaz; içinde kişi
+# adları ve telefonlar var.
+#
+# Gerekli gizli değerler (Settings > Secrets and variables > Actions):
+#   SUPABASE_DB_URL  Supabase > Connect > "Session pooler" bağlantı adresi
+#                    (şifre içinde). GitHub sunucuları IPv6'ya çıkamadığı için
+#                    doğrudan bağlantı değil, pooler adresi kullanılır.
+#   YEDEK_SIFRESI    Yedeği şifreleyen parola. Kaybedilirse yedek açılamaz;
+#                    ayrıca güvenli bir yerde saklanmalı.
+#
+# Aynı iş Supabase'e her gün dokunduğu için ücretsiz projenin "7 gün
+# kullanılmazsa uyku" kuralına da takılmaz.
+
+name: Gece yedeği
+
+on:
+  schedule:
+    - cron: "17 2 * * *" # Her gece 05:17 (İstanbul)
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  yedek:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: PostgreSQL araçları (sunucuyla aynı sürüm)
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-17
+
+      - name: Döküm
+        env:
+          DB: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          test -n "$DB" || { echo "SUPABASE_DB_URL tanımlı değil"; exit 1; }
+          # Uygulama verisi (public), giriş hesapları (auth) ve dosya kayıtları
+          # (storage). Fotoğrafların kendisi ayrı yedeklenir.
+          /usr/lib/postgresql/17/bin/pg_dump "$DB" \
+            --format=custom --no-owner --no-privileges \
+            --schema=public --schema=auth --schema=storage \
+            --file=yedek.dump
+          ls -lh yedek.dump
+          # Boş ya da yarım dökümü "yedek alındı" saymamak için içerik denetimi.
+          /usr/lib/postgresql/17/bin/pg_restore --list yedek.dump | grep -q "TABLE DATA public gunlukler"
+
+      - name: Şifrele
+        env:
+          SIFRE: ${{ secrets.YEDEK_SIFRESI }}
+        run: |
+          set -euo pipefail
+          test -n "$SIFRE" || { echo "YEDEK_SIFRESI tanımlı değil"; exit 1; }
+          gpg --batch --yes --pinentry-mode loopback --passphrase "$SIFRE" \
+            --symmetric --cipher-algo AES256 --output "yedek-$(date -u +%Y-%m-%d).dump.gpg" yedek.dump
+          shred -u yedek.dump
+
+      - name: Sakla (30 gün)
+        uses: actions/upload-artifact@v4
+        with:
+          name: yedek-${{ github.run_id }}
+          path: yedek-*.dump.gpg
+          retention-days: 30
+          if-no-files-found: error

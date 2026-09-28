@@ -97,3 +97,15 @@ akışlar Playwright ile telefon boyutunda denendi: kurulum, şantiye, taşeron 
 sözleşme, kullanıcılar, kamerayla günlük, geçmişe dönük günlük, hatalı iş,
 taşeronun "Düzeltiliyor" demesi (onaylayamaması), talep ilerletme, teslimat.
 İkinci bir firmanın ilk firmanın hiçbir verisini göremediği REST ile denendi.
+
+## Yedek
+
+Her gece 05:17'de (İstanbul) GitHub Actions veritabanını döker (public, auth,
+storage şemaları), `YEDEK_SIFRESI` ile şifreler, 30 gün saklar
+(`.github/workflows/yedek.yml`). Aynı iş Supabase'e her gün dokunduğu için
+ücretsiz projenin uyku kuralına takılmaz. Fotoğrafların kendisi bu yedekte
+yok; Cloudflare R2'ye kopyalama sırada.
+
+Geri yükleme (denendi, satır sayıları birebir): Actions > Gece yedeği >
+çalışma > dosyayı indir; `gpg -d yedek-TARIH.dump.gpg > yedek.dump`;
+`pg_restore --no-owner --no-privileges -d <hedef> yedek.dump`.
