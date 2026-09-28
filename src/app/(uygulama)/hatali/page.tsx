@@ -40,7 +40,7 @@ export default async function HataliIsler({ searchParams }: PageProps<"/hatali">
     <Sayfa baslik={`Hatalı İşler · ${o.santiye.ad}`} genis>
       {kayit && <p className="rounded-xl bg-yesil px-4 py-3 text-lg font-bold text-white">✓ Kaydedildi</p>}
       {silindi && <p className="rounded-xl bg-yesil px-4 py-3 text-lg font-bold text-white">✓ Kayıt silindi</p>}
-      {o.yetki("hatali", true) && !o.taseron && <YeniEkle href="/hatali/yeni" />}
+      {o.yetki("hatali", true) && <YeniEkle href="/hatali/yeni" />}
       <nav className="grid grid-cols-4 gap-1 rounded-2xl bg-yuzey p-1 lg:hidden">
         {sekmeler.map((s) => (
           <Link

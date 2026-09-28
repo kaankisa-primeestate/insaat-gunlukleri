@@ -40,7 +40,7 @@ export default async function HataDetay({ params, searchParams }: PageProps<"/ha
   const bildiren = h.bildiren as unknown as { ad_soyad: string } | null;
   const sorumlu = h.sorumlu as unknown as { ad_soyad: string } | null;
   const duzenleyen = h.duzenleyen_kisi as unknown as { ad_soyad: string } | null;
-  const degisebilir = !o.taseron && kayitDegisebilir(o, h, h.durum === "tespit", "hatali");
+  const degisebilir = kayitDegisebilir(o, h, h.durum === "tespit", "hatali");
 
   return (
     <Sayfa baslik="Hatalı İş" geri="/hatali" geriAd="Hatalı İşler">

@@ -30,7 +30,7 @@ export function varsayilanYetki(rol: Rol, sayfa: Sayfa, duzen: boolean): boolean
       return sayfa === "talep" || sayfa === "teslimat" ? true : !duzen;
     case "taseron":
       if (sayfa === "taseronlar") return false;
-      if (sayfa === "gunluk" || sayfa === "sozlesme") return !duzen;
+      if (sayfa === "sozlesme") return !duzen;
       return true;
   }
 }

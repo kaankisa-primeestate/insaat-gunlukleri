@@ -20,7 +20,7 @@ export default async function HataDuzenle({ params }: PageProps<"/hatali/[id]/du
     .eq("id", id)
     .maybeSingle();
   if (!h) notFound();
-  if (o.taseron || !kayitDegisebilir(o, h, h.durum === "tespit", "hatali")) redirect(`/hatali/${id}?yetki=yok`);
+  if (!kayitDegisebilir(o, h, h.durum === "tespit", "hatali")) redirect(`/hatali/${id}?yetki=yok`);
   if (!o.santiye || h.santiye_id !== o.santiye.id) redirect("/hatali");
 
   const [{ data: taseronlar }, { data: personel }, adresler, yerListesi] = await Promise.all([

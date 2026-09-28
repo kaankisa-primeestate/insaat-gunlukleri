@@ -147,3 +147,17 @@ Kullanıcı isteğiyle Faz 2'den (A2, A3) öne çekildi.
   kapanıyordu. Motor sessizlikte kendini kapatırsa program yeniden başlatır.
 - **Kişi sayısında hızlı seçim (2-4-6…) kalktı;** yalnız − sayı +. Dokununca
   sayı seçili gelir, yazılan onun yerine geçer; silince "0" belirmez.
+
+## Taşeron de kayıt ekler (28 Eylül, kullanıcı kararı)
+
+- Taşeron hesabı artık günlük, hatalı iş, talep ve teslimat ekleyebilir.
+  Önceden günlüğü yalnız görüyor, hatalı iş hiç bildiremiyordu.
+- **Anayasadan sapma:** anayasada hatayı şef bildirir, taşeron düzeltir.
+  Kullanıcı taşeronun da bildirebilmesini istedi. Sınırlar: taşeron yalnız
+  kendi firmasına ve kendi alt taşeronuna iş yazar, personele (şef, kalfa)
+  yazamaz, hiçbir işi onaylayamaz. Kendi açtığı kaydı 24 saat içinde ve
+  "Tespit" durumundayken düzeltir.
+- Varsayılandır; merkez bir firmayı o firmanın "Yetki" sekmesinden kısabilir.
+- Alt taşeron tanımlama: merkez firmanın Düzenle formunda "Kendi alt
+  taşeronunu tanımlayabilsin"i işaretler; taşeron Firmam > Alt taşeronlar >
+  Alt Taşeron Ekle.

@@ -14,7 +14,7 @@ export async function hataKaydet(_: FormDurumu, form: FormData): Promise<FormDur
   if (!o.santiye) return { hata: "Şantiye seçili değil." };
   const id = form.get("id");
   const duzenle = form.get("duzenle") === "1" && uuidMi(id);
-  if (o.taseron || (!duzenle && !o.yetki("hatali", true))) return { hata: "Hatalı iş bildirme yetkiniz yok." };
+  if (!duzenle && !o.yetki("hatali", true)) return { hata: "Hatalı iş bildirme yetkiniz yok." };
 
   // "t:<kimlik>" taşeron, "k:<kimlik>" kullanıcı (kalfa, şef…).
   const sorumlu = String(form.get("sorumlu") ?? "");
@@ -26,6 +26,8 @@ export async function hataKaydet(_: FormDurumu, form: FormData): Promise<FormDur
   const fotograflar = fotoYollari(form, o.firma.id);
 
   if (!uuidMi(taseronId) && !uuidMi(kullaniciId)) return { hata: "Kimin işi olduğunu seçin." };
+  // Taşeron yalnız kendi firmasına ya da alt taşeronuna iş yazar; kuralı veritabanı da uygular.
+  if (o.taseron && uuidMi(kullaniciId)) return { hata: "Taşeron personele iş yazamaz; bir taşeron seçin." };
   if (!tarihMi(tarih) || tarih > bugun()) return { hata: "Geçerli bir tarih seçin." };
   if (!(onem in ONEM)) return { hata: "Önem derecesini seçin." };
   if (!aciklama || aciklama.length < 2) return { hata: "Kısa bir açıklama yazın." };

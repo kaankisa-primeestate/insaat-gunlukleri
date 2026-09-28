@@ -8,7 +8,6 @@ import { HataFormu } from "./form";
 
 export default async function YeniHata() {
   const o = await yetkiIste("hatali", true);
-  if (o.taseron) redirect("/?yetki=yok");
   if (!o.santiye) redirect("/");
   const [{ data: taseronlar }, { data: personel }, yerListesi] = await Promise.all([
     o.supabase.rpc("santiye_taseronlari", { p_santiye: o.santiye.id }),
