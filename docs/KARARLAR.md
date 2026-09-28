@@ -135,3 +135,15 @@ Kullanıcı isteğiyle Faz 2'den (A2, A3) öne çekildi.
   bağlı teslimat kalır, talep bağlantısı kalkar.
 - Rol yalnız firma içi roller arasında değişir. Taşeron hesabı iç hesaba
   (ya da tersi) çevrilmez; görebildiği veri kökten değişir, yeni hesap açılır.
+
+## Form düzeni (28 Eylül, saha geri bildirimi)
+
+- **Tarih tek satır:** [Bugün] [Tarih seç]. "Dün" düğmesi ve ayrı tarih
+  kutusu kalktı; "Tarih seç" telefonun takvimini açar, seçilen gün düğmede
+  yazar. Günlük ve hatalı işte.
+- **Not / açıklama kutusu büyük** (yaklaşık 6 satır) ve yazı uzadıkça uzuyor;
+  kazanılan yer buraya verildi.
+- **Mikrofon kullanıcı kapatana kadar dinler.** Önceki hâli her cümleden sonra
+  kapanıyordu. Motor sessizlikte kendini kapatırsa program yeniden başlatır.
+- **Kişi sayısında hızlı seçim (2-4-6…) kalktı;** yalnız − sayı +. Dokununca
+  sayı seçili gelir, yazılan onun yerine geçer; silince "0" belirmez.

@@ -1,8 +1,8 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
-import { createContext, startTransition, useContext, useRef, useState, type ReactNode, type Ref } from "react";
-import { Check, LoaderCircle } from "lucide-react";
+import { createContext, startTransition, useContext, useEffect, useRef, useState, type ReactNode, type Ref } from "react";
+import { CalendarDays, Check, LoaderCircle } from "lucide-react";
 import { bugun } from "@/lib/sabitler";
 import { SesleYaz } from "./sesle-yaz";
 
@@ -103,12 +103,31 @@ export function Girdi(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className={`${girdiSinifi} ${props.className ?? ""}`} />;
 }
 
-/** Çok satırlı yazı kutusu; köşesinde sesle yazma mikrofonu (destekleyen tarayıcıda). */
+/**
+ * Çok satırlı yazı kutusu: yaklaşık 6 satır yer açar, yazı uzadıkça kutu da
+ * uzar (yazılanın tamamı görünsün). Köşesinde sesle yazma mikrofonu.
+ */
 export function Metin(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
   const ref = useRef<HTMLTextAreaElement>(null);
+  function uzat() {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight + 4}px`;
+  }
+  useEffect(uzat, []);
   return (
     <div className="relative">
-      <textarea rows={2} {...props} ref={ref} className={`${girdiSinifi} min-h-20 py-3 pr-16 ${props.className ?? ""}`} />
+      <textarea
+        rows={6}
+        {...props}
+        ref={ref}
+        onInput={(e) => {
+          uzat();
+          props.onInput?.(e);
+        }}
+        className={`${girdiSinifi} min-h-52 resize-none py-3 pr-16 leading-snug ${props.className ?? ""}`}
+      />
       <SesleYaz hedef={ref} />
     </div>
   );
@@ -163,34 +182,47 @@ export function Secim({
 }
 
 /** Tarih seçici: bugün varsayılan, geçmiş seçilebilir, ileri tarih kapalı. */
+/**
+ * Tarih: tek satırda [Bugün] [Tarih seç]. "Tarih seç"in üstünde görünmez bir
+ * tarih kutusu durur; dokununca telefonun takvimi açılır, seçilen gün düğmede
+ * yazar. İleri tarih seçilemez.
+ */
 export function TarihSecici({ ad = "is_tarihi", varsayilan }: { ad?: string; varsayilan?: string }) {
   const b = bugun();
   const [deger, setDeger] = useState(varsayilan ?? b);
-  const dun = new Date(b + "T12:00:00");
-  dun.setDate(dun.getDate() - 1);
-  const dunStr = dun.toISOString().slice(0, 10);
-  const gecmis = deger < b;
+  const bugunMu = deger === b;
+  const [y, a, g] = deger.split("-");
   return (
     <div className="flex flex-col gap-2">
       <div className="grid grid-cols-2 gap-2">
-        {[
-          { d: b, ad: "Bugün" },
-          { d: dunStr, ad: "Dün" },
-        ].map((x) => (
-          <button
-            key={x.d}
-            type="button"
-            onClick={() => setDeger(x.d)}
-            className={`min-h-14 rounded-xl border-2 text-base font-semibold ${
-              deger === x.d ? "border-yazi bg-koyu text-white" : "border-cizgi bg-yuzey"
-            }`}
-          >
-            {x.ad}
-          </button>
-        ))}
+        <button
+          type="button"
+          onClick={() => setDeger(b)}
+          aria-pressed={bugunMu}
+          className={`min-h-14 rounded-xl border-2 text-lg font-bold ${bugunMu ? "border-yazi bg-koyu text-white" : "border-cizgi bg-yuzey"}`}
+        >
+          Bugün
+        </button>
+        <label
+          className={`relative flex min-h-14 cursor-pointer items-center justify-center gap-2 rounded-xl border-2 text-lg font-bold ${
+            bugunMu ? "border-cizgi bg-yuzey" : "border-yazi bg-koyu text-white"
+          }`}
+        >
+          <CalendarDays className="size-6 shrink-0" aria-hidden />
+          {bugunMu ? "Tarih seç" : `${g}.${a}.${y}`}
+          <input
+            type="date"
+            name={ad}
+            value={deger}
+            max={b}
+            required
+            aria-label="Tarih seç"
+            onChange={(e) => e.target.value && setDeger(e.target.value > b ? b : e.target.value)}
+            className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+          />
+        </label>
       </div>
-      <Girdi type="date" name={ad} value={deger} max={b} required onChange={(e) => setDeger(e.target.value)} />
-      {gecmis && deger !== dunStr && (
+      {!bugunMu && (
         <p className="rounded-lg bg-sari px-3 py-2 text-sm font-semibold text-black">
           Geçmişe dönük kayıt: iş bu tarihe işlenecek.
         </p>

@@ -75,40 +75,50 @@ export function TaseronSecici({
 
 /** Kişi sayısı: büyük eksi/artı ve hızlı seçimler. */
 export function SayiSecici({ ad, varsayilan = 1, en = 500 }: { ad: string; varsayilan?: number; en?: number }) {
-  const [n, setN] = useState(varsayilan);
-  const degistir = (v: number) => setN(Math.max(0, Math.min(en, v)));
+  // Yazı olarak tutulur: silince kutu boş kalır ("0" belirmez), yazılan sayı
+  // eskisinin yanına eklenmez. Dokununca mevcut sayı seçili gelir; yazılan
+  // onun yerine geçer. Boş bırakılıp çıkılırsa son geçerli sayıya döner.
+  const [yazi, setYazi] = useState(String(varsayilan));
+  const [son, setSon] = useState(varsayilan);
+  const sayi = yazi === "" ? son : Number(yazi);
+  const ayarla = (v: number) => {
+    const n = Math.max(0, Math.min(en, v));
+    setYazi(String(n));
+    setSon(n);
+  };
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2">
-        <button type="button" aria-label="Azalt" onClick={() => degistir(n - 1)} className="grid size-16 place-items-center rounded-xl bg-koyu text-white">
-          <Minus className="size-8" strokeWidth={3} />
-        </button>
-        <input
-          name={ad}
-          type="number"
-          inputMode="numeric"
-          min={0}
-          max={en}
-          value={n}
-          onChange={(e) => degistir(Number(e.target.value) || 0)}
-          className="min-h-16 w-full min-w-0 rounded-xl border-2 border-cizgi text-center text-3xl font-extrabold"
-        />
-        <button type="button" aria-label="Artır" onClick={() => degistir(n + 1)} className="grid size-16 place-items-center rounded-xl bg-koyu text-white">
-          <Plus className="size-8" strokeWidth={3} />
-        </button>
-      </div>
-      <div className="grid grid-cols-6 gap-2">
-        {[2, 4, 6, 8, 10, 15].map((v) => (
-          <button
-            key={v}
-            type="button"
-            onClick={() => setN(v)}
-            className={`min-h-12 rounded-xl border-2 font-bold ${n === v ? "border-yazi bg-koyu text-white" : "border-cizgi bg-yuzey"}`}
-          >
-            {v}
-          </button>
-        ))}
-      </div>
+    <div className="flex items-center gap-2">
+      <button type="button" aria-label="Azalt" onClick={() => ayarla(sayi - 1)} className="grid size-16 shrink-0 place-items-center rounded-xl bg-koyu text-white">
+        <Minus className="size-8" strokeWidth={3} />
+      </button>
+      <input
+        name={ad}
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]*"
+        required
+        aria-label="Kişi sayısı"
+        value={yazi}
+        // Her dokunuşta (kutu zaten açıkken de) sayı seçili gelir; iPhone
+        // odaklanmadan hemen sonra seçimi bıraktığı için kısa gecikmeyle.
+        onFocus={(e) => {
+          const el = e.currentTarget;
+          setTimeout(() => el.select(), 0);
+        }}
+        onClick={(e) => e.currentTarget.select()}
+        onChange={(e) => {
+          const temiz = e.target.value.replace(/\D/g, "").replace(/^0+(?=\d)/, "").slice(0, 3);
+          if (temiz === "") return setYazi("");
+          const n = Math.min(en, Number(temiz));
+          setYazi(String(n));
+          setSon(n);
+        }}
+        onBlur={() => yazi === "" && setYazi(String(son))}
+        className="min-h-16 w-full min-w-0 rounded-xl border-2 border-cizgi text-center text-3xl font-extrabold"
+      />
+      <button type="button" aria-label="Artır" onClick={() => ayarla(sayi + 1)} className="grid size-16 shrink-0 place-items-center rounded-xl bg-koyu text-white">
+        <Plus className="size-8" strokeWidth={3} />
+      </button>
     </div>
   );
 }
