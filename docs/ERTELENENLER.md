@@ -50,7 +50,7 @@ bozulmaz.
 | S4 | Fotoğrafları Cloudflare R2'ye taşıma (Supabase ücretsiz alan 1 GB) | Alan dolmaya yaklaşınca |
 | S5 | Ayrı arka uç sunucusu (NestJS/.NET) | Gerekmiyor; Next.js + Supabase yetiyor |
 | S7 | Hava durumu lisansı: Open-Meteo'nun ücretsiz kullanımı ticari olmayan kullanım içindir. Satıştan önce ücretli pakete ya da ticari kullanıma açık sağlayıcıya geçilir (değişiklik yalnızca `src/lib/hava.ts`) | Pilotta ücretsiz sürüm |
-| S6 | Otomatik günlük yedek | Veritabanı yapıldı (28 Eylül): her gece şifreli döküm, GitHub'da 30 gün (`.github/workflows/yedek.yml`). Fotoğraflar (Cloudflare R2) sırada |
+| S6 | Otomatik günlük yedek | Veritabanı yapıldı (28 Eylül): her gece şifreli döküm, GitHub'da 30 gün (`.github/workflows/yedek.yml`). Fotoğrafların R2 kopyası kullanıcı kararıyla ertelendi (28 Eylül): fotoğraf az. Supabase Storage 1 GB'a yaklaşınca (≈6.000 fotoğraf) yapılır; Cloudflare hesabı açık, R2 aboneliği eklenmedi |
 
 ## 2. Faz (anayasada zaten sonraya bırakılmış)
 
