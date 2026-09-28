@@ -5,6 +5,7 @@ import { cikisYap } from "@/app/giris/eylem";
 import { anaSayfaVerisi } from "./_ana-sayfa/veri";
 import { BugunKarti } from "./_ana-sayfa/bugun-karti";
 import { Grafit } from "./_ana-sayfa/grafit";
+import { AnaEkranIpucu } from "@/components/ana-ekran-ipucu";
 
 /**
  * Ana sayfa tasarımı. İki tasarım hazır duruyor, aynı veriyi çizer:
@@ -26,6 +27,7 @@ export default async function AnaSayfa({ searchParams }: PageProps<"/">) {
           <p className="rounded-xl bg-kirmizi px-4 py-3 font-semibold text-white">Bu sayfayı görme yetkiniz yok.</p>
         )}
         {kayit && <p className="rounded-xl bg-yesil px-4 py-3 text-lg font-bold text-white">✓ Kaydedildi</p>}
+        <AnaEkranIpucu />
 
         {!v.santiye && (
           <div className="rounded-2xl bg-zemin p-5 text-center">
