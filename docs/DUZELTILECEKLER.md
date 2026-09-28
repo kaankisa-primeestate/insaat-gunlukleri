@@ -10,7 +10,7 @@ getirilir; seçilen madde yapılır ve "Yapıldı" bölümüne taşınır.
 
 | # | Madde | Not |
 |---|---|---|
-| D3 | Şantiye adı ve kat sayısı sonradan değiştirilemiyor. | Ayrıntıları konuşulacak (28 Eylül), sonra yapılacak. |
+| D3 | **Şantiye tarifi:** bloklar, her bloğun katları, otopark ve çevre alanları; oluştururken ve sonradan düzenlenebilir. | Şablon aşağıda; kullanıcı onayı bekliyor. |
 | D5 | **"Dünden devam" — sürüp giden işte her gün formu baştan doldurmamak.** Taşeron bir işe başladığında 2–3 gün aynı yerde aynı işi yapıyor; her gün aynı günlüğü girmek zahmetli. | Ayrıntı aşağıda. D1 ve D2 ile birlikte yapılmalı (aynı ekran). |
 
 ## D8 ayrıntısı: şantiye girişte seçilir (kullanıcı kararı)
@@ -38,6 +38,38 @@ takip ve inceleme bilgisayardan.
 | Taşeron sayfası | Sekmeler alt alta | İki sütun: solda bilgi/sözleşmeler, sağda kayıtlar |
 | Formlar | Tam sayfa | Ortada geniş kart; seçim pencereleri ortada açılır |
 | Fotoğraflar | Küçük resim | Tıklanınca büyük görüntüleyici |
+
+## D3 ayrıntısı: şantiye tarifi (öneri — kullanıcı onayı bekliyor)
+
+Kullanıcı (28 Eylül): şantiyeler çok farklı; Manzara 4 bloklu, Celayir tek
+blok. Binanın yanında çevre de var (otopark katı, peyzaj…). Şantiye
+oluşturulurken tarif edilebilmeli. Önce şablon, sonra uygulama.
+
+**Yapı: şantiye = alanlar.** İki tür alan:
+- **Bina / blok:** ad, bodrum kat sayısı, normal kat sayısı, çatı var/yok.
+  Katlar bundan üretilir (2. Bodrum … Zemin … 5. Kat, Çatı).
+- **Çevre alanı:** otopark (kendi kat sayısıyla), peyzaj/bahçe, çevre
+  duvarı, altyapı, yollar, havuz, sosyal tesis, güvenlik, şantiye alanı,
+  "Diğer (yazarak)". Katı olan (otopark, sosyal tesis) katlarıyla, olmayan
+  tek parça seçilir.
+
+**Oluşturma: üç adım.** 1) Ad, adres, konum. 2) Blok sayısı; "bloklar aynı
+mı?" evetse tek tarif hepsine uygulanır (A, B, C, D adları değiştirilebilir),
+hayırsa her blok ayrı. 3) Çevre alanları dokunarak seçilir. Sonda önizleme.
+
+**Günlükte ve hatalı işte "Yer" seçimi** alanlara göre gruplu: A Blok →
+katlar, Otopark → -1, -2, Peyzaj … Kayda "A Blok · 3. Kat" yazısı düşer.
+Yazı olarak saklandığı için şantiye sonradan değişse de eski kayıt bozulmaz.
+
+**Sonradan düzenleme:** blok/alan eklenir, adı ve kat sayısı değişir.
+Kaydı olan alan silinmez, gizlenir. Şantiye silinmez, kapatılır.
+
+**Mevcut kayıtlar:** bugünkü "3. Kat" kayıtlarının hangi bloğa ait olduğu
+bilinmiyor; oldukları gibi kalır.
+
+**Onay bekleyen sorular:** Manzara/Celayir rakamları, blok adlandırma,
+çevre alanı listesi, taşeron sözleşmesinin bloğa bağlanması (öneri: şimdi
+değil).
 
 ## D5 ayrıntısı: "Bugünün Günlüğü" (öneri — kullanıcı onayı bekliyor)
 
