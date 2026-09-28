@@ -35,7 +35,7 @@ export async function hataKaydet(_: FormDurumu, form: FormData): Promise<FormDur
     sorumlu_kullanici_id: uuidMi(kullaniciId) ? kullaniciId : null,
     is_tarihi: tarih,
     aciklama,
-    kat: metin(form, "kat", 30),
+    kat: metin(form, "kat", 80),
     onem,
     fotograflar,
   };

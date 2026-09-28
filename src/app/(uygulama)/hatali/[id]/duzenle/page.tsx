@@ -2,8 +2,9 @@ import { notFound, redirect } from "next/navigation";
 import { oturum } from "@/lib/oturum";
 import { kayitDegisebilir } from "@/lib/gunluk";
 import { imzala } from "@/lib/dosya";
-import { katListesi, type Rol } from "@/lib/sabitler";
+import { type Rol } from "@/lib/sabitler";
 import { Sayfa } from "@/components/kabuk";
+import { yerler } from "@/lib/yerler-sunucu";
 import { SilDugmesi } from "@/components/sil-dugmesi";
 import type { TaseronSecenek } from "@/components/secimler";
 import { HataFormu, type HataDeger } from "../../yeni/form";
@@ -22,10 +23,11 @@ export default async function HataDuzenle({ params }: PageProps<"/hatali/[id]/du
   if (o.taseron || !kayitDegisebilir(o, h, h.durum === "tespit", "hatali")) redirect(`/hatali/${id}?yetki=yok`);
   if (!o.santiye || h.santiye_id !== o.santiye.id) redirect("/hatali");
 
-  const [{ data: taseronlar }, { data: personel }, adresler] = await Promise.all([
+  const [{ data: taseronlar }, { data: personel }, adresler, yerListesi] = await Promise.all([
     o.supabase.rpc("santiye_taseronlari", { p_santiye: o.santiye.id }),
     o.supabase.rpc("santiye_personeli", { p_santiye: o.santiye.id }),
     imzala(h.fotograflar),
+    yerler(o),
   ]);
   const liste = (taseronlar ?? []) as TaseronSecenek[];
   // Kaydın taşeronu artık listede değilse (sözleşmesi kalkmış) yine de görünsün.
@@ -40,7 +42,7 @@ export default async function HataDuzenle({ params }: PageProps<"/hatali/[id]/du
         firmaId={o.firma.id}
         taseronlar={liste}
         personel={(personel ?? []) as { id: string; ad_soyad: string; rol: Rol }[]}
-        katlar={katListesi(o.santiye.bodrum_kat, o.santiye.kat_sayisi)}
+        katlar={yerListesi}
         deger={h as HataDeger}
         mevcutFotolar={(h.fotograflar as string[]).filter((y) => adresler[y]).map((y) => ({ yol: y, adres: adresler[y] }))}
       />

@@ -12,6 +12,8 @@ export type PencereSecenegi = {
   grup?: string;
   /** Sağda gösterilecek küçük uyarı etiketi. */
   etiket?: ReactNode;
+  /** Seçildikten sonra alanda görünecek ad; pencerede grup başlığı zaten söyler (ör. "B Blok · 3. Kat"). */
+  secimAdi?: string;
 };
 
 /**
@@ -44,6 +46,7 @@ export function SecimPenceresi({
   const [secili, setSecili] = useState<string[]>(() => varsayilan.filter((v) => secenekler.some((s) => s.deger === v)));
   const [acik, setAcik] = useState(false);
   const [ara, setAra] = useState("");
+  const [sekme, setSekme] = useState("");
   const denetim = useRef<HTMLInputElement>(null);
 
   const uyari = zorunlu && secili.length === 0 ? `${baslik}: seçim yapın.` : "";
@@ -78,10 +81,16 @@ export function SecimPenceresi({
     }
   }
 
+  // Çok gruplu uzun listede (ör. 4 blok × 20 kat) üstte grup sekmeleri çıkar;
+  // uzun kaydırma yerine blok seçilir. Arama bütün gruplarda yapılır.
+  const tumGruplar = [...new Set(secenekler.map((s) => s.grup ?? ""))];
+  const sekmeli = secenekler.length > 20 && tumGruplar.length > 2;
   const aranan = ara.trim().toLocaleLowerCase("tr");
   const gorunen = aranan
-    ? secenekler.filter((s) => (s.ad + " " + (s.alt ?? "")).toLocaleLowerCase("tr").includes(aranan))
-    : secenekler;
+    ? secenekler.filter((s) => (s.ad + " " + (s.alt ?? "") + " " + (s.grup ?? "")).toLocaleLowerCase("tr").includes(aranan))
+    : sekmeli
+      ? secenekler.filter((s) => (s.grup ?? "") === sekme)
+      : secenekler;
   const gruplar = [...new Set(gorunen.map((s) => s.grup ?? ""))];
   const seciliAdlar = secenekler.filter((s) => secili.includes(s.deger));
   const izgara = { 1: "grid-cols-1", 2: "grid-cols-2", 3: "grid-cols-3", 4: "grid-cols-4" }[sutun];
@@ -92,6 +101,8 @@ export function SecimPenceresi({
         type="button"
         onClick={() => {
           setAra("");
+          // Seçim varsa onun grubu, yoksa ilk grup açılır.
+          setSekme(secenekler.find((s) => secili.includes(s.deger))?.grup ?? tumGruplar[0] ?? "");
           setAcik(true);
         }}
         className={`flex min-h-16 w-full items-center gap-2 rounded-xl border-2 px-4 py-2 text-left ${
@@ -105,7 +116,7 @@ export function SecimPenceresi({
             <span className="flex flex-wrap gap-1.5">
               {seciliAdlar.map((s) => (
                 <span key={s.deger} className="rounded-lg bg-white/15 px-2 py-0.5 text-base font-bold break-words">
-                  {s.ad}
+                  {s.secimAdi ?? s.ad}
                 </span>
               ))}
             </span>
@@ -145,6 +156,29 @@ export function SecimPenceresi({
                   className="min-h-11 w-full bg-transparent text-lg outline-none"
                 />
               </label>
+            )}
+
+            {sekmeli && !aranan && (
+              <div className="flex gap-2 overflow-x-auto px-4 pt-3 pb-1" role="tablist">
+                {tumGruplar.map((g) => {
+                  const adet = secenekler.filter((s) => (s.grup ?? "") === g && secili.includes(s.deger)).length;
+                  return (
+                    <button
+                      key={g}
+                      type="button"
+                      role="tab"
+                      aria-selected={sekme === g}
+                      onClick={() => setSekme(g)}
+                      className={`flex min-h-12 shrink-0 items-center gap-1.5 rounded-full border-2 px-4 font-bold whitespace-nowrap ${
+                        sekme === g ? "border-yazi bg-koyu text-white" : "border-cizgi bg-yuzey"
+                      }`}
+                    >
+                      {g || "Diğer"}
+                      {adet > 0 && <span className="grid size-6 place-items-center rounded-full bg-yesil text-sm text-white">{adet}</span>}
+                    </button>
+                  );
+                })}
+              </div>
             )}
 
             <div className="flex-1 overflow-y-auto px-4 py-3">

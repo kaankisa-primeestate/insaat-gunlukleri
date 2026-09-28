@@ -13,24 +13,6 @@ import type { FormDurumu } from "@/components/form";
 
 const ROLLER: Rol[] = ["merkez", "personel", "sef", "satinalma", "taseron"];
 
-export async function santiyeEkle(_: FormDurumu, form: FormData): Promise<FormDurumu> {
-  const o = await merkezIste();
-  const ad = metin(form, "ad", 80);
-  if (!ad || ad.length < 2) return { hata: "Şantiye adı gerekli." };
-  const bodrum = Math.min(10, Math.max(0, Number(form.get("bodrum_kat") ?? 2) || 0));
-  const kat = Math.min(80, Math.max(1, Number(form.get("kat_sayisi") ?? 15) || 1));
-  const { error } = await o.supabase
-    .from("santiyeler")
-    .insert({ ad, adres: metin(form, "adres", 200), bodrum_kat: bodrum, kat_sayisi: kat, firma_id: o.firma.id });
-  if (error) return { hata: "Kaydedilemedi: " + error.message };
-  // Tek şantiyeyle çalışan merkez ikinci şantiyeyi eklediğinde oturumu şu anki
-  // şantiyede kalsın; seçim ekranına atılmasın.
-  const cerezler = await cookies();
-  if (o.santiye && !cerezler.get(SANTIYE_CEREZI)) cerezler.set(SANTIYE_CEREZI, o.santiye.id, CEREZ_AYARI);
-  revalidatePath("/", "layout");
-  return { tamam: `${ad} eklendi.` };
-}
-
 export async function santiyeGuncelle(form: FormData) {
   const o = await merkezIste();
   const id = form.get("id");
@@ -271,4 +253,91 @@ export async function kullaniciGuncelle(_: FormDurumu, form: FormData): Promise<
       (kullaniciAdi !== hedef.kullanici_adi ? ` Yeni kullanıcı adı: ${kullaniciAdi} (şifre aynı).` : "") +
       (rol !== eskiRol ? " Rol değişti; yetkiler yeni rolün varsayılanına döndü." : ""),
   };
+}
+
+type GelenAlan = { id?: unknown; tur?: unknown; ad?: unknown; bodrum?: unknown; zemin?: unknown; kat?: unknown; cati?: unknown };
+const sayi = (v: unknown, en: number, ust: number) => Math.min(ust, Math.max(en, Math.round(Number(v)) || 0));
+
+/**
+ * Şantiye tarifi (D3): ad, adres ve alanlar (bloklar, çevre alanları).
+ * Yeni şantiyede oluşturur, mevcutta günceller. Listeden çıkarılan alan
+ * silinmez, gizlenir: eski kayıtlar o alanın adını taşır.
+ */
+export async function santiyeKaydet(_: FormDurumu, form: FormData): Promise<FormDurumu> {
+  const o = await merkezIste();
+  const mevcutId = form.get("id");
+  const yeni = !uuidMi(mevcutId);
+  const ad = metin(form, "ad", 80);
+  if (!ad || ad.length < 2) return { hata: "Şantiye adı gerekli." };
+
+  let gelen: GelenAlan[];
+  try {
+    gelen = JSON.parse(String(form.get("alanlar") ?? "[]"));
+    if (!Array.isArray(gelen)) throw new Error();
+  } catch {
+    return { hata: "Şantiye tarifi okunamadı, sayfayı yenileyip tekrar deneyin." };
+  }
+  const alanlar = gelen.slice(0, 40).map((a, sira) => ({
+    id: uuidMi(a.id) ? (a.id as string) : undefined,
+    tur: a.tur === "cevre" ? ("cevre" as const) : ("blok" as const),
+    ad: String(a.ad ?? "").trim().slice(0, 40),
+    bodrum: sayi(a.bodrum, 0, 10),
+    zemin: a.zemin === true,
+    kat: sayi(a.kat, 0, 80),
+    cati: a.cati === true,
+    sira,
+  }));
+  if (!alanlar.some((a) => a.tur === "blok")) return { hata: "En az bir bina / blok tarif edin." };
+  if (alanlar.some((a) => !a.ad)) return { hata: "Her blok ve alanın bir adı olmalı." };
+  const adlar = alanlar.map((a) => a.ad.toLocaleLowerCase("tr-TR"));
+  if (new Set(adlar).size !== adlar.length) return { hata: "Aynı adla iki blok ya da alan olamaz." };
+
+  // Eski kat alanları (tarifsiz ekranlar için) en büyük bloktan beslenir.
+  const bloklar = alanlar.filter((a) => a.tur === "blok");
+  const eski = {
+    bodrum_kat: Math.max(...bloklar.map((b) => b.bodrum)),
+    kat_sayisi: Math.max(1, ...bloklar.map((b) => b.kat)),
+  };
+
+  const id = yeni ? crypto.randomUUID() : (mevcutId as string);
+  if (yeni) {
+    const { error } = await o.supabase
+      .from("santiyeler")
+      .insert({ id, ad, adres: metin(form, "adres", 200), firma_id: o.firma.id, ...eski });
+    if (error) return { hata: "Kaydedilemedi: " + error.message };
+  } else {
+    const { data, error } = await o.supabase
+      .from("santiyeler")
+      .update({ ad, adres: metin(form, "adres", 200), ...eski })
+      .eq("id", id)
+      .select("id");
+    if (error) return { hata: "Kaydedilemedi: " + error.message };
+    if (!data?.length) return { hata: "Şantiye bulunamadı." };
+  }
+
+  const { data: kayitli } = await o.supabase.from("santiye_alanlari").select("id").eq("santiye_id", id);
+  const kayitliIdler = new Set((kayitli ?? []).map((k) => k.id as string));
+  const kalan = new Set<string>();
+  for (const a of alanlar) {
+    const satir = { tur: a.tur, ad: a.ad, bodrum: a.bodrum, zemin: a.zemin, kat: a.kat, cati: a.cati, sira: a.sira, aktif: true };
+    if (a.id && kayitliIdler.has(a.id)) {
+      kalan.add(a.id);
+      const { error } = await o.supabase.from("santiye_alanlari").update(satir).eq("id", a.id);
+      if (error) return { hata: "Kaydedilemedi: " + error.message };
+    } else {
+      const { error } = await o.supabase.from("santiye_alanlari").insert({ ...satir, firma_id: o.firma.id, santiye_id: id });
+      if (error) return { hata: "Kaydedilemedi: " + error.message };
+    }
+  }
+  const gizlenecek = [...kayitliIdler].filter((k) => !kalan.has(k));
+  if (gizlenecek.length) await o.supabase.from("santiye_alanlari").update({ aktif: false }).in("id", gizlenecek);
+
+  if (yeni) {
+    // Tek şantiyeyle çalışan merkez ikinci şantiyeyi eklediğinde oturumu şu
+    // anki şantiyede kalsın; seçim ekranına atılmasın.
+    const cerezler = await cookies();
+    if (o.santiye && !cerezler.get(SANTIYE_CEREZI)) cerezler.set(SANTIYE_CEREZI, o.santiye.id, CEREZ_AYARI);
+  }
+  revalidatePath("/", "layout");
+  redirect(`/yonetim/santiyeler?kayit=${yeni ? "yeni" : "duzeltildi"}`);
 }

@@ -50,7 +50,7 @@ export async function gunlukKaydet(_: FormDurumu, form: FormData): Promise<FormD
 
   // Seçimler listeden gelir; boyu ve uzunluğu sınırlanır. "Diğer" seçildiyse
   // yazılan iş onun yerine geçer.
-  const katlar = [...new Set(form.getAll("katlar").map(String))].filter((k) => k.length <= 30).slice(0, 100);
+  const katlar = [...new Set(form.getAll("katlar").map(String))].filter((k) => k.length <= 80).slice(0, 100);
   const diger = metin(form, "is_kalemi_diger", 80);
   const isKalemleri = [...new Set(form.getAll("is_kalemleri").map(String))]
     .filter((k) => k.length <= 80)

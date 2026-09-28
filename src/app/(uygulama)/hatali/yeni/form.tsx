@@ -6,6 +6,7 @@ import { FotoSecici } from "@/components/foto-secici";
 import { SecimPenceresi } from "@/components/secim-penceresi";
 import { taseronSecenekleri, type TaseronSecenek } from "@/components/secimler";
 import { ONEM, ROL_ADI, type Onem, type Rol } from "@/lib/sabitler";
+import { eksikleriEkle, type Yer } from "@/lib/yerler";
 import { hataKaydet } from "../eylemler";
 
 export type HataDeger = {
@@ -30,14 +31,14 @@ export function HataFormu({
   firmaId: string;
   taseronlar: TaseronSecenek[];
   personel: { id: string; ad_soyad: string; rol: Rol }[];
-  katlar: string[];
+  katlar: Yer[];
   deger?: HataDeger;
   mevcutFotolar?: { yol: string; adres: string }[];
 }) {
   const [durum, eylem, bekliyor] = useActionState(hataKaydet, undefined);
   const [id] = useState(() => deger?.id ?? crypto.randomUUID());
   const sorumlu = deger ? (deger.taseron_id ? "t:" + deger.taseron_id : "k:" + deger.sorumlu_kullanici_id) : undefined;
-  const katSecenekleri = deger?.kat && !katlar.includes(deger.kat) ? [...katlar, deger.kat] : katlar;
+  const katSecenekleri = eksikleriEkle(katlar, [deger?.kat]);
   return (
     <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-6">
       <input type="hidden" name="id" value={id} />
@@ -78,14 +79,14 @@ export function HataFormu({
       <Alan etiket="Tarih">
         <TarihSecici varsayilan={deger?.is_tarihi} />
       </Alan>
-      <Alan etiket="Kat">
+      <Alan etiket="Yer">
         <SecimPenceresi
           ad="kat"
-          baslik="Hangi kat?"
+          baslik="Nerede?"
           sutun={3}
-          bosYazi="Kat seçmek için dokunun"
+          bosYazi="Yer seçmek için dokunun"
           varsayilan={deger?.kat ? [deger.kat] : []}
-          secenekler={katSecenekleri.map((k) => ({ deger: k, ad: k }))}
+          secenekler={katSecenekleri}
         />
       </Alan>
       <Mesaj durum={durum} />

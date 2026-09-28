@@ -2,8 +2,8 @@ import { notFound, redirect } from "next/navigation";
 import { oturum } from "@/lib/oturum";
 import { gunlukDegisebilir } from "@/lib/gunluk";
 import { imzala } from "@/lib/dosya";
-import { katListesi } from "@/lib/sabitler";
 import { Sayfa } from "@/components/kabuk";
+import { yerler } from "@/lib/yerler-sunucu";
 import type { TaseronSecenek } from "@/components/secimler";
 import { GunlukFormu, type GunlukDeger } from "../../yeni/form";
 import { GunlukSilDugmesi } from "../../sil";
@@ -21,9 +21,10 @@ export default async function GunlukDuzenle({ params }: PageProps<"/gunluk/[id]/
   if (!gunlukDegisebilir(o, g)) redirect("/gunluk?yetki=yok");
   if (!o.santiye || g.santiye_id !== o.santiye.id) redirect("/gunluk");
 
-  const [{ data: taseronlar }, adresler] = await Promise.all([
+  const [{ data: taseronlar }, adresler, yerListesi] = await Promise.all([
     o.supabase.rpc("santiye_taseronlari", { p_santiye: o.santiye.id }),
     imzala(g.fotograflar),
+    yerler(o),
   ]);
   const liste = (taseronlar ?? []) as TaseronSecenek[];
   // Kaydın taşeronu artık listede değilse (sözleşmesi kalkmış) yine de görünsün.
@@ -37,7 +38,7 @@ export default async function GunlukDuzenle({ params }: PageProps<"/gunluk/[id]/
       <GunlukFormu
         firmaId={o.firma.id}
         taseronlar={liste}
-        katlar={katListesi(o.santiye.bodrum_kat, o.santiye.kat_sayisi)}
+        katlar={yerListesi}
         deger={g as GunlukDeger}
         mevcutFotolar={g.fotograflar.filter((y: string) => adresler[y]).map((y: string) => ({ yol: y, adres: adresler[y] }))}
       />

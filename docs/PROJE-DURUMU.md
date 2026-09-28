@@ -79,6 +79,12 @@ yazılmaz. Güneş altında okunurluk için yüksek kontrast; her çift ölçül
 seçici (bugün varsayılan), her bölümde kamera ikonlu tek "Yeni Ekle"
 düğmesi, Kaydet → bölüm sayfası ("✓ Kaydedildi").
 
+**Şantiye tarifi** `santiye_alanlari` tablosunda: blok ya da çevre alanı,
+katları bodrum/zemin/kat/çatı alanlarından üretilir (`src/lib/yerler.ts`).
+Kayda seçilen yer yazı olarak düşer ("A Blok · 3. Kat"; tek binada yalnız
+"3. Kat"); alan silinmez, gizlenir. Tarifsiz eski şantiye eski kat listesine
+düşer.
+
 **Ana sayfa** iki tasarımla hazır: `_ana-sayfa/bugun-karti.tsx` (B, yayında)
 ve `_ana-sayfa/grafit.tsx` (A, yedek). Veri tek yerde (`_ana-sayfa/veri.ts`);
 tasarım `page.tsx` içindeki `TASARIM` satırıyla değişir, yayında

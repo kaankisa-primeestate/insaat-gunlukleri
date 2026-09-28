@@ -10,7 +10,6 @@ getirilir; seçilen madde yapılır ve "Yapıldı" bölümüne taşınır.
 
 | # | Madde | Not |
 |---|---|---|
-| D3 | **Şantiye tarifi:** bloklar, her bloğun katları, otopark ve çevre alanları; oluştururken ve sonradan düzenlenebilir. | Şablon aşağıda; kullanıcı onayı bekliyor. |
 | D5 | **"Dünden devam" — sürüp giden işte her gün formu baştan doldurmamak.** Taşeron bir işe başladığında 2–3 gün aynı yerde aynı işi yapıyor; her gün aynı günlüğü girmek zahmetli. | Ayrıntı aşağıda. D1 ve D2 ile birlikte yapılmalı (aynı ekran). |
 
 ## D8 ayrıntısı: şantiye girişte seçilir (kullanıcı kararı)
@@ -39,7 +38,7 @@ takip ve inceleme bilgisayardan.
 | Formlar | Tam sayfa | Ortada geniş kart; seçim pencereleri ortada açılır |
 | Fotoğraflar | Küçük resim | Tıklanınca büyük görüntüleyici |
 
-## D3 ayrıntısı: şantiye tarifi (öneri — kullanıcı onayı bekliyor)
+## D3 ayrıntısı: şantiye tarifi (yapıldı, 28 Eylül)
 
 Kullanıcı (28 Eylül): şantiyeler çok farklı; Manzara 4 bloklu, Celayir tek
 blok. Binanın yanında çevre de var (otopark katı, peyzaj…). Şantiye
@@ -67,9 +66,12 @@ Kaydı olan alan silinmez, gizlenir. Şantiye silinmez, kapatılır.
 **Mevcut kayıtlar:** bugünkü "3. Kat" kayıtlarının hangi bloğa ait olduğu
 bilinmiyor; oldukları gibi kalır.
 
-**Onay bekleyen sorular:** Manzara/Celayir rakamları, blok adlandırma,
-çevre alanı listesi, taşeron sözleşmesinin bloğa bağlanması (öneri: şimdi
-değil).
+**Kararlar:** rakamları şantiyeyi oluşturan kişi girer (kullanıcı). Blok
+adları A, B, C… gelir, değiştirilebilir. Çevre listesine Dükkânlar ve
+Sığınak da eklendi, "Diğer (yazarak)" var. Taşeron sözleşmesi bloğa
+bağlanmadı. Mevcut kayıtlar olduğu gibi kaldı. Seçim penceresinde çok
+bloklu şantiyede üstte blok sekmeleri çıkar (4 blok × 20 kat alt alta
+dizilince kaydırma çok uzuyordu).
 
 ## D5 ayrıntısı: "Bugünün Günlüğü" (öneri — kullanıcı onayı bekliyor)
 
@@ -99,6 +101,8 @@ fark etmezse sahte kayıt oluşur; günlüğün güvenilirliği biter. Bunun yer
    taşeronun sahada olduğu tek tek gözle onaylansın.)
 
 ## Yapıldı
+
+- D3 Şantiye tarifi: bloklar, katları, otopark ve çevre alanları; oluştururken ve sonradan (Yönetim > Şantiyeler). Günlükte ve hatalı işte "Yer" seçimi bloklara göre sekmeli
 
 - D2 (hatalı iş, talep) Düzenle / Sil: merkez her zaman; kaydı giren 24 saat içinde **ve kayıt henüz işlem görmediyse** (hatalı iş "Tespit", talep "Açıldı"). Kural veritabanında da var; ekranı atlayan istek reddediliyor. Düzenlenen kayıtta kim/ne zaman görünüyor; silinen kaydın fotoğrafları ve durum geçmişi de siliniyor. Düzeltmede çıkarılan fotoğraflar depodan siliniyor (günlükte de)
 - D4 Kullanıcı düzenleme: ad, kullanıcı adı (şifre aynı kalır), telefon, rol. Rol yalnız firma içi roller arasında değişir; taşeron hesabı iç hesaba çevrilmez. Rol değişince kişiye özel yetkiler varsayılana döner. Merkez kendi rolünü düşüremez, firmada en az bir merkez kalır

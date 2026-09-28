@@ -6,6 +6,7 @@ import { FotoSecici } from "@/components/foto-secici";
 import { SecimPenceresi } from "@/components/secim-penceresi";
 import { SayiSecici, TaseronSecici, type TaseronSecenek } from "@/components/secimler";
 import { IS_TURLERI } from "@/lib/sabitler";
+import { eksikleriEkle, type Yer } from "@/lib/yerler";
 import { gunlukKaydet } from "../eylemler";
 
 export type GunlukDeger = {
@@ -28,7 +29,7 @@ export function GunlukFormu({
 }: {
   firmaId: string;
   taseronlar: TaseronSecenek[];
-  katlar: string[];
+  katlar: Yer[];
   deger?: GunlukDeger;
   mevcutFotolar?: { yol: string; adres: string }[];
 }) {
@@ -53,7 +54,7 @@ export function GunlukFormu({
   const ekKalemler = (deger?.is_kalemleri ?? [])
     .filter((k) => !kalemler.some((x) => x.deger === k))
     .map((k) => ({ deger: k, ad: k, grup: "Diğer" }));
-  const katSecenekleri = [...katlar, ...(deger?.katlar ?? []).filter((k) => !katlar.includes(k))];
+  const katSecenekleri = eksikleriEkle(katlar, deger?.katlar ?? []);
 
   return (
     <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-6">
@@ -81,15 +82,15 @@ export function GunlukFormu({
         <SayiSecici ad="kisi_sayisi" varsayilan={deger?.kisi_sayisi ?? 1} />
       </Alan>
 
-      <Alan etiket="Kat" ipucu="Birden fazla kat seçebilirsiniz.">
+      <Alan etiket="Yer" ipucu="Birden fazla yer seçebilirsiniz.">
         <SecimPenceresi
           ad="katlar"
-          baslik="Hangi katlarda çalışıldı?"
+          baslik="Nerede çalışıldı?"
           coklu
           sutun={3}
-          bosYazi="Kat seçmek için dokunun"
+          bosYazi="Yer seçmek için dokunun"
           varsayilan={deger?.katlar}
-          secenekler={katSecenekleri.map((k) => ({ deger: k, ad: k }))}
+          secenekler={katSecenekleri}
         />
       </Alan>
 
