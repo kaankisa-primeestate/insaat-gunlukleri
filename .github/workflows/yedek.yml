@@ -52,7 +52,11 @@ jobs:
             --file=yedek.dump
           ls -lh yedek.dump
           # Boş ya da yarım dökümü "yedek alındı" saymamak için içerik denetimi.
-          /usr/lib/postgresql/17/bin/pg_restore --list yedek.dump | grep -q "TABLE DATA public gunlukler"
+          # Liste önce dosyaya yazılır: grep -q ilk eşleşmede okumayı bırakınca
+          # pg_restore "broken pipe" ile düşüyordu.
+          /usr/lib/postgresql/17/bin/pg_restore --list yedek.dump > icerik.txt
+          grep "TABLE DATA public gunlukler" icerik.txt
+          echo "Veri içeren tablo: $(grep -c 'TABLE DATA' icerik.txt)"
 
       - name: Şifrele
         env:
