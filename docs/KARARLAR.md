@@ -123,3 +123,15 @@ Kullanıcı isteğiyle Faz 2'den (A2, A3) öne çekildi.
   (ERTELENENLER S7).
 - Open-Meteo en çok 92 gün geriye gider; daha eski tarihli günlüğün havası
   boş kalır.
+
+## Hatalı iş / talep düzeltme ve kullanıcı düzenleme (28 Eylül, D2 + D4)
+
+- **Günlükteki kurala bir şart eklendi:** kaydı giren kişi yalnız kayıt
+  henüz işlem görmemişken düzeltir ya da siler (hatalı iş "Tespit", talep
+  "Açıldı"). Taşeron işe başladıktan ya da satın alma yapıldıktan sonra
+  içeriği değişen kayıt tartışma çıkarır; o noktadan sonra yalnız merkez.
+  Gerekirse şart kaldırılır (`icerik_degisebilir`, göç 8).
+- Silme kalıcıdır; durum geçmişi ve fotoğraflar da gider. Silinen talebe
+  bağlı teslimat kalır, talep bağlantısı kalkar.
+- Rol yalnız firma içi roller arasında değişir. Taşeron hesabı iç hesaba
+  (ya da tersi) çevrilmez; görebildiği veri kökten değişir, yeni hesap açılır.

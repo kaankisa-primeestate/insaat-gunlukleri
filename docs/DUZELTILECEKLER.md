@@ -10,9 +10,7 @@ getirilir; seçilen madde yapılır ve "Yapıldı" bölümüne taşınır.
 
 | # | Madde | Not |
 |---|---|---|
-| D2 | **Hatalı iş ve talep kayıtları düzeltilemiyor / silinemiyor.** (Günlük kısmı yapıldı.) | Günlükteki kural: merkez her zaman, giren 24 saat içinde; değişiklik "düzenlendi" olarak görünür. |
-| D3 | Şantiye adı ve kat sayısı sonradan değiştirilemiyor. | |
-| D4 | Kullanıcının adı, telefonu ve rolü sonradan değiştirilemiyor (şifre, şantiye ataması, hesap kapatma var). | |
+| D3 | Şantiye adı ve kat sayısı sonradan değiştirilemiyor. | Ayrıntıları konuşulacak (28 Eylül), sonra yapılacak. |
 | D5 | **"Dünden devam" — sürüp giden işte her gün formu baştan doldurmamak.** Taşeron bir işe başladığında 2–3 gün aynı yerde aynı işi yapıyor; her gün aynı günlüğü girmek zahmetli. | Ayrıntı aşağıda. D1 ve D2 ile birlikte yapılmalı (aynı ekran). |
 
 ## D8 ayrıntısı: şantiye girişte seçilir (kullanıcı kararı)
@@ -69,6 +67,9 @@ fark etmezse sahte kayıt oluşur; günlüğün güvenilirliği biter. Bunun yer
    taşeronun sahada olduğu tek tek gözle onaylansın.)
 
 ## Yapıldı
+
+- D2 (hatalı iş, talep) Düzenle / Sil: merkez her zaman; kaydı giren 24 saat içinde **ve kayıt henüz işlem görmediyse** (hatalı iş "Tespit", talep "Açıldı"). Kural veritabanında da var; ekranı atlayan istek reddediliyor. Düzenlenen kayıtta kim/ne zaman görünüyor; silinen kaydın fotoğrafları ve durum geçmişi de siliniyor. Düzeltmede çıkarılan fotoğraflar depodan siliniyor (günlükte de)
+- D4 Kullanıcı düzenleme: ad, kullanıcı adı (şifre aynı kalır), telefon, rol. Rol yalnız firma içi roller arasında değişir; taşeron hesabı iç hesaba çevrilmez. Rol değişince kişiye özel yetkiler varsayılana döner. Merkez kendi rolünü düşüremez, firmada en az bir merkez kalır
 
 - D1 Aynı gün aynı taşerona ikinci günlük açılmıyor (program + veritabanı); mevcut kaydın bilgisi gösteriliyor
 - D2 (günlük) Günlük düzenleme ve silme: merkez her zaman, giren 24 saat içinde; düzenlenen kayıtta "düzenlendi" etiketi, kim/ne zaman tutuluyor; silinen kaydın fotoğrafları da siliniyor

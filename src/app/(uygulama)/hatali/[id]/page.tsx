@@ -6,13 +6,19 @@ import { HATA_DURUM, ONEM, tarihYaz, type HataDurum, type Onem } from "@/lib/sab
 import { Etiket, Sayfa } from "@/components/kabuk";
 import { Fotolar } from "@/components/kartlar";
 import { DurumDugmeleri } from "./durum";
+import { Pencil } from "lucide-react";
+import { kayitDegisebilir } from "@/lib/gunluk";
 
-export default async function HataDetay({ params }: PageProps<"/hatali/[id]">) {
+const zaman = (t: string) =>
+  new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Istanbul" }).format(new Date(t));
+
+export default async function HataDetay({ params, searchParams }: PageProps<"/hatali/[id]">) {
   const o = await yetkiIste("hatali");
   const { id } = await params;
+  const { kayit, yetki } = await searchParams;
   const { data: h } = await o.supabase
     .from("hatali_isler")
-    .select("id, is_tarihi, aciklama, kat, onem, durum, fotograflar, olusturma, taseron_id, taseronlar(firma_adi), santiyeler(ad), bildiren:profiller!hatali_isler_olusturan_fkey(ad_soyad), sorumlu:profiller!hatali_isler_sorumlu_kullanici_id_fkey(ad_soyad)")
+    .select("id, is_tarihi, aciklama, kat, onem, durum, fotograflar, olusturan, olusturma, duzenleme, taseron_id, taseronlar(firma_adi), santiyeler(ad), bildiren:profiller!hatali_isler_olusturan_fkey(ad_soyad), sorumlu:profiller!hatali_isler_sorumlu_kullanici_id_fkey(ad_soyad), duzenleyen_kisi:profiller!hatali_isler_duzenleyen_fkey(ad_soyad)")
     .eq("id", id)
     .maybeSingle();
   if (!h) notFound();
@@ -33,9 +39,17 @@ export default async function HataDetay({ params }: PageProps<"/hatali/[id]">) {
   const santiye = h.santiyeler as unknown as { ad: string } | null;
   const bildiren = h.bildiren as unknown as { ad_soyad: string } | null;
   const sorumlu = h.sorumlu as unknown as { ad_soyad: string } | null;
+  const duzenleyen = h.duzenleyen_kisi as unknown as { ad_soyad: string } | null;
+  const degisebilir = !o.taseron && kayitDegisebilir(o, h, h.durum === "tespit", "hatali");
 
   return (
     <Sayfa baslik="Hatalı İş" geri="/hatali" geriAd="Hatalı İşler">
+      {kayit && <p className="rounded-xl bg-yesil px-4 py-3 font-bold text-white">✓ Hatalı iş düzeltildi</p>}
+      {yetki && (
+        <p className="rounded-xl bg-kirmizi px-4 py-3 font-bold text-white">
+          Bu kaydı değiştirme yetkiniz yok. Kaydı giren kişi 24 saat içinde ve iş &quot;Tespit&quot; durumundayken, merkez her zaman değiştirebilir.
+        </p>
+      )}
       <div className="flex flex-wrap gap-2">
         <Etiket sinif={ONEM[h.onem as Onem].renk}>{ONEM[h.onem as Onem].ad}</Etiket>
         <Etiket sinif={HATA_DURUM[h.durum as HataDurum].renk}>{HATA_DURUM[h.durum as HataDurum].ad}</Etiket>
@@ -63,7 +77,22 @@ export default async function HataDetay({ params }: PageProps<"/hatali/[id]">) {
         {h.kat && (<><dt className="font-bold">Kat</dt><dd>{h.kat}</dd></>)}
         <dt className="font-bold">Bildiren</dt>
         <dd>{bildiren?.ad_soyad}</dd>
+        {h.duzenleme && (
+          <>
+            <dt className="font-bold">Düzenlendi</dt>
+            <dd>
+              {zaman(h.duzenleme)}
+              {duzenleyen ? ` · ${duzenleyen.ad_soyad}` : ""}
+            </dd>
+          </>
+        )}
       </dl>
+
+      {degisebilir && (
+        <Link href={`/hatali/${h.id}/duzenle`} className="flex min-h-14 items-center justify-center gap-2 rounded-2xl border-2 border-cizgi text-lg font-bold">
+          <Pencil className="size-6" /> Düzenle / Sil
+        </Link>
+      )}
 
       {o.yetki("hatali", true) && <DurumDugmeleri id={h.id} durum={h.durum as HataDurum} taseron={o.taseron} />}
 
@@ -74,7 +103,7 @@ export default async function HataDetay({ params }: PageProps<"/hatali/[id]">) {
             <li key={i}>
               <b>{HATA_DURUM[x.durum as HataDurum]?.ad ?? x.durum}</b>
               <span className="text-soluk">
-                {" "}· {new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Istanbul" }).format(new Date(x.zaman))}
+                {" "}· {zaman(x.zaman)}
                 {x.kullanici && kisiler.get(x.kullanici) ? ` · ${kisiler.get(x.kullanici)}` : ""}
               </span>
             </li>

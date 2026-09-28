@@ -14,3 +14,13 @@ export async function imzala(yollar: string[]): Promise<Record<string, string>> 
   for (const d of data ?? []) if (d.path && d.signedUrl) sonuc[d.path] = d.signedUrl;
   return sonuc;
 }
+
+/**
+ * Kayıttan çıkarılan fotoğrafları depodan siler. Yollar, RLS ile okunmuş
+ * eski satırdan gelir; çağrı ancak düzeltme ya da silme başarılıysa yapılır.
+ */
+export async function artikFotolariSil(eski: string[] | null | undefined, yeni: string[]) {
+  const kalan = new Set(yeni);
+  const silinecek = (eski ?? []).filter((y) => y && !kalan.has(y));
+  if (silinecek.length) await supabaseYonetici().storage.from("dosyalar").remove(silinecek);
+}

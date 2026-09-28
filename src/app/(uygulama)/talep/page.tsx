@@ -11,7 +11,7 @@ const SEKMELER = {
 
 export default async function Talepler({ searchParams }: PageProps<"/talep">) {
   const o = await yetkiIste("talep");
-  const { sekme: s, kayit } = await searchParams;
+  const { sekme: s, kayit, silindi } = await searchParams;
   const sekme = (typeof s === "string" && s in SEKMELER ? s : "bekleyen") as keyof typeof SEKMELER;
   if (!o.santiye) return <Sayfa baslik="Talepler"><Bos>Şantiye seçili değil.</Bos></Sayfa>;
 
@@ -27,6 +27,7 @@ export default async function Talepler({ searchParams }: PageProps<"/talep">) {
   return (
     <Sayfa baslik={`Talepler · ${o.santiye.ad}`} genis>
       {kayit && <p className="rounded-xl bg-yesil px-4 py-3 text-lg font-bold text-white">✓ Kaydedildi</p>}
+      {silindi && <p className="rounded-xl bg-yesil px-4 py-3 text-lg font-bold text-white">✓ Kayıt silindi</p>}
       {o.yetki("talep", true) && <YeniEkle href="/talep/yeni" />}
       <nav className="grid grid-cols-3 gap-1 rounded-2xl bg-yuzey p-1 lg:max-w-xl">
         {Object.entries(SEKMELER).map(([k, v]) => (

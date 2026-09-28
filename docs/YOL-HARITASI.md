@@ -29,10 +29,10 @@ Saha denemesinden gelen D6–D9 yapıldı (26 Eylül). Kalanlar:
 
 | Kod | İş |
 |---|---|
-| D2 | Hatalı iş ve talep düzeltme ve silme (günlük kısmı yapıldı) |
-| D3 | Şantiye adı / kat sayısı düzenleme |
-| D4 | Kullanıcı adı, telefon, rol düzenleme |
-| S6 | Otomatik günlük yedek (GitHub Actions, ücretsiz). Gerçek veri birikiyor; Supabase ücretsiz pakette yedek almıyor |
+| D2 | ✅ Hatalı iş ve talep düzeltme ve silme (28 Eylül) |
+| D3 | Şantiye adı / kat sayısı düzenleme — ayrıntılar konuşulacak |
+| D4 | ✅ Kullanıcı adı, telefon, rol düzenleme (28 Eylül) |
+| S6 | Otomatik günlük yedek (GitHub Actions, ücretsiz). Gerçek veri birikiyor; Supabase ücretsiz pakette yedek almıyor — ayrıntılar konuşulacak |
 | — | Faz 0'da çıkan aksaklıklar |
 
 ## Faz 2 — 10 saniyede kayıt

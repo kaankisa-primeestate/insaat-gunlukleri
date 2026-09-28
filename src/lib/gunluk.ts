@@ -11,3 +11,18 @@ export function gunlukDegisebilir(o: Oturum, g: { olusturan: string; olusturma: 
   if (o.merkez) return true;
   return g.olusturan === o.profil.id && Date.now() - Date.parse(g.olusturma) < GUN_MS && o.yetki("gunluk", true);
 }
+
+/**
+ * Hatalı iş ve talep için aynı kural, bir ek şartla: kayıt henüz işlem
+ * görmemiş olmalı (hatalı iş "Tespit", talep "Açıldı"). Merkez her zaman.
+ * Veritabanındaki `icerik_degisebilir` ile aynı.
+ */
+export function kayitDegisebilir(
+  o: Oturum,
+  k: { olusturan: string; olusturma: string },
+  ilkDurumda: boolean,
+  sayfa: "hatali" | "talep",
+) {
+  if (o.merkez) return true;
+  return k.olusturan === o.profil.id && Date.now() - Date.parse(k.olusturma) < GUN_MS && ilkDurumda && o.yetki(sayfa, true);
+}

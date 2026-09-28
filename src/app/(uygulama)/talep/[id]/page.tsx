@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Truck } from "lucide-react";
+import { Pencil, Truck } from "lucide-react";
+import { kayitDegisebilir } from "@/lib/gunluk";
 import { yetkiIste } from "@/lib/oturum";
 import { TALEP_DURUM, TALEP_SIRASI, tarihYaz, type TalepDurum } from "@/lib/sabitler";
 import { Etiket, Sayfa } from "@/components/kabuk";
@@ -8,12 +9,16 @@ import { TalepIlerlet } from "./ilerlet";
 import { imzala } from "@/lib/dosya";
 import { Fotolar } from "@/components/fotolar";
 
-export default async function TalepDetay({ params }: PageProps<"/talep/[id]">) {
+const zaman = (x: string) =>
+  new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Istanbul" }).format(new Date(x));
+
+export default async function TalepDetay({ params, searchParams }: PageProps<"/talep/[id]">) {
   const o = await yetkiIste("talep");
   const { id } = await params;
+  const { kayit, yetki } = await searchParams;
   const { data: t } = await o.supabase
     .from("talepler")
-    .select("id, urun, miktar, birim, notu, durum, is_tarihi, fotograflar, taseron_id, taseronlar(firma_adi), santiyeler(ad), profiller(ad_soyad)")
+    .select("id, urun, miktar, birim, notu, durum, is_tarihi, fotograflar, olusturan, olusturma, duzenleme, taseron_id, taseronlar(firma_adi), santiyeler(ad), profiller!talepler_olusturan_fkey(ad_soyad), duzenleyen_kisi:profiller!talepler_duzenleyen_fkey(ad_soyad)")
     .eq("id", id)
     .maybeSingle();
   if (!t) notFound();
@@ -32,9 +37,17 @@ export default async function TalepDetay({ params }: PageProps<"/talep/[id]">) {
   const taseron = t.taseronlar as unknown as { firma_adi: string } | null;
   const acan = t.profiller as unknown as { ad_soyad: string } | null;
   const adim = TALEP_SIRASI.indexOf(durum);
+  const duzenleyen = t.duzenleyen_kisi as unknown as { ad_soyad: string } | null;
+  const degisebilir = kayitDegisebilir(o, t, durum === "acildi", "talep");
 
   return (
     <Sayfa baslik="Talep" geri="/talep" geriAd="Talepler">
+      {kayit && <p className="rounded-xl bg-yesil px-4 py-3 font-bold text-white">✓ Talep düzeltildi</p>}
+      {yetki && (
+        <p className="rounded-xl bg-kirmizi px-4 py-3 font-bold text-white">
+          Bu talebi değiştirme yetkiniz yok. Talebi açan kişi 24 saat içinde ve talep &quot;Açıldı&quot; durumundayken, merkez her zaman değiştirebilir.
+        </p>
+      )}
       <p className="text-2xl font-extrabold break-words">
         {Number(t.miktar).toLocaleString("tr-TR")} {t.birim} {t.urun}
       </p>
@@ -57,7 +70,22 @@ export default async function TalepDetay({ params }: PageProps<"/talep/[id]">) {
         <dt className="font-bold">Açılış</dt>
         <dd>{tarihYaz(t.is_tarihi)} · {acan?.ad_soyad}</dd>
         {t.notu && (<><dt className="font-bold">Not</dt><dd>{t.notu}</dd></>)}
+        {t.duzenleme && (
+          <>
+            <dt className="font-bold">Düzenlendi</dt>
+            <dd>
+              {zaman(t.duzenleme)}
+              {duzenleyen ? ` · ${duzenleyen.ad_soyad}` : ""}
+            </dd>
+          </>
+        )}
       </dl>
+
+      {degisebilir && (
+        <Link href={`/talep/${t.id}/duzenle`} className="flex min-h-14 items-center justify-center gap-2 rounded-2xl border-2 border-cizgi text-lg font-bold">
+          <Pencil className="size-6" /> Düzenle / Sil
+        </Link>
+      )}
 
       {!o.taseron && o.yetki("talep", true) && durum !== "kapandi" && <TalepIlerlet id={t.id} durum={durum} />}
 
@@ -83,7 +111,7 @@ export default async function TalepDetay({ params }: PageProps<"/talep/[id]">) {
             <li key={i}>
               <b>{TALEP_DURUM[x.durum as TalepDurum]?.ad ?? x.durum}</b>
               <span className="text-soluk">
-                {" "}· {new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Istanbul" }).format(new Date(x.zaman))}
+                {" "}· {zaman(x.zaman)}
                 {x.kullanici && kisiler.get(x.kullanici) ? ` · ${kisiler.get(x.kullanici)}` : ""}
               </span>
             </li>

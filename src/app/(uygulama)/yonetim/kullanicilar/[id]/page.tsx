@@ -5,6 +5,7 @@ import { Sayfa } from "@/components/kabuk";
 import { YetkiMatrisi } from "@/components/yetki-matrisi";
 import { kullaniciDurum, santiyeAta } from "../../eylemler";
 import { SifreFormu } from "./sifre";
+import { BilgiFormu } from "./bilgi";
 import { SecimPenceresi } from "@/components/secim-penceresi";
 
 export default async function Kullanici({ params, searchParams }: PageProps<"/yonetim/kullanicilar/[id]">) {
@@ -47,6 +48,13 @@ export default async function Kullanici({ params, searchParams }: PageProps<"/yo
           </p>
         )}
       </div>
+
+      <details className="rounded-2xl border-2 border-cizgi">
+        <summary className="flex min-h-14 cursor-pointer items-center px-4 text-lg font-bold">Bilgileri düzenle</summary>
+        <div className="p-4 pt-0">
+          <BilgiFormu k={{ id: k.id, ad_soyad: k.ad_soyad, kullanici_adi: k.kullanici_adi, telefon: k.telefon, rol }} />
+        </div>
+      </details>
 
       {rol === "sef" && (
         <section className="flex flex-col gap-3">

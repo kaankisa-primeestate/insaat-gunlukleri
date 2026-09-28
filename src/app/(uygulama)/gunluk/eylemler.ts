@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { oturum } from "@/lib/oturum";
 import { supabaseYonetici } from "@/lib/supabase/server";
 import { havaTamamla } from "@/lib/hava";
+import { artikFotolariSil } from "@/lib/dosya";
 import { bugun, kisaTarih } from "@/lib/sabitler";
 import { fotoYollari, metin, tarihMi, uuidMi, veritabaniHatasi } from "@/lib/denetim";
 import type { FormDurumu } from "@/components/form";
@@ -69,9 +70,11 @@ export async function gunlukKaydet(_: FormDurumu, form: FormData): Promise<FormD
 
   if (duzenle) {
     // Satır dönmezse yetki yoktur (24 saat geçmiş ya da başkasının kaydı).
+    const { data: eski } = await o.supabase.from("gunlukler").select("fotograflar").eq("id", id).maybeSingle();
     const { data, error } = await o.supabase.from("gunlukler").update(alanlar).eq("id", id).select("id");
     if (error) return { hata: veritabaniHatasi(error) };
     if (!data?.length) return { hata: "Bu günlüğü düzenleme yetkiniz yok. Kaydı giren kişi 24 saat içinde, merkez her zaman düzenleyebilir." };
+    await artikFotolariSil(eski?.fotograflar, alanlar.fotograflar);
     revalidatePath("/gunluk");
     redirect("/gunluk?kayit=duzeltildi");
   }

@@ -206,3 +206,69 @@ export async function santiyeKonumKaydet(id: string, enlem: number, boylam: numb
   revalidatePath("/", "layout");
   return { tamam: "Konum kaydedildi." };
 }
+
+const IC_ROLLER: Rol[] = ["merkez", "personel", "sef", "satinalma"];
+
+/**
+ * Kullanıcının adı, kullanıcı adı, telefonu ve rolü (D4). Rol yalnızca firma
+ * içi roller arasında değişir; taşeron hesabı içeri, iç hesap taşerona
+ * çevrilmez (görebildiği veri kökten değişir; yeni hesap açılır).
+ * Rol değişince kişiye özel yetkiler silinir, yeni rolün varsayılanı geçerli olur.
+ */
+export async function kullaniciGuncelle(_: FormDurumu, form: FormData): Promise<FormDurumu> {
+  const k = await firmaKullanicisi(form.get("id"));
+  if (!k) return { hata: "Kullanıcı bulunamadı." };
+  const { o, hedef } = k;
+
+  const adSoyad = metin(form, "ad_soyad", 80);
+  const kullaniciAdi = String(form.get("kullanici_adi") ?? "").trim().toLowerCase();
+  const telefon = metin(form, "telefon", 20);
+  const eskiRol = hedef.rol as Rol;
+  const rol = eskiRol === "taseron" ? "taseron" : (String(form.get("rol") ?? eskiRol) as Rol);
+
+  if (!adSoyad || adSoyad.length < 2) return { hata: "Ad soyad gerekli." };
+  const kHata = kullaniciAdiDenetle(kullaniciAdi);
+  if (kHata) return { hata: kHata };
+  if (eskiRol !== "taseron" && !IC_ROLLER.includes(rol)) return { hata: "Rol seçin." };
+
+  const yonetici = supabaseYonetici();
+  if (rol !== eskiRol && eskiRol === "merkez") {
+    if (hedef.id === o.profil.id) return { hata: "Kendi merkez yetkinizi kaldıramazsınız; başka bir merkez kullanıcısı yapabilir." };
+    const { count } = await yonetici
+      .from("profiller")
+      .select("id", { count: "exact", head: true })
+      .eq("firma_id", o.firma.id)
+      .eq("rol", "merkez")
+      .eq("aktif", true);
+    if ((count ?? 0) <= 1) return { hata: "Firmada en az bir merkez kullanıcısı kalmalı." };
+  }
+
+  if (kullaniciAdi !== hedef.kullanici_adi) {
+    const { data: alinmis } = await yonetici.from("profiller").select("id").eq("kullanici_adi", kullaniciAdi).maybeSingle();
+    if (alinmis) return { hata: "Bu kullanıcı adı alınmış, başka bir ad deneyin." };
+    // Giriş, kullanıcı adından türeyen adresle yapılır; önce o değişir.
+    const { error } = await yonetici.auth.admin.updateUserById(hedef.id, { email: girisEpostasi(kullaniciAdi), email_confirm: true });
+    if (error) return { hata: "Kullanıcı adı değiştirilemedi: " + error.message };
+  }
+
+  const { error } = await yonetici
+    .from("profiller")
+    .update({ ad_soyad: adSoyad, kullanici_adi: kullaniciAdi, telefon, rol })
+    .eq("id", hedef.id)
+    .eq("firma_id", o.firma.id);
+  if (error) {
+    // Profil yazılamadıysa giriş adresi eski hâline döner; iki kayıt ayrışmasın.
+    if (kullaniciAdi !== hedef.kullanici_adi)
+      await yonetici.auth.admin.updateUserById(hedef.id, { email: girisEpostasi(hedef.kullanici_adi), email_confirm: true });
+    return { hata: "Kaydedilemedi: " + error.message };
+  }
+  if (rol !== eskiRol) await yonetici.from("yetkiler").delete().eq("kullanici_id", hedef.id);
+
+  revalidatePath("/", "layout");
+  return {
+    tamam:
+      "Kaydedildi." +
+      (kullaniciAdi !== hedef.kullanici_adi ? ` Yeni kullanıcı adı: ${kullaniciAdi} (şifre aynı).` : "") +
+      (rol !== eskiRol ? " Rol değişti; yetkiler yeni rolün varsayılanına döndü." : ""),
+  };
+}

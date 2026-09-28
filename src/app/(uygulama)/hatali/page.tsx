@@ -12,7 +12,7 @@ const ALANLAR =
 /** Açık işler önem sırasına göre; onaylananlar ayrı sekmede. */
 export default async function HataliIsler({ searchParams }: PageProps<"/hatali">) {
   const o = await yetkiIste("hatali");
-  const { durum, kayit } = await searchParams;
+  const { durum, kayit, silindi } = await searchParams;
   const filtre: HataDurum | "acik" = durum && typeof durum === "string" && durum in HATA_DURUM ? (durum as HataDurum) : "acik";
   if (!o.santiye) return <Sayfa baslik="Hatalı İşler"><Bos>Şantiye seçili değil.</Bos></Sayfa>;
 
@@ -39,6 +39,7 @@ export default async function HataliIsler({ searchParams }: PageProps<"/hatali">
   return (
     <Sayfa baslik={`Hatalı İşler · ${o.santiye.ad}`} genis>
       {kayit && <p className="rounded-xl bg-yesil px-4 py-3 text-lg font-bold text-white">✓ Kaydedildi</p>}
+      {silindi && <p className="rounded-xl bg-yesil px-4 py-3 text-lg font-bold text-white">✓ Kayıt silindi</p>}
       {o.yetki("hatali", true) && !o.taseron && <YeniEkle href="/hatali/yeni" />}
       <nav className="grid grid-cols-4 gap-1 rounded-2xl bg-yuzey p-1 lg:hidden">
         {sekmeler.map((s) => (

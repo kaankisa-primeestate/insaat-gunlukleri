@@ -5,27 +5,45 @@ import { Alan, Form, KaydetButonu, Mesaj, Metin, Secim, TarihSecici } from "@/co
 import { FotoSecici } from "@/components/foto-secici";
 import { SecimPenceresi } from "@/components/secim-penceresi";
 import { taseronSecenekleri, type TaseronSecenek } from "@/components/secimler";
-import { ONEM, ROL_ADI, type Rol } from "@/lib/sabitler";
+import { ONEM, ROL_ADI, type Onem, type Rol } from "@/lib/sabitler";
 import { hataKaydet } from "../eylemler";
 
+export type HataDeger = {
+  id: string;
+  taseron_id: string | null;
+  sorumlu_kullanici_id: string | null;
+  is_tarihi: string;
+  aciklama: string;
+  kat: string | null;
+  onem: Onem;
+};
+
+/** Yeni hatalı iş; `deger` verilirse mevcut kaydın düzeltilmesi. */
 export function HataFormu({
   firmaId,
   taseronlar,
   personel,
   katlar,
+  deger,
+  mevcutFotolar,
 }: {
   firmaId: string;
   taseronlar: TaseronSecenek[];
   personel: { id: string; ad_soyad: string; rol: Rol }[];
   katlar: string[];
+  deger?: HataDeger;
+  mevcutFotolar?: { yol: string; adres: string }[];
 }) {
   const [durum, eylem, bekliyor] = useActionState(hataKaydet, undefined);
-  const [id] = useState(() => crypto.randomUUID());
+  const [id] = useState(() => deger?.id ?? crypto.randomUUID());
+  const sorumlu = deger ? (deger.taseron_id ? "t:" + deger.taseron_id : "k:" + deger.sorumlu_kullanici_id) : undefined;
+  const katSecenekleri = deger?.kat && !katlar.includes(deger.kat) ? [...katlar, deger.kat] : katlar;
   return (
     <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-6">
       <input type="hidden" name="id" value={id} />
+      {deger && <input type="hidden" name="duzenle" value="1" />}
       <Alan etiket="Fotoğraf" ipucu="İsteğe bağlı.">
-        <FotoSecici firmaId={firmaId} klasor="hatali" />
+        <FotoSecici firmaId={firmaId} klasor="hatali" mevcut={mevcutFotolar} />
       </Alan>
       <Alan etiket="Kimin işi?" zorunlu ipucu="Bir taşeron ya da bir kişi (kalfa, şef…) seçin.">
         {/* Değer "t:" ile taşeron, "k:" ile kullanıcı kimliği taşır. */}
@@ -34,6 +52,7 @@ export function HataFormu({
           baslik="Kimin işi?"
           zorunlu
           bosYazi="Taşeron ya da kişi seçmek için dokunun"
+          varsayilan={sorumlu ? [sorumlu] : []}
           secenekler={[
             ...taseronSecenekleri(taseronlar, "Taşeronlar", "t:"),
             ...personel.map((p) => ({ deger: "k:" + p.id, ad: p.ad_soyad, alt: ROL_ADI[p.rol], grup: "Personel" })),
@@ -45,7 +64,7 @@ export function HataFormu({
           ad="onem"
           zorunlu
           sutun={3}
-          varsayilan="normal"
+          varsayilan={deger?.onem ?? "normal"}
           secenekler={(Object.keys(ONEM) as (keyof typeof ONEM)[]).map((k) => ({
             deger: k,
             ad: ONEM[k].ad,
@@ -54,17 +73,24 @@ export function HataFormu({
         />
       </Alan>
       <Alan etiket="Açıklama" zorunlu>
-        <Metin name="aciklama" required maxLength={300} placeholder="Ne eksik / hatalı?" />
+        <Metin name="aciklama" required maxLength={300} placeholder="Ne eksik / hatalı?" defaultValue={deger?.aciklama ?? ""} />
       </Alan>
       <Alan etiket="Tarih">
-        <TarihSecici />
+        <TarihSecici varsayilan={deger?.is_tarihi} />
       </Alan>
       <Alan etiket="Kat">
-        <SecimPenceresi ad="kat" baslik="Hangi kat?" sutun={3} bosYazi="Kat seçmek için dokunun" secenekler={katlar.map((k) => ({ deger: k, ad: k }))} />
+        <SecimPenceresi
+          ad="kat"
+          baslik="Hangi kat?"
+          sutun={3}
+          bosYazi="Kat seçmek için dokunun"
+          varsayilan={deger?.kat ? [deger.kat] : []}
+          secenekler={katSecenekleri.map((k) => ({ deger: k, ad: k }))}
+        />
       </Alan>
       <Mesaj durum={durum} />
       <div className="sticky bottom-3">
-        <KaydetButonu renk="kirmizi" />
+        <KaydetButonu renk="kirmizi">{deger ? "Değişiklikleri Kaydet" : undefined}</KaydetButonu>
       </div>
     </Form>
   );
