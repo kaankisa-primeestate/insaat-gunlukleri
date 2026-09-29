@@ -3,17 +3,56 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { oturum } from "@/lib/oturum";
-import { IS_TURU_LISTESI } from "@/lib/sabitler";
-import { metin, tarihMi, uuidMi, veritabaniHatasi } from "@/lib/denetim";
+import { IS_TURU_LISTESI, girisEpostasi } from "@/lib/sabitler";
+import { kullaniciAdiDenetle, metin, tarihMi, uuidMi, veritabaniHatasi } from "@/lib/denetim";
+import { supabaseYonetici } from "@/lib/supabase/server";
 import type { FormDurumu } from "@/components/form";
 
+type SozlesmeSatiri = { santiyeId: string; mevcut: string | null; kayit: Record<string, unknown> };
+
+/** Formdaki bir şantiye bloğu (s.<kimlik>.alan) → sözleşme alanları ya da hata. */
+function sozlesmeOku(form: FormData, santiyeId: string, santiyeAd: string, firmaId: string): Record<string, unknown> | string {
+  const al = (x: string) => form.get(`s.${santiyeId}.${x}`);
+  const tarif = metin(form, `s.${santiyeId}.tarif`, 500);
+  if (!tarif || tarif.length < 2) return `${santiyeAd}: işin tarifini yazın.`;
+  const tur = al("tur");
+  const kayit: Record<string, unknown> = { is_tarifi: tarif, santiye_id: santiyeId };
+  if (tur === "belirsiz") {
+    const b = al("baslangic");
+    Object.assign(kayit, { sure_belirsiz: true, baslangic: tarihMi(b) ? b : null, bitis: null, yer_teslim: null, sure_gun: null });
+  } else if (tur === "sure") {
+    const y = al("yer_teslim");
+    const gun = Math.round(Number(al("sure_gun")));
+    if (!tarihMi(y)) return `${santiyeAd}: yer teslim tarihi gerekli.`;
+    if (!(gun >= 1 && gun <= 3650)) return `${santiyeAd}: süre 1 ile 3650 gün arasında olmalı.`;
+    Object.assign(kayit, { sure_belirsiz: false, baslangic: y, bitis: null, yer_teslim: y, sure_gun: gun });
+  } else {
+    const b = al("baslangic");
+    const bt = al("bitis");
+    if (!tarihMi(bt)) return `${santiyeAd}: bitiş tarihi gerekli (belli değilse "Henüz belli değil"i seçin).`;
+    if (tarihMi(b) && b > bt) return `${santiyeAd}: bitiş başlangıçtan önce olamaz.`;
+    Object.assign(kayit, { sure_belirsiz: false, baslangic: tarihMi(b) ? b : null, bitis: bt, yer_teslim: null, sure_gun: null });
+  }
+  const belge = String(al("belge") ?? "");
+  if (belge.startsWith(firmaId + "/") && !belge.includes("..")) kayit.belge_yolu = belge;
+  if (al("belge_kaldir") === "1") kayit.belge_yolu = null;
+  return kayit;
+}
+
+/**
+ * Taşeron sayfasının tek kaydı: firma bilgileri, çalıştığı şantiyeler
+ * (sözleşmeler) ve yeni taşeronda isteğe bağlı giriş hesabı. Önce her şey
+ * denetlenir, sonra yazılır; yarım kayıt kalmaz. İşareti kaldırılan
+ * şantiyenin sözleşmesi silinmez, "iş bitti" olur.
+ */
 export async function taseronKaydet(_: FormDurumu, form: FormData): Promise<FormDurumu> {
   const o = await oturum();
   const id = form.get("id");
+  const duzenle = uuidMi(id);
   const firmaAdi = metin(form, "firma_adi", 120);
   const isTurleri = [...new Set(form.getAll("is_turleri").map(String))].filter((t) => IS_TURU_LISTESI.includes(t));
   if (!firmaAdi || firmaAdi.length < 2) return { hata: "Firma adı gerekli." };
-  if (!isTurleri.length) return { hata: "Yapacağı en az bir işi seçin." };
+  if (!isTurleri.length) return { hata: "Yaptığı en az bir işi seçin." };
 
   const iban = metin(form, "iban", 40)?.replace(/\s+/g, "").toUpperCase() ?? null;
   if (iban && !/^TR\d{24}$/.test(iban)) return { hata: "IBAN TR ile başlamalı ve 26 karakter olmalı." };
@@ -34,120 +73,145 @@ export async function taseronKaydet(_: FormDurumu, form: FormData): Promise<Form
     is_turleri: isTurleri,
   };
 
+  // Ana taşeron kendi alt taşeronunu açar: şantiye ve hesap bölümü yoktur,
+  // alt taşeron ana taşeronun şantiyelerinde görünür.
   if (o.taseron) {
-    // Ana taşeron yalnızca kendi altına alt taşeron açabilir; RLS de denetler.
-    if (uuidMi(id)) return { hata: "Taşeron bilgilerini merkez düzenler." };
-    kayit.ust_taseron_id = o.profil.taseron_id;
-  } else {
-    if (!o.yetki("taseronlar", true)) return { hata: "Taşeron ekleme yetkiniz yok." };
-    const ust = form.get("ust_taseron_id");
-    kayit.ust_taseron_id = uuidMi(ust) && ust !== id ? ust : null;
-    kayit.alt_taseron_yetkisi = form.get("alt_taseron_yetkisi") === "on";
-  }
-
-  if (uuidMi(id)) {
-    // Satır dönmezse güncelleme yetki yüzünden yapılmamıştır; "kaydedildi" denmez.
-    const { data, error } = await o.supabase.from("taseronlar").update(kayit).eq("id", id).select("id");
+    if (duzenle) return { hata: "Taşeron bilgilerini merkez düzenler." };
+    const yeniId = crypto.randomUUID();
+    const { error } = await o.supabase
+      .from("taseronlar")
+      .insert({ ...kayit, ust_taseron_id: o.profil.taseron_id, id: yeniId, firma_id: o.firma.id });
     if (error) return { hata: veritabaniHatasi(error) };
-    if (!data?.length) return { hata: "Bu taşeronu düzenleme yetkiniz yok." };
-    revalidatePath(`/taseronlar/${id}`);
-    redirect(`/taseronlar/${id}?kayit=1`);
+    revalidatePath("/taseronlar");
+    redirect(`/taseronlar/${yeniId}?kayit=1`);
   }
 
-  // Kimlik burada üretilir: eklenen satırı geri okumak gerekmez (şef gibi
-  // kapsamı dar kullanıcılar sözleşme bağlanana kadar taşeronu göremez).
-  const yeniId = crypto.randomUUID();
-  const { error } = await o.supabase.from("taseronlar").insert({ ...kayit, id: yeniId, firma_id: o.firma.id });
-  if (error) return { hata: veritabaniHatasi(error) };
-  revalidatePath("/taseronlar");
-  redirect(o.taseron ? `/taseronlar/${yeniId}?kayit=1` : `/taseronlar/${yeniId}/sozlesme?yeni=1`);
-}
+  if (!o.yetki("taseronlar", true)) return { hata: "Taşeron ekleme yetkiniz yok." };
+  const ust = form.get("ust_taseron_id");
+  kayit.ust_taseron_id = uuidMi(ust) && ust !== id ? ust : null;
+  kayit.alt_taseron_yetkisi = form.get("alt_taseron_yetkisi") === "on";
 
-/** Yeni sözleşme ya da mevcut sözleşmenin düzeltilmesi (formda id varsa). */
-export async function sozlesmeKaydet(_: FormDurumu, form: FormData): Promise<FormDurumu> {
-  const o = await oturum();
-  if (o.taseron || !o.yetki("taseronlar", true)) return { hata: "Sözleşme düzenleme yetkiniz yok." };
-  const id = form.get("id");
-  const taseronId = form.get("taseron_id");
-  const santiyeId = form.get("santiye_id");
-  const isTarifi = metin(form, "is_tarifi", 500);
-  const tur = form.get("tur");
-  if (!uuidMi(taseronId)) return { hata: "Taşeron belirsiz." };
-  if (!uuidMi(santiyeId)) return { hata: "Şantiye seçin." };
-  if (!isTarifi || isTarifi.length < 2) return { hata: "İşin tarifini yazın." };
-
-  // Tarih türü değişirse diğer türün alanları boşaltılır; eski değer kalıp
-  // bitiş tarihini yanlış hesaplatmasın.
-  const kayit: Record<string, unknown> = {
-    taseron_id: taseronId,
-    santiye_id: santiyeId,
-    is_tarifi: isTarifi,
-  };
-  if (tur === "net") {
-    const b = form.get("baslangic");
-    const s = form.get("bitis");
-    if (!tarihMi(s)) return { hata: "Bitiş tarihi gerekli." };
-    if (tarihMi(b) && b > s) return { hata: "Bitiş başlangıçtan önce olamaz." };
-    Object.assign(kayit, { baslangic: tarihMi(b) ? b : null, bitis: s, yer_teslim: null, sure_gun: null });
-  } else {
-    const y = form.get("yer_teslim");
-    const gun = Math.round(Number(form.get("sure_gun")));
-    if (!tarihMi(y)) return { hata: "Yer teslim tarihi gerekli." };
-    if (!(gun >= 1 && gun <= 3650)) return { hata: "Süre 1 ile 3650 gün arasında olmalı." };
-    Object.assign(kayit, { baslangic: y, bitis: null, yer_teslim: y, sure_gun: gun });
+  // Şantiyeler: işaretliler sözleşme olur; işareti kaldırılan "iş bitti".
+  const mevcutlar = new Map<string, { id: string; tamamlandi: boolean }>();
+  if (duzenle) {
+    const { data } = await o.supabase.from("sozlesmeler").select("id, santiye_id, tamamlandi").eq("taseron_id", id);
+    for (const s of data ?? []) mevcutlar.set(s.santiye_id as string, { id: s.id as string, tamamlandi: s.tamamlandi as boolean });
   }
-  const belge = String(form.get("belge") ?? "");
-  if (belge.startsWith(o.firma.id + "/") && !belge.includes("..")) kayit.belge_yolu = belge;
-  if (form.get("belge_kaldir") === "1") kayit.belge_yolu = null;
+  const yazilacak: SozlesmeSatiri[] = [];
+  const kapanacak: string[] = [];
+  for (const s of o.santiyeler) {
+    const mevcut = mevcutlar.get(s.id) ?? null;
+    if (form.get(`s.${s.id}.secili`) === "on") {
+      const sonuc = sozlesmeOku(form, s.id, s.ad, o.firma.id);
+      if (typeof sonuc === "string") return { hata: sonuc };
+      yazilacak.push({ santiyeId: s.id, mevcut: mevcut?.id ?? null, kayit: { ...sonuc, tamamlandi: false } });
+    } else if (mevcut && !mevcut.tamamlandi) {
+      kapanacak.push(mevcut.id);
+    }
+  }
+  // Alt taşeron ana taşeronun şantiyelerinde görünür; kendi sözleşmesi şart değil.
+  if (!duzenle && !kayit.ust_taseron_id && !yazilacak.length) {
+    return { hata: "Çalıştığı en az bir şantiyeyi işaretleyin; şantiyesi olmayan taşeron hiçbir listede görünmez." };
+  }
 
-  // Aynı şantiyede aynı işi yapan başka taşeron varsa önce uyarılır.
-  // Kesin yasak değil: büyük şantiyede iki kalıpçı farklı blokta çalışabilir,
-  // ya da bir taşeron işi bırakıp yerine başkası gelmiş olabilir.
+  // Giriş hesabı (yalnız yeni taşeronda, isteğe bağlı): önce denetlenir.
+  const hesapKullanici = String(form.get("hesap_kullanici") ?? "").trim().toLowerCase();
+  const hesapSifre = String(form.get("hesap_sifre") ?? "");
+  const hesapIstendi = !duzenle && o.merkez && (hesapKullanici || hesapSifre);
+  const yonetici = hesapIstendi ? supabaseYonetici() : null;
+  if (hesapIstendi) {
+    const kHata = kullaniciAdiDenetle(hesapKullanici);
+    if (kHata) return { hata: "Giriş hesabı: " + kHata };
+    if (hesapSifre.length < 6) return { hata: "Giriş hesabı: şifre en az 6 karakter olmalı." };
+    const { data: alinmis } = await yonetici!.from("profiller").select("id").eq("kullanici_adi", hesapKullanici).maybeSingle();
+    if (alinmis) return { hata: "Giriş hesabı: bu kullanıcı adı alınmış, başka bir ad deneyin." };
+  }
+
+  const taseronId = duzenle ? (id as string) : crypto.randomUUID();
+
+  // Aynı şantiyede aynı işi yapan başka taşeron: önce uyarılır (kesin yasak değil).
   if (form.get("onay") !== "1") {
-    const cakisan = await ayniIsiYapanlar(o, taseronId, santiyeId, uuidMi(id) ? id : null);
-    if (cakisan.length) {
+    const uyarilar: string[] = [];
+    for (const y of yazilacak.filter((x) => !x.mevcut || mevcutlar.get(x.santiyeId)?.tamamlandi)) {
+      const cakisan = await ayniIsiYapanlar(o, isTurleri, kayit.ust_taseron_id as string | null, taseronId, y.santiyeId);
+      const ad = o.santiyeler.find((s) => s.id === y.santiyeId)?.ad;
+      if (cakisan.length) uyarilar.push(`${ad}: ${cakisan.join("; ")}`);
+    }
+    if (uyarilar.length) {
       return {
         uyari:
-          `Bu şantiyede aynı işi yapan başka taşeron var: ${cakisan.join("; ")}. ` +
-          "Mükerrer kayıt olabilir. Eski taşeron işi bıraktıysa önce onun sözleşmesinde \"İş bitti\" deyin. " +
-          "Gerçekten ikinci bir firma çalışıyorsa \"Yine de kaydet\"e basın.",
+          `Aynı işi yapan başka taşeron var. ${uyarilar.join(" · ")}. Mükerrer kayıt olabilir. ` +
+          "Eski taşeron işi bıraktıysa önce onun şantiyesindeki işareti kaldırın. Gerçekten ikinci bir firma çalışıyorsa \"Yine de kaydet\"e basın.",
       };
     }
   }
 
-  if (uuidMi(id)) {
-    const { data, error } = await o.supabase.from("sozlesmeler").update(kayit).eq("id", id).select("id");
+  if (duzenle) {
+    // Satır dönmezse güncelleme yetki yüzünden yapılmamıştır; "kaydedildi" denmez.
+    const { data, error } = await o.supabase.from("taseronlar").update(kayit).eq("id", taseronId).select("id");
     if (error) return { hata: veritabaniHatasi(error) };
-    if (!data?.length) return { hata: "Bu sözleşmeyi düzenleme yetkiniz yok." };
+    if (!data?.length) return { hata: "Bu taşeronu düzenleme yetkiniz yok." };
   } else {
-    const { error } = await o.supabase.from("sozlesmeler").insert({ ...kayit, firma_id: o.firma.id });
+    const { error } = await o.supabase.from("taseronlar").insert({ ...kayit, id: taseronId, firma_id: o.firma.id });
     if (error) return { hata: veritabaniHatasi(error) };
   }
+
+  for (const y of yazilacak) {
+    const { error } = y.mevcut
+      ? await o.supabase.from("sozlesmeler").update(y.kayit).eq("id", y.mevcut)
+      : await o.supabase.from("sozlesmeler").insert({ ...y.kayit, taseron_id: taseronId, firma_id: o.firma.id });
+    if (error) return { hata: "Taşeron kaydedildi ama şantiye kaydedilemedi: " + veritabaniHatasi(error) };
+  }
+  if (kapanacak.length) await o.supabase.from("sozlesmeler").update({ tamamlandi: true }).in("id", kapanacak);
+
+  let hesapNotu = "";
+  if (hesapIstendi) {
+    const { data: kul, error } = await yonetici!.auth.admin.createUser({
+      email: girisEpostasi(hesapKullanici),
+      password: hesapSifre,
+      email_confirm: true,
+    });
+    if (error || !kul.user) {
+      hesapNotu = "&hesap=hata";
+    } else {
+      const { error: pHata } = await yonetici!.from("profiller").insert({
+        id: kul.user.id,
+        firma_id: o.firma.id,
+        kullanici_adi: hesapKullanici,
+        ad_soyad: metin(form, "hesap_ad", 80) ?? (yetkililer[0]?.ad || firmaAdi),
+        telefon: yetkililer[0]?.telefon || null,
+        rol: "taseron",
+        taseron_id: taseronId,
+      });
+      if (pHata) {
+        await yonetici!.auth.admin.deleteUser(kul.user.id);
+        hesapNotu = "&hesap=hata";
+      } else hesapNotu = "&hesap=" + encodeURIComponent(hesapKullanici);
+    }
+  }
+
+  revalidatePath("/taseronlar");
   revalidatePath(`/taseronlar/${taseronId}`);
   revalidatePath("/");
-  redirect(`/taseronlar/${taseronId}?kayit=1`);
+  redirect(`/taseronlar/${taseronId}?kayit=1${hesapNotu}`);
 }
 
 type O = Awaited<ReturnType<typeof oturum>>;
 
 /** Aynı şantiyede, devam eden sözleşmesi olan ve aynı iş türünü yapan diğer taşeronlar. */
-async function ayniIsiYapanlar(o: O, taseronId: string, santiyeId: string, haricSozlesme: string | null) {
-  const { data: bu } = await o.supabase.from("taseronlar").select("is_turleri, ust_taseron_id").eq("id", taseronId).single();
-  if (!bu) return [];
-  let sorgu = o.supabase
+async function ayniIsiYapanlar(o: O, isTurleri: string[], ustTaseron: string | null, taseronId: string, santiyeId: string) {
+  const { data } = await o.supabase
     .from("sozlesmeler")
     .select("id, taseronlar!inner(id, firma_adi, is_turleri, ust_taseron_id)")
     .eq("santiye_id", santiyeId)
     .eq("tamamlandi", false)
     .neq("taseron_id", taseronId);
-  if (haricSozlesme) sorgu = sorgu.neq("id", haricSozlesme);
-  const { data } = await sorgu;
-  const turler = new Set((bu.is_turleri as string[]).filter((t) => t !== "Diğer"));
+  const turler = new Set(isTurleri.filter((t) => t !== "Diğer"));
   const sonuc: string[] = [];
   for (const s of data ?? []) {
     const t = s.taseronlar as unknown as { id: string; firma_adi: string; is_turleri: string[]; ust_taseron_id: string | null };
     // Ana taşeron ile kendi alt taşeronu aynı işi yapabilir; bu mükerrer değildir.
-    if (t.id === bu.ust_taseron_id || t.ust_taseron_id === taseronId) continue;
+    if (t.id === ustTaseron || t.ust_taseron_id === taseronId) continue;
     const ortak = t.is_turleri.filter((x) => turler.has(x));
     if (ortak.length) sonuc.push(`${t.firma_adi} (${ortak.join(", ")})`);
   }
@@ -162,19 +226,6 @@ export async function sozlesmeTamamla(form: FormData) {
   await o.supabase.from("sozlesmeler").update({ tamamlandi: form.get("tamamlandi") === "1" }).eq("id", id);
   revalidatePath(`/taseronlar/${taseronId}`);
   revalidatePath("/");
-}
-
-export async function sozlesmeSil(_: FormDurumu, form: FormData): Promise<FormDurumu> {
-  const o = await oturum();
-  const id = form.get("id");
-  const taseronId = form.get("taseron_id");
-  if (!uuidMi(id) || !uuidMi(taseronId) || o.taseron) return { hata: "Geçersiz istek." };
-  const { data, error } = await o.supabase.from("sozlesmeler").delete().eq("id", id).select("id");
-  if (error) return { hata: veritabaniHatasi(error) };
-  if (!data?.length) return { hata: "Bu sözleşmeyi silme yetkiniz yok." };
-  revalidatePath(`/taseronlar/${taseronId}`);
-  revalidatePath("/");
-  redirect(`/taseronlar/${taseronId}?kayit=1`);
 }
 
 export async function taseronSil(_: FormDurumu, form: FormData): Promise<FormDurumu> {

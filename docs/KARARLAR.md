@@ -203,3 +203,27 @@ ne zaman verildiği ve en son hangisinin geçerli olduğu kaydedilir.
   onaylar baştan istenir. Okunmuş kararı yalnız merkez siler.
 - Yetki matrisinde "Karar Defteri" satırı var; merkez kişi ya da firma bazında
   kısabilir.
+
+## Taşeron sayfası tek sayfa; şantiye ve süre içinde (29 Eylül, kullanıcı kararı)
+
+Kullanıcı taşeron oluştururken şantiye ve süreyi bulamadı. İnceleme: ilk
+sürümden beri iki adımdı (taşeron formu → ayrı "Sözleşme Ekle" sayfası);
+hiçbir alan silinmemişti, ama ikinci adım gözden kaçıyor ve atlanınca
+taşeron hiçbir şantiyede görünmüyordu.
+
+- Yeni Taşeron ve Düzenle tek sayfa, tek Kaydet: 1) Firma (ad, yaptığı işler,
+  yetkililer, vergi, IBAN) 2) Çalıştığı şantiyeler: onay kutusu; işaretlenince
+  işin tarifi, süre (Başlangıç + bitiş / Yer teslim + gün / Henüz belli
+  değil), belge 3) Giriş hesabı (isteğe bağlı, yalnız yeni taşeronda,
+  merkez) 4) Alt taşeron.
+- Yeni taşeron en az bir şantiyeyle kaydedilir (alt taşeron hariç; o ana
+  taşeronun şantiyelerinde görünür).
+- Süre zorunlu; bitişi belli olmayan iş için "Henüz belli değil" seçilir.
+  Bitiş boş kalır, gecikme uyarısı çalışmaz, sayfada "Süre girilmedi" yazar.
+- Şantiyeden çıkarılan taşeronun sözleşmesi silinmez, "iş bitti" olur;
+  geçmiş kayıtlar kalır. Sözleşme silme kaldırıldı (veritabanında da).
+  İşi bitmiş taşeron o şantiyenin yeni kayıt listelerinde çıkmaz.
+- Taşeron silme yalnız hiç kaydı olmayan (yanlış açılmış) taşeron için;
+  Karar Defteri'nde adı geçen taşeron da silinmez.
+- Aynı şantiyede aynı işi yapan başka taşeron varsa önce uyarı, "Yine de
+  kaydet" ile geçilir (eskisi gibi).

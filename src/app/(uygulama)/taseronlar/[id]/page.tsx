@@ -50,6 +50,14 @@ export default async function TaseronSayfasi({ params, searchParams }: PageProps
       }
     >
       {sp.kayit && <p className="rounded-xl bg-yesil px-4 py-3 font-bold text-white">✓ Kaydedildi</p>}
+      {sp.hesap && sp.hesap !== "hata" && (
+        <p className="rounded-xl bg-yesil px-4 py-3 font-bold text-white">✓ Giriş hesabı açıldı. Kullanıcı adı: {String(sp.hesap)}</p>
+      )}
+      {sp.hesap === "hata" && (
+        <p className="rounded-xl bg-kirmizi px-4 py-3 font-bold text-white">
+          Taşeron kaydedildi ama giriş hesabı açılamadı. &quot;Hesaplar&quot; sekmesinden yeniden deneyin.
+        </p>
+      )}
       <div className="flex flex-wrap items-center gap-2">
         {(t.is_turleri as string[]).map((tur) => (
           <Etiket key={tur} sinif="bg-koyu text-white">{tur}</Etiket>
@@ -128,7 +136,7 @@ async function Bilgi({ o, t, kendisi }: { o: O; t: T; kendisi: boolean }) {
     o.yetki("sozlesme")
       ? o.supabase
           .from("sozlesmeler")
-          .select("id, is_tarifi, baslangic, bitis, yer_teslim, sure_gun, bitis_hesap, belge_yolu, tamamlandi, santiyeler(ad)")
+          .select("id, is_tarifi, baslangic, bitis, yer_teslim, sure_gun, sure_belirsiz, bitis_hesap, belge_yolu, tamamlandi, santiyeler(ad)")
           .eq("taseron_id", t.id)
           .order("bitis_hesap")
       : Promise.resolve({ data: null }),
@@ -180,16 +188,23 @@ async function Bilgi({ o, t, kendisi }: { o: O; t: T; kendisi: boolean }) {
 
       {sozlesmeler && (
         <section className="flex flex-col gap-3">
-          <h2 className="text-xl font-bold">Sözleşmeler</h2>
-          {sozlesmeler.length === 0 && <Bos>Sözleşme yok.</Bos>}
+          <h2 className="text-xl font-bold">Çalıştığı şantiyeler</h2>
+          {sozlesmeler.length === 0 && <Bos>Henüz şantiyesi yok; hiçbir listede görünmüyor.</Bos>}
           {sozlesmeler.map((s) => {
-            const kalan = Math.round((Date.parse(s.bitis_hesap) - Date.parse(bugunStr)) / 86400000);
+            // Süre henüz belli değilse bitiş yok: gecikme uyarısı çalışmaz.
+            const kalan = s.bitis_hesap ? Math.round((Date.parse(s.bitis_hesap) - Date.parse(bugunStr)) / 86400000) : null;
             const santiye = s.santiyeler as unknown as { ad: string } | null;
             return (
-              <article key={s.id} className={`flex flex-col gap-2 rounded-2xl border-2 p-3 ${!s.tamamlandi && kalan <= 7 ? "border-kirmizi" : "border-cizgi"}`}>
+              <article key={s.id} className={`flex flex-col gap-2 rounded-2xl border-2 p-3 ${!s.tamamlandi && kalan != null && kalan <= 7 ? "border-kirmizi" : "border-cizgi"}`}>
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-lg font-bold">{santiye?.ad}</span>
-                  {s.tamamlandi ? <Etiket sinif="bg-yesil text-white">Tamamlandı</Etiket> : <GecikmeEtiketi gun={kalan} />}
+                  {s.tamamlandi ? (
+                    <Etiket sinif="bg-gri text-white">İş bitti</Etiket>
+                  ) : s.sure_belirsiz ? (
+                    <Etiket sinif="bg-sari text-black">Süre girilmedi</Etiket>
+                  ) : (
+                    <GecikmeEtiketi gun={kalan} />
+                  )}
                 </div>
                 <p>{s.is_tarifi}</p>
                 <p className="text-soluk">
@@ -199,7 +214,7 @@ async function Bilgi({ o, t, kendisi }: { o: O; t: T; kendisi: boolean }) {
                       ? `${tarihYaz(s.baslangic)} başlangıç`
                       : ""}
                 </p>
-                <p className="font-bold">Bitiş: {tarihYaz(s.bitis_hesap)}</p>
+                <p className="font-bold">{s.bitis_hesap ? `Bitiş: ${tarihYaz(s.bitis_hesap)}` : "Bitiş: henüz belli değil"}</p>
                 <div className="flex flex-wrap gap-2">
                   {s.belge_yolu && belgeler[s.belge_yolu] && (
                     <a
@@ -213,7 +228,7 @@ async function Bilgi({ o, t, kendisi }: { o: O; t: T; kendisi: boolean }) {
                   )}
                   {!o.taseron && o.yetki("taseronlar", true) && (
                     <Link
-                      href={`/taseronlar/${t.id}/sozlesme/${s.id}`}
+                      href={`/taseronlar/${t.id}/duzenle#santiyeler`}
                       className="flex min-h-12 items-center gap-2 rounded-xl bg-vurgu px-4 font-bold text-black"
                     >
                       <Pencil className="size-5" /> Düzelt
@@ -234,8 +249,8 @@ async function Bilgi({ o, t, kendisi }: { o: O; t: T; kendisi: boolean }) {
             );
           })}
           {!o.taseron && o.yetki("taseronlar", true) && (
-            <Link href={`/taseronlar/${t.id}/sozlesme`} className="flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-koyu text-lg font-bold text-white">
-              <Plus className="size-6" /> Sözleşme Ekle
+            <Link href={`/taseronlar/${t.id}/duzenle#santiyeler`} className="flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-koyu text-lg font-bold text-white">
+              <Plus className="size-6" /> Şantiye Ekle / Çıkar
             </Link>
           )}
         </section>

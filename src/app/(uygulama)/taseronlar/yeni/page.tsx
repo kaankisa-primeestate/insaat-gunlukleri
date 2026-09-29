@@ -21,8 +21,14 @@ export default async function YeniTaseron() {
     .order("firma_adi");
 
   return (
-    <Sayfa baslik={altTaseronModu ? "Yeni Alt Taşeron" : "Yeni Taşeron"} geri="/taseronlar" geriAd="Taşeronlar">
-      <TaseronFormu anaTaseronlar={anaTaseronlar ?? []} altTaseronModu={altTaseronModu} />
+    <Sayfa baslik={altTaseronModu ? "Yeni Alt Taşeron" : "Yeni Taşeron"} geri="/taseronlar" geriAd="Vazgeç">
+      <TaseronFormu
+        anaTaseronlar={anaTaseronlar ?? []}
+        altTaseronModu={altTaseronModu}
+        santiyeler={o.santiyeler.map((s) => ({ id: s.id, ad: s.ad }))}
+        firmaId={o.firma.id}
+        hesapAcilabilir={o.merkez}
+      />
     </Sayfa>
   );
 }
