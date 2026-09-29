@@ -73,7 +73,7 @@ bağlanmadı. Mevcut kayıtlar olduğu gibi kaldı. Seçim penceresinde çok
 bloklu şantiyede üstte blok sekmeleri çıkar (4 blok × 20 kat alt alta
 dizilince kaydırma çok uzuyordu).
 
-## D5 ayrıntısı: "Bugünün Günlüğü" (öneri — kullanıcı onayı bekliyor)
+## D5 ayrıntısı: "Bugünün Günlüğü" (ERTELENDİ — kullanıcı 29 Eylül: acil değil; "eksik kaldı" diye düşünüldüğünde yeniden getirilecek)
 
 **Otomatik kayıt yapılmaz.** Taşeron gelmediği gün de kayıt düşer, kimse
 fark etmezse sahte kayıt oluşur; günlüğün güvenilirliği biter. Bunun yerine

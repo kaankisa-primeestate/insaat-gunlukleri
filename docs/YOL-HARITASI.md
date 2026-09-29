@@ -39,7 +39,7 @@ Saha denemesinden gelen D6–D9 yapıldı (26 Eylül). Kalanlar:
 
 | Kod | İş |
 |---|---|
-| D5 | "Bugünün Günlüğü": dünden devam kartları (Aynen devam / Değiştir / Gelmedi) |
+| D5 | ⏸ "Bugünün Günlüğü": dünden devam kartları — kullanıcı erteledi (29 Eylül), eksik hissedilince yeniden konuşulacak |
 | A2 | ✅ Sesle yazma: not ve açıklama kutularında mikrofon (telefonun Türkçe tanıması). Kullanıcı isteğiyle öne alındı, 27 Eylül |
 | A3 | ✅ Hava durumu: günlükte gün başlığında ve ana sayfada. Şantiyeye konum Yönetim > Şantiyeler'den. Kullanıcı isteğiyle öne alındı, 27 Eylül |
 
