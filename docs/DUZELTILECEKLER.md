@@ -113,7 +113,7 @@ fark etmezse sahte kayıt oluşur; günlüğün güvenilirliği biter. Bunun yer
 - D8 Şantiye girişte (şifreden sonra) bir kez seçilir; üstteki seçici kalktı, çıkış ana sayfanın altında
 - D6 Bilgisayarda tarih kutusuna tıklayınca takvim açılıyor (tüm tarih kutuları)
 - D7 "Taşeron yok" mesajı nedenini söylüyor, "Taşeronlara git" düğmesi var
-- D9 Bilgisayar görünümü: solda menü, günlükler tablo, hatalı işler üç sütunlu pano, taşeron sayfası iki sütun, teslimatta form ve saatler yan yana, fotoğraf görüntüleyici, seçim pencereleri ortada
+- D9 Bilgisayar görünümü: solda menü, günlükler kart (tablo 29 Eylül’de kalktı), hatalı işler üç sütunlu pano, taşeron sayfası iki sütun, teslimatta form ve saatler yan yana, fotoğraf görüntüleyici, seçim pencereleri ortada
 
 - Sözleşme düzeltme / silme, mükerrer taşeron ve çift sözleşme engeli
 - Taşerona birden çok iş türü, birden çok yetkili

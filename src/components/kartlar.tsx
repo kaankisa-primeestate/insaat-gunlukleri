@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { CalendarClock, Users, Layers } from "lucide-react";
 import { Etiket } from "./kabuk";
-import { HavaEtiketi, type Hava } from "./hava";
 import { HATA_DURUM, ONEM, TALEP_DURUM, kisaTarih, type HataDurum, type Onem, type TalepDurum } from "@/lib/sabitler";
 
 export type Gunluk = {
@@ -65,27 +64,34 @@ export function GunlukKarti({
   /** Düzenle / Sil düğmeleri (yetkisi olana). */
   islemler?: ReactNode;
 }) {
+  // Telefonda tek sütun. Bilgisayarda yazı soldan başlayıp kartın sağ
+  // kenarına kadar akar (not uzun olunca boydan boya), fotoğraf sağda durur,
+  // düğmeler en altta. Sol kutu telefonda "contents" olur, sıra değişmez.
+  const giren = g.profiller && (
+    <>
+      <CalendarClock className="size-4" /> {g.profiller.ad_soyad}
+    </>
+  );
   return (
-    <article className="flex flex-col gap-2 rounded-2xl border-2 border-cizgi p-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-lg font-extrabold">{kisaTarih(g.is_tarihi)}</span>
-        {taseronGoster && g.taseronlar && <span className="font-bold">· {g.taseronlar.firma_adi}</span>}
-        {sonradanMi(g.is_tarihi, g.olusturma) && <Etiket sinif="bg-yuzey text-soluk border border-cizgi">sonradan girildi</Etiket>}
-        {g.guncelleme && <Etiket sinif="bg-yuzey text-soluk border border-cizgi">düzenlendi</Etiket>}
+    <article className="flex flex-col gap-2 rounded-2xl border-2 border-cizgi p-3 lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-x-6 lg:gap-y-3 lg:p-4">
+      <div className="contents lg:flex lg:min-w-0 lg:flex-col lg:gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-lg font-extrabold">{kisaTarih(g.is_tarihi)}</span>
+          {taseronGoster && g.taseronlar && <span className="text-lg font-extrabold">· {g.taseronlar.firma_adi}</span>}
+          {sonradanMi(g.is_tarihi, g.olusturma) && <Etiket sinif="bg-yuzey text-soluk border border-cizgi">sonradan girildi</Etiket>}
+          {g.guncelleme && <Etiket sinif="bg-yuzey text-soluk border border-cizgi">düzenlendi</Etiket>}
+        </div>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-base">
+          <span className="flex items-center gap-1"><Users className="size-5" /> {g.kisi_sayisi} kişi</span>
+          {g.katlar.length > 0 && <span className="flex items-center gap-1"><Layers className="size-5" /> {g.katlar.join(", ")}</span>}
+          {giren && <span className="hidden items-center gap-1 text-sm text-soluk lg:flex">{giren}</span>}
+        </div>
+        {g.is_kalemleri.length > 0 && <p className="font-semibold">{g.is_kalemleri.join(", ")}</p>}
+        {g.notu && <p className="text-soluk">{g.notu}</p>}
       </div>
-      <div className="flex flex-wrap gap-x-4 gap-y-1 text-base">
-        <span className="flex items-center gap-1"><Users className="size-5" /> {g.kisi_sayisi} kişi</span>
-        {g.katlar.length > 0 && <span className="flex items-center gap-1"><Layers className="size-5" /> {g.katlar.join(", ")}</span>}
-        {g.is_kalemleri.length > 0 && <span className="font-semibold">{g.is_kalemleri.join(", ")}</span>}
-      </div>
-      {g.notu && <p className="text-soluk">{g.notu}</p>}
       <Fotolar yollar={g.fotograflar} adresler={adresler} />
-      {g.profiller && (
-        <p className="flex items-center gap-1 text-sm text-soluk">
-          <CalendarClock className="size-4" /> {g.profiller.ad_soyad}
-        </p>
-      )}
-      {islemler && <div className="flex flex-wrap gap-2 border-t-2 border-cizgi pt-2">{islemler}</div>}
+      {giren && <p className="flex items-center gap-1 text-sm text-soluk lg:hidden">{giren}</p>}
+      {islemler && <div className="flex flex-wrap gap-2 border-t-2 border-cizgi pt-2 lg:col-span-2">{islemler}</div>}
     </article>
   );
 }
@@ -130,58 +136,3 @@ export function TalepKarti({ t, taseronGoster = true }: { t: Talep; taseronGoste
   );
 }
 
-/** Bilgisayar ekranı için günlük tablosu: bir satır bir kayıt. */
-export function GunlukTablosu({
-  liste,
-  adresler,
-  islemler,
-  hava,
-}: {
-  liste: Gunluk[];
-  adresler: Record<string, string>;
-  islemler?: (g: Gunluk) => ReactNode;
-  /** Tarihe göre şantiyenin o günkü havası. */
-  hava?: Map<string, Hava>;
-}) {
-  return (
-    <div className="overflow-x-auto rounded-2xl border-2 border-cizgi">
-      <table className="w-full text-left text-base">
-        <thead className="bg-koyu text-sm text-white">
-          <tr>
-            {["Tarih", ...(hava ? ["Hava"] : []), "Taşeron", "Kişi", "Kat", "Yapılan iş", "Not", "Fotoğraf", "Giren", ""].map((b) => (
-              <th key={b} className="px-3 py-2 font-bold whitespace-nowrap">{b}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {liste.map((g) => (
-            <tr key={g.id} className="border-t-2 border-cizgi align-top even:bg-yuzey">
-              <td className="px-3 py-2 font-bold whitespace-nowrap">
-                {kisaTarih(g.is_tarihi)}
-                {sonradanMi(g.is_tarihi, g.olusturma) && <span className="block text-xs font-semibold text-soluk">sonradan girildi</span>}
-                {g.guncelleme && <span className="block text-xs font-semibold text-soluk">düzenlendi</span>}
-              </td>
-              {hava && (
-                <td className="px-3 py-2 text-sm whitespace-nowrap">
-                  {hava.get(g.is_tarihi) ? <HavaEtiketi h={hava.get(g.is_tarihi)!} sinif="flex-col items-start" /> : "–"}
-                </td>
-              )}
-              <td className="px-3 py-2 font-semibold">{g.taseronlar?.firma_adi}</td>
-              <td className="px-3 py-2 text-center">{g.kisi_sayisi}</td>
-              <td className="px-3 py-2">{g.katlar.join(", ")}</td>
-              <td className="px-3 py-2">{g.is_kalemleri.join(", ")}</td>
-              <td className="max-w-xs px-3 py-2 text-soluk">{g.notu}</td>
-              <td className="px-3 py-2">
-                <Fotolar yollar={g.fotograflar} adresler={adresler} boyut="size-12" />
-              </td>
-              <td className="px-3 py-2 text-sm whitespace-nowrap text-soluk">{g.profiller?.ad_soyad}</td>
-              <td className="px-3 py-2">
-                <div className="flex gap-2">{islemler?.(g)}</div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}

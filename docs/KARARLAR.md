@@ -171,3 +171,11 @@ klavye mikrofonu, ücretli sunucu tanıması). Kullanıcı mevcut düğmeyle
 birlikte uzun notlarda klavyenin mikrofonunu kullanıyor; sorun kapandı,
 kodda değişiklik yapılmadı. Ücretli sunucu tanıması (sessiz, süresiz)
 satış aşamasında yeniden düşünülebilir.
+
+## Günlükler bilgisayarda da kart (29 Eylül)
+
+- Bilgisayardaki günlük tablosu kalktı; kullanıcı "çok verimsiz" buldu.
+  Telefondaki kartlar tam genişlikte, alt alta: 1. satır tarih · taşeron,
+  2. satır kişi · kat · giren, sonra yapılan iş ve not boydan boya; fotoğraf
+  sağda, Düzenle / Sil altta. Telefonda kart değişmedi.
+- Taşeron adı tarih kadar büyük ve kalın (kullanıcı: daha vurgulu olsun).

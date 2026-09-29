@@ -3,7 +3,7 @@ import { Filter } from "lucide-react";
 import { yetkiIste } from "@/lib/oturum";
 import { imzala } from "@/lib/dosya";
 import { Bos, Sayfa, YeniEkle } from "@/components/kabuk";
-import { GunlukKarti, GunlukTablosu, type Gunluk } from "@/components/kartlar";
+import { GunlukKarti, type Gunluk } from "@/components/kartlar";
 import { tarihMi, uuidMi } from "@/lib/denetim";
 import { gunlukDegisebilir } from "@/lib/gunluk";
 import { GunlukIslemleri } from "./islemler";
@@ -98,40 +98,27 @@ export default async function Gunlukler({ searchParams }: PageProps<"/gunluk">) 
       </details>
 
       {liste.length === 0 && <Bos>Kayıt yok.</Bos>}
-      {/* Telefonda güne göre kartlar, bilgisayarda tek tablo. */}
-      <div className="flex flex-col gap-5 lg:hidden">
-      {[...gunler.entries()].map(([gun, kayitlar]) => (
-        <section key={gun} className="flex flex-col gap-2">
-          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm font-bold text-soluk">
-            <span>
-              {kisaTarih(gun)} · {kayitlar.reduce((a, b) => a + b.kisi_sayisi, 0)} kişi · {kayitlar.length} kayıt
-            </span>
-            {hava.get(gun) && <HavaEtiketi h={hava.get(gun)!} sinif="text-yazi" />}
-          </div>
-          {kayitlar.map((g) => (
-            <GunlukKarti
-              key={g.id}
-              g={g}
-              adresler={adresler}
-              islemler={gunlukDegisebilir(o, { olusturan: g.olusturan!, olusturma: g.olusturma }) ? <GunlukIslemleri id={g.id} /> : undefined}
-            />
-          ))}
-        </section>
-      ))}
+      {/* Telefonda da bilgisayarda da aynı düzen: güne göre alt alta kartlar. */}
+      <div className="flex flex-col gap-5">
+        {[...gunler.entries()].map(([gun, kayitlar]) => (
+          <section key={gun} className="flex flex-col gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm font-bold text-soluk">
+              <span>
+                {kisaTarih(gun)} · {kayitlar.reduce((a, b) => a + b.kisi_sayisi, 0)} kişi · {kayitlar.length} kayıt
+              </span>
+              {hava.get(gun) && <HavaEtiketi h={hava.get(gun)!} sinif="text-yazi" />}
+            </div>
+            {kayitlar.map((g) => (
+              <GunlukKarti
+                key={g.id}
+                g={g}
+                adresler={adresler}
+                islemler={gunlukDegisebilir(o, { olusturan: g.olusturan!, olusturma: g.olusturma }) ? <GunlukIslemleri id={g.id} /> : undefined}
+              />
+            ))}
+          </section>
+        ))}
       </div>
-      {liste.length > 0 && (
-        <div className="hidden lg:block">
-          <p className="mb-2 font-bold text-soluk">
-            {liste.length} kayıt · toplam {liste.reduce((a, b) => a + b.kisi_sayisi, 0)} kişi-gün
-          </p>
-          <GunlukTablosu
-            liste={liste}
-            adresler={adresler}
-            hava={hava}
-            islemler={(g) => (gunlukDegisebilir(o, { olusturan: g.olusturan!, olusturma: g.olusturma }) ? <GunlukIslemleri id={g.id} /> : null)}
-          />
-        </div>
-      )}
     </Sayfa>
   );
 }
