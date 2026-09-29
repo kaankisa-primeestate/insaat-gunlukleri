@@ -20,6 +20,8 @@ export type AnaSayfaVerisi = {
   hata: number | null;
   talep: number | null;
   teslimat: number | null;
+  /** Karar Defteri: bu kullanıcının onayını bekleyen karar sayısı. */
+  karar: number | null;
   gecikenler: { firma: string; metin: string }[];
   firmaBag: { href: string; ad: string };
 };
@@ -28,7 +30,9 @@ export async function anaSayfaVerisi(o: Oturum): Promise<AnaSayfaVerisi> {
   const s = o.santiye;
   const gun = bugun();
 
-  const [hatalar, talepler, teslimatlar, taseronlar, gunlukler] = s
+  // Onay bekleyen karar: kişiye ya da kullanıcının firmasına yazılmış, okunmamış.
+  const bana = o.profil.taseron_id ? `kullanici_id.eq.${o.profil.id},taseron_id.eq.${o.profil.taseron_id}` : `kullanici_id.eq.${o.profil.id}`;
+  const [hatalar, talepler, teslimatlar, taseronlar, gunlukler, kararlar] = s
     ? await Promise.all([
         o.yetki("hatali")
           ? o.supabase.from("hatali_isler").select("id", { count: "exact", head: true }).eq("santiye_id", s.id).neq("durum", "onaylandi")
@@ -39,8 +43,17 @@ export async function anaSayfaVerisi(o: Oturum): Promise<AnaSayfaVerisi> {
         o.yetki("teslimat") ? o.supabase.rpc("teslimat_yogunluk", { p_santiye: s.id, p_tarih: gun }) : null,
         o.supabase.rpc("santiye_taseronlari", { p_santiye: s.id }),
         o.yetki("gunluk") ? o.supabase.from("gunlukler").select("taseron_id").eq("santiye_id", s.id).eq("is_tarihi", gun) : null,
+        o.yetki("karar")
+          ? o.supabase
+              .from("karar_muhataplari")
+              .select("id, kararlar!inner(santiye_id, degisti)", { count: "exact", head: true })
+              .eq("kararlar.santiye_id", s.id)
+              .eq("kararlar.degisti", false)
+              .is("okundu", null)
+              .or(bana)
+          : null,
       ])
-    : [null, null, null, null, null];
+    : [null, null, null, null, null, null];
 
   const liste = (taseronlar?.data ?? []) as { id: string; firma_adi: string; gecikme: number | null }[];
   const girenler = new Set((gunlukler?.data ?? []).map((g) => g.taseron_id as string));
@@ -72,6 +85,7 @@ export async function anaSayfaVerisi(o: Oturum): Promise<AnaSayfaVerisi> {
         : null,
     hata: hatalar ? (hatalar.count ?? 0) : null,
     talep: talepler ? (talepler.count ?? 0) : null,
+    karar: kararlar ? (kararlar.count ?? 0) : null,
     teslimat: teslimatlar ? ((teslimatlar.data ?? []) as { adet: number }[]).reduce((a, b) => a + Number(b.adet), 0) : null,
     gecikenler: liste
       .filter((t) => t.gecikme != null && t.gecikme <= 7)

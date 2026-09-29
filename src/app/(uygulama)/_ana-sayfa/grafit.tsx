@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
-import { AlertTriangle, BookOpen, Building2, ChevronRight, ClipboardList, HardHat, MapPin, Settings, Truck, Users } from "lucide-react";
+import { NotebookPen, AlertTriangle, BookOpen, Building2, ChevronRight, ClipboardList, HardHat, MapPin, Settings, Truck, Users } from "lucide-react";
 import { GecikmeSesi } from "@/components/gecikme-sesi";
 import type { AnaSayfaVerisi } from "./veri";
 import { AnlikHava } from "./anlik-hava";
@@ -95,6 +95,16 @@ export function Grafit({ v }: { v: AnaSayfaVerisi }) {
         {v.hata != null && <Kart href="/hatali" ikon={<AlertTriangle />} renk="bg-kirmizi-acik text-kirmizi" ad="Hatalı İşler" alt={`${v.hata} açık`} rozet={v.hata} />}
         {v.talep != null && <Kart href="/talep" ikon={<ClipboardList />} renk="bg-mavi-acik text-mavi" ad="Talepler" alt={`${v.talep} bekliyor`} />}
         {v.teslimat != null && <Kart href="/teslimat" ikon={<Truck />} renk="bg-yesil-acik text-yesil" ad="Teslimat" alt={`${v.teslimat} araç bugün`} />}
+        {v.karar != null && (
+          <Kart
+            href={v.karar ? "/karar?bekleyen=1" : "/karar"}
+            ikon={<NotebookPen />}
+            renk="bg-sari-acik text-kahve"
+            ad="Karar Defteri"
+            alt={v.karar ? `${v.karar} onay bekliyor` : "Saha kararları"}
+            rozet={v.karar || undefined}
+          />
+        )}
         <Kart
           href={v.firmaBag.href}
           ikon={v.firmaBag.ad === "Firmam" ? <Building2 /> : <Users />}

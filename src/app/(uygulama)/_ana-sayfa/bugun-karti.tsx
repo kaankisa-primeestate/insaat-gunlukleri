@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
-import { AlertTriangle, BookOpen, CalendarDays, ChevronRight, ClipboardList, HardHat, Settings, Truck, Users, Building2 } from "lucide-react";
+import { NotebookPen, AlertTriangle, BookOpen, CalendarDays, ChevronRight, ClipboardList, HardHat, Settings, Truck, Users, Building2 } from "lucide-react";
 import { GecikmeSesi } from "@/components/gecikme-sesi";
 import type { AnaSayfaVerisi } from "./veri";
 import { AnlikHava } from "./anlik-hava";
@@ -88,7 +88,7 @@ export function BugunKarti({ v }: { v: AnaSayfaVerisi }) {
         </div>
 
         <div className="flex flex-col gap-2">
-          {v.santiye && (v.gunluk || v.hata != null || v.talep != null || v.teslimat != null) && (
+          {v.santiye && (v.gunluk || v.hata != null || v.talep != null || v.teslimat != null || v.karar != null) && (
             <Grup ad="Şantiye">
               {v.gunluk && <Satir href="/gunluk" ikon={<BookOpen />} renk="bg-yazi text-vurgu" ad="Günlükler" />}
               {v.hata != null && (
@@ -99,6 +99,16 @@ export function BugunKarti({ v }: { v: AnaSayfaVerisi }) {
               )}
               {v.teslimat != null && (
                 <Satir href="/teslimat" ikon={<Truck />} renk="bg-yesil text-white" ad="Teslimat Takvimi" rozet={v.teslimat ? `${v.teslimat} bugün` : undefined} />
+              )}
+              {v.karar != null && (
+                <Satir
+                  href={v.karar ? "/karar?bekleyen=1" : "/karar"}
+                  ikon={<NotebookPen />}
+                  renk="bg-kahve text-white"
+                  ad="Karar Defteri"
+                  rozet={v.karar ? `${v.karar} onay bekliyor` : undefined}
+                  kirmizi={v.karar > 0}
+                />
               )}
             </Grup>
           )}

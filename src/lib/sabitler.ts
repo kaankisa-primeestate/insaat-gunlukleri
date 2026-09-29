@@ -15,7 +15,11 @@ export const SAYFALAR = [
   { kod: "teslimat", ad: "Teslimat Takvimi" },
   { kod: "sozlesme", ad: "Sözleşme Bilgisi" },
   { kod: "taseronlar", ad: "Taşeronlar" },
+  { kod: "karar", ad: "Karar Defteri" },
 ] as const;
+
+/** Karar Defteri'nde dokunarak seçilen mahaller; ortak alanlar "Diğer" ile yazılır. */
+export const MAHALLER = ["Mutfak", "Banyo", "Salon", "Yatak odası", "Balkon", "Koridor", "Antre"];
 export type Sayfa = (typeof SAYFALAR)[number]["kod"];
 
 /** Veritabanındaki varsayilan_yetki işlevinin aynısı; ekranda gösterim için. */

@@ -179,3 +179,27 @@ satış aşamasında yeniden düşünülebilir.
   2. satır kişi · kat · giren, sonra yapılan iş ve not boydan boya; fotoğraf
   sağda, Düzenle / Sil altta. Telefonda kart değişmedi.
 - Taşeron adı tarih kadar büyük ve kalın (kullanıcı: daha vurgulu olsun).
+
+## Karar Defteri (29 Eylül, kullanıcı kararı)
+
+Sahada verilen kararın (ör. "D12 mutfak asma tavanı 2,60'ta biter") kiminle,
+ne zaman verildiği ve en son hangisinin geçerli olduğu kaydedilir.
+
+- Form Yeni Günlük ile aynı düzen: fotoğraf üstte, karar kutusunda mikrofon.
+  Alanlar: kiminle (taşeron/personel + dışarıdan ad), tarih, yer (bloklu),
+  daire no, mahal (Mutfak, Banyo, Salon, Yatak odası, Balkon, Koridor, Antre,
+  Diğer yazarak), konu (iş türü), karar.
+- Liste Günlükler gibi: güne göre alt alta kartlar, bilgisayarda tam genişlik.
+  Arama (karar, yer, daire, mahal, konu) ve "değişmiş eski kararları da göster".
+- Silsile: merkez tarafı (merkez, şef, kalfa) şantiyedeki her taşerona ve
+  personele karar yazar ve hepsini görür; taşeron yalnız kendi alt
+  taşeronlarına yazar; taşeron kendi açtığı ve muhatap olduğu kararları görür.
+- "Okudum": muhatap kişi ya da firma (firmanın bir kullanıcısı) kendi
+  hesabından onaylar; kimin ne zaman okuduğu tutulur, geri alınamaz. Onay
+  bekleyen karar ana sayfada sayılır.
+- Düzeltme (kullanıcının seçtiği A yolu): kimse okumadan önce kaydı giren
+  düzeltir ve siler. Biri okuduktan sonra düzeltme kapanır; "Kararı değiştir"
+  ile yeni sürüm yazılır, eskisi "Değişti" olarak kalır, yeni sürüm için
+  onaylar baştan istenir. Okunmuş kararı yalnız merkez siler.
+- Yetki matrisinde "Karar Defteri" satırı var; merkez kişi ya da firma bazında
+  kısabilir.
