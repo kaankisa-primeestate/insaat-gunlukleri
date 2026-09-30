@@ -6,9 +6,8 @@
 --   çalışmaz; süre sonradan girilir.
 -- - Taşeron şantiyeden çıkarılınca sözleşme silinmez, "iş bitti" olarak
 --   kapanır. Hiçbir sözleşme silinmez; geçmiş kayıtlar kalır.
--- - İşi bitmiş (kapanmış) sözleşmenin taşeronu o şantiyenin yeni kayıt
---   listelerinde çıkmaz; eski kayıtları yerinde durur, taşeron görmeye devam
---   eder.
+-- - İşi biten taşeron o şantiyenin seçim listelerinde kalmaya devam eder:
+--   sözleşme biter ama eksik/hatalı işteki sorumluluğu sürer (30 Eylül).
 -- Tekrar çalıştırılırsa zarar vermez.
 
 alter table public.sozlesmeler add column if not exists sure_belirsiz boolean not null default false;
@@ -25,8 +24,10 @@ alter table public.sozlesmeler add constraint sozlesme_suresi check (
 -- biten iş "iş bitti" olarak kapanır.
 drop policy if exists siler on public.sozlesmeler;
 
--- Seçim listelerindeki taşeronlar: bu şantiyede devam eden sözleşmesi olanlar
--- (alt taşeron için ana taşeronun devam eden sözleşmesi).
+-- Seçim listelerindeki taşeronlar: bu şantiyede sözleşmesi olan (işi bitmiş
+-- olsa da) her taşeron; alt taşeron için ana taşeronun sözleşmesi. Göç 12'nin
+-- ilk hâli işi bitenleri listeden düşürüyordu; kullanıcı istemedi, bu tanım
+-- göç 2'dekinin aynısıdır ve o hâl çalıştırıldıysa onu geri alır.
 create or replace function public.santiye_taseronlari(p_santiye uuid)
 returns table (id uuid, firma_adi text, is_turleri text[], ust_taseron_id uuid, gecikme integer)
 language sql stable security definer set search_path = ''
@@ -44,7 +45,6 @@ as $$
     and exists (
       select 1 from public.sozlesmeler so
       where so.santiye_id = p_santiye
-        and not so.tamamlandi
         and (so.taseron_id = t.id or so.taseron_id = t.ust_taseron_id)
     )
   order by t.firma_adi

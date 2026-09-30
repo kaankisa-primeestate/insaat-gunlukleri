@@ -222,7 +222,10 @@ taşeron hiçbir şantiyede görünmüyordu.
   Bitiş boş kalır, gecikme uyarısı çalışmaz, sayfada "Süre girilmedi" yazar.
 - Şantiyeden çıkarılan taşeronun sözleşmesi silinmez, "iş bitti" olur;
   geçmiş kayıtlar kalır. Sözleşme silme kaldırıldı (veritabanında da).
-  İşi bitmiş taşeron o şantiyenin yeni kayıt listelerinde çıkmaz.
+  İşi biten taşeron o şantiyenin seçim listelerinde **kalır**: sözleşme
+  biter ama eksik/hatalı işteki sorumluluğu sürer (30 Eylül, kullanıcı).
+- Günlükte düzeltme/silme kuralı aynen kalır: merkez her zaman, kaydı giren
+  24 saat içinde (30 Eylül, kullanıcı A'yı seçti).
 - Taşeron silme yalnız hiç kaydı olmayan (yanlış açılmış) taşeron için;
   Karar Defteri'nde adı geçen taşeron da silinmez.
 - Aynı şantiyede aynı işi yapan başka taşeron varsa önce uyarı, "Yine de
