@@ -1,8 +1,8 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Alan, Form, Girdi, KaydetButonu, Mesaj, Metin, TarihSecici } from "@/components/form";
-import { FotoSecici } from "@/components/foto-secici";
+import { Alan, Form, Girdi, KaydetButonu, Mesaj, Metin } from "@/components/form";
+import { ElleDugmesi, FotoEki, TarihEki, ilerle } from "@/components/hizli";
 import { SecimPenceresi } from "@/components/secim-penceresi";
 import { SayiSecici, TaseronSecici, type TaseronSecenek } from "@/components/secimler";
 import { IS_TURLERI } from "@/lib/sabitler";
@@ -19,7 +19,11 @@ export type GunlukDeger = {
   notu: string | null;
 };
 
-/** Yeni günlük; `deger` verilirse mevcut günlüğün düzeltilmesi. */
+/**
+ * Yeni günlük; `deger` verilirse mevcut günlüğün düzeltilmesi. Sıra sahadaki
+ * cümleyle aynı ("4 sıvacı Bodrum katta iç sıva"): taşeron, kaç kişi, ne iş,
+ * nerede. Fotoğraf ve tarih ek: dokunulmazsa kayıt bugünün tarihini alır.
+ */
 export function GunlukFormu({
   firmaId,
   taseronlar,
@@ -40,6 +44,7 @@ export function GunlukFormu({
     taseronlar.find((t) => t.id === deger?.taseron_id) ?? (taseronlar.length === 1 ? taseronlar[0] : undefined),
   );
   const [digerSecili, setDigerSecili] = useState(false);
+  const [elleYer, setElleYer] = useState(false);
   // İşler, taşeronun yaptığı iş türüne göre başlıklara ayrılır; her başlıkta
   // önce "genel" seçeneği, sonra kalemler. Kayıtta "Sıva: Kaba sıva" olarak durur.
   const kalemler = taseron
@@ -60,61 +65,76 @@ export function GunlukFormu({
     <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-6">
       <input type="hidden" name="id" value={id} />
       {deger && <input type="hidden" name="duzenle" value="1" />}
-      <Alan etiket="Fotoğraf" ipucu="İsteğe bağlı.">
-        <FotoSecici firmaId={firmaId} klasor="gunluk" mevcut={mevcutFotolar} />
-      </Alan>
-      <Alan etiket="Taşeron" zorunlu>
-        <TaseronSecici
-          taseronlar={taseronlar}
-          varsayilan={deger?.taseron_id}
-          onChange={(t) => {
-            setTaseron(t);
-            setDigerSecili(false);
-          }}
-        />
-      </Alan>
+      <div id="g-taseron">
+        <Alan etiket="Taşeron" zorunlu>
+          <TaseronSecici
+            taseronlar={taseronlar}
+            varsayilan={deger?.taseron_id}
+            onChange={(t) => {
+              setTaseron(t);
+              setDigerSecili(false);
+              ilerle("g-kisi");
+            }}
+          />
+        </Alan>
+      </div>
 
-      <Alan etiket="Tarih">
-        <TarihSecici varsayilan={deger?.is_tarihi} />
-      </Alan>
-
-      <Alan etiket="Kişi sayısı">
-        <SayiSecici ad="kisi_sayisi" varsayilan={deger?.kisi_sayisi ?? 1} />
-      </Alan>
-
-      <Alan etiket="Yer" ipucu="Birden fazla yer seçebilirsiniz.">
-        <SecimPenceresi
-          ad="katlar"
-          baslik="Nerede çalışıldı?"
-          coklu
-          sutun={3}
-          bosYazi="Yer seçmek için dokunun"
-          varsayilan={deger?.katlar}
-          secenekler={katSecenekleri}
-        />
-      </Alan>
+      <div id="g-kisi">
+        <Alan etiket="Kaç kişi?" zorunlu>
+          <SayiSecici ad="kisi_sayisi" varsayilan={deger?.kisi_sayisi ?? 1} />
+        </Alan>
+      </div>
 
       {taseron && (
-        <Alan etiket="Yapılan iş" ipucu="Birden fazla iş seçebilirsiniz.">
-          <SecimPenceresi
-            key={taseron.id}
-            ad="is_kalemleri"
-            baslik="Hangi işler yapıldı?"
-            coklu
-            sutun={2}
-            bosYazi="Yapılan işi seçmek için dokunun"
-            varsayilan={taseron.id === deger?.taseron_id ? deger.is_kalemleri : []}
-            secenekler={[...kalemler, ...ekKalemler, { deger: "Diğer", ad: "Diğer (yazarak)", grup: "Diğer" }]}
-            onChange={(d) => setDigerSecili(d.includes("Diğer"))}
-          />
-          {digerSecili && <Girdi name="is_kalemi_diger" placeholder="Diğer: yapılan işi yazın" maxLength={80} />}
-        </Alan>
+        <div id="g-is">
+          <Alan etiket="Ne iş yaptı?" ipucu="Birden fazla iş seçebilirsiniz.">
+            <SecimPenceresi
+              key={taseron.id}
+              ad="is_kalemleri"
+              baslik="Hangi işler yapıldı?"
+              coklu
+              sutun={2}
+              bosYazi="Yapılan işi seçmek için dokunun"
+              varsayilan={taseron.id === deger?.taseron_id ? deger.is_kalemleri : []}
+              secenekler={[...kalemler, ...ekKalemler, { deger: "Diğer", ad: "Diğer (yazarak)", grup: "Diğer" }]}
+              onChange={(d) => setDigerSecili(d.includes("Diğer"))}
+              sonra={() => ilerle("g-yer", false)}
+            />
+            {digerSecili && <Girdi name="is_kalemi_diger" placeholder="Diğer: yapılan işi yazın" maxLength={80} />}
+          </Alan>
+        </div>
       )}
 
-      <Alan etiket="Kısa not">
-        <Metin name="notu" maxLength={300} placeholder="İsteğe bağlı" defaultValue={deger?.notu ?? ""} />
-      </Alan>
+      <div id="g-yer">
+        <Alan etiket="Nerede?" zorunlu ipucu="Birden fazla yer seçebilirsiniz.">
+          <SecimPenceresi
+            ad="katlar"
+            baslik="Nerede çalışıldı?"
+            coklu
+            zorunlu={!elleYer}
+            sutun={3}
+            bosYazi="Yer seçmek için dokunun"
+            varsayilan={deger?.katlar}
+            secenekler={katSecenekleri}
+            sonra={() => ilerle("g-not", false)}
+          />
+          {elleYer && (
+            <Girdi name="kat_elle" required maxLength={80} placeholder="Örn. Bahçe duvarı, otopark rampası" autoFocus />
+          )}
+          <ElleDugmesi elle={elleYer} onClick={() => setElleYer((x) => !x)} />
+        </Alan>
+      </div>
 
+      <div id="g-not">
+        <Alan etiket="Not">
+          <Metin name="notu" maxLength={300} placeholder="İsteğe bağlı" defaultValue={deger?.notu ?? ""} />
+        </Alan>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <FotoEki firmaId={firmaId} klasor="gunluk" mevcut={mevcutFotolar} />
+        <TarihEki varsayilan={deger?.is_tarihi} />
+      </div>
 
       <Mesaj durum={durum} />
       <div className="sticky bottom-3">

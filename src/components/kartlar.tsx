@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { CalendarClock, Users, Layers } from "lucide-react";
+import { CalendarClock, Clock, Users, Layers } from "lucide-react";
 import { Etiket } from "./kabuk";
-import { HATA_DURUM, ONEM, TALEP_DURUM, kisaTarih, type HataDurum, type Onem, type TalepDurum } from "@/lib/sabitler";
+import { HATA_DURUM, ONEM, TALEP_DURUM, bugun, kisaTarih, type HataDurum, type Onem, type TalepDurum } from "@/lib/sabitler";
 
 export type Gunluk = {
   id: string;
@@ -43,7 +43,28 @@ export type Talep = {
   durum: TalepDurum;
   is_tarihi: string;
   taseronlar?: { firma_adi: string } | null;
+  /** Listede olmayan, elle yazılmış "kimin için" adı. */
+  taseron_adi?: string | null;
+  termin?: string | null;
 };
+
+/** Termin etiketi: geçmiş/bugün kırmızı, yarın sarı, sonrası gri. Teslim alınmış talepte gösterilmez. */
+function TerminEtiketi({ termin }: { termin: string }) {
+  const b = bugun();
+  const y = new Date(b + "T12:00:00");
+  y.setDate(y.getDate() + 1);
+  const yarin = y.toISOString().slice(0, 10);
+  const [yazi, sinif] =
+    termin < b ? [`Termin geçti · ${kisaTarih(termin)}`, "bg-kirmizi text-white"]
+    : termin === b ? ["Bugün lazım", "bg-kirmizi text-white"]
+    : termin === yarin ? ["Yarın lazım", "bg-sari text-black"]
+    : [`${kisaTarih(termin)} lazım`, "bg-gri-acik text-yazi"];
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-sm font-bold ${sinif}`}>
+      <Clock className="size-4" /> {yazi}
+    </span>
+  );
+}
 
 /** Kayıt günüyle sunucuya giriş günü farklıysa "sonradan girildi" gösterilir. */
 function sonradanMi(isTarihi: string, olusturma: string) {
@@ -140,8 +161,9 @@ export function TalepKarti({ t, taseronGoster = true }: { t: Talep; taseronGoste
         </p>
         <p className="text-sm text-soluk">
           {kisaTarih(t.is_tarihi)}
-          {taseronGoster && t.taseronlar ? ` · ${t.taseronlar.firma_adi} için` : ""}
+          {taseronGoster && (t.taseronlar ?? t.taseron_adi) ? ` · ${t.taseronlar?.firma_adi ?? t.taseron_adi} için` : ""}
         </p>
+        {t.termin && (t.durum === "acildi" || t.durum === "satin_alindi" || t.durum === "yolda") && <TerminEtiketi termin={t.termin} />}
       </div>
       <Etiket sinif={TALEP_DURUM[t.durum].renk}>{TALEP_DURUM[t.durum].ad}</Etiket>
     </Link>

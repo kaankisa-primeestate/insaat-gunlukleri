@@ -32,6 +32,7 @@ export function SecimPenceresi({
   bosYazi = "Seçmek için dokunun",
   sutun = 2,
   onChange,
+  sonra,
 }: {
   ad: string;
   baslik: string;
@@ -42,6 +43,8 @@ export function SecimPenceresi({
   bosYazi?: string;
   sutun?: 1 | 2 | 3 | 4;
   onChange?: (degerler: string[]) => void;
+  /** Seçim bitince ("Tamam" ya da tek seçimde dokununca) çağrılır: formda sıradaki alana geçmek için. */
+  sonra?: () => void;
 }) {
   const [secili, setSecili] = useState<string[]>(() => varsayilan.filter((v) => secenekler.some((s) => s.deger === v)));
   const [acik, setAcik] = useState(false);
@@ -78,6 +81,7 @@ export function SecimPenceresi({
     } else {
       degistir([deger]);
       setAcik(false);
+      sonra?.();
     }
   }
 
@@ -221,7 +225,10 @@ export function SecimPenceresi({
             <div className="border-t-2 border-cizgi p-3">
               <button
                 type="button"
-                onClick={() => setAcik(false)}
+                onClick={() => {
+                  setAcik(false);
+                  if (secili.length) sonra?.();
+                }}
                 className="flex min-h-16 w-full items-center justify-center gap-2 rounded-2xl bg-vurgu text-xl font-bold text-black"
               >
                 <Check className="size-6" strokeWidth={3} />

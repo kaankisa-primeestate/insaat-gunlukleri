@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { oturum } from "@/lib/oturum";
 import { BIRIMLER, TALEP_DURUM, bugun, type TalepDurum } from "@/lib/sabitler";
-import { fotoYollari, metin, uuidMi, veritabaniHatasi } from "@/lib/denetim";
+import { fotoYollari, metin, tarihMi, uuidMi, veritabaniHatasi } from "@/lib/denetim";
 import { artikFotolariSil } from "@/lib/dosya";
 import type { FormDurumu } from "@/components/form";
 
@@ -16,18 +16,34 @@ export async function talepKaydet(_: FormDurumu, form: FormData): Promise<FormDu
   const duzenle = form.get("duzenle") === "1" && uuidMi(id);
   if (!duzenle && !o.yetki("talep", true)) return { hata: "Talep açma yetkiniz yok." };
 
-  const taseronId = form.get("taseron_id");
-  const secim = metin(form, "urun_secim", 80);
-  const urun = secim === "Diğer" ? metin(form, "urun_diger", 80) : secim;
+  // Kimin için: listeden taşeron ("kim" = kimlik), daha önce yazılmış ad
+  // ("kim" = "ad:<ad>") ya da elle yazılan ad. Taşeron hesabı yalnız seçer.
+  const kim = String(form.get("kim") ?? "");
+  const taseronId = uuidMi(kim) ? kim : null;
+  const taseronAdi = taseronId ? null : kim.startsWith("ad:") ? kim.slice(3).trim().slice(0, 80) : metin(form, "taseron_adi", 80);
+  const urun = metin(form, "urun", 80);
   const miktar = Number(String(form.get("miktar") ?? "").replace(",", "."));
   const birim = String(form.get("birim") ?? "");
-  if (!uuidMi(taseronId)) return { hata: "Hangi taşeron için olduğunu seçin." };
+  const termin = String(form.get("termin") ?? "");
+  if (!taseronId && !(taseronAdi && taseronAdi.length >= 2)) return { hata: "Kimin için olduğunu yazın ya da listeden seçin." };
+  if (o.taseron && !taseronId) return { hata: "Taşeron hesabı talebi kendi firması ya da alt taşeronu için açar; listeden seçin." };
   if (!urun || urun.length < 2) return { hata: "Ürünü yazın." };
   if (!(miktar > 0 && miktar < 1e9)) return { hata: "Miktarı girin." };
   if (!BIRIMLER.includes(birim)) return { hata: "Birimi seçin." };
+  if (termin && !tarihMi(termin)) return { hata: "Geçerli bir termin seçin." };
+  if (termin && !duzenle && termin < bugun()) return { hata: "Termin bugünden önce olamaz." };
 
   const fotograflar = fotoYollari(form, o.firma.id);
-  const alanlar = { taseron_id: taseronId, urun, miktar, birim, notu: metin(form, "notu", 300), fotograflar };
+  const alanlar = {
+    taseron_id: taseronId,
+    taseron_adi: taseronAdi,
+    urun,
+    miktar,
+    birim,
+    termin: termin || null,
+    notu: metin(form, "notu", 300),
+    fotograflar,
+  };
 
   if (duzenle) {
     const { data: eski } = await o.supabase.from("talepler").select("fotograflar").eq("id", id).maybeSingle();

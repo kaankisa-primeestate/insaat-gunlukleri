@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { oturum } from "@/lib/oturum";
 import { bugun, HATA_DURUM, ONEM, type HataDurum, type Onem } from "@/lib/sabitler";
-import { fotoYollari, metin, tarihMi, uuidMi, veritabaniHatasi } from "@/lib/denetim";
+import { fotoYollari, metin, uuidMi, veritabaniHatasi } from "@/lib/denetim";
 import type { FormDurumu } from "@/components/form";
 import { artikFotolariSil } from "@/lib/dosya";
 
@@ -20,7 +20,6 @@ export async function hataKaydet(_: FormDurumu, form: FormData): Promise<FormDur
   const sorumlu = String(form.get("sorumlu") ?? "");
   const taseronId = sorumlu.startsWith("t:") ? sorumlu.slice(2) : null;
   const kullaniciId = sorumlu.startsWith("k:") ? sorumlu.slice(2) : null;
-  const tarih = form.get("is_tarihi");
   const onem = String(form.get("onem")) as Onem;
   const aciklama = metin(form, "aciklama", 300);
   const fotograflar = fotoYollari(form, o.firma.id);
@@ -28,16 +27,16 @@ export async function hataKaydet(_: FormDurumu, form: FormData): Promise<FormDur
   if (!uuidMi(taseronId) && !uuidMi(kullaniciId)) return { hata: "Kimin işi olduğunu seçin." };
   // Taşeron yalnız kendi firmasına ya da alt taşeronuna iş yazar; kuralı veritabanı da uygular.
   if (o.taseron && uuidMi(kullaniciId)) return { hata: "Taşeron personele iş yazamaz; bir taşeron seçin." };
-  if (!tarihMi(tarih) || tarih > bugun()) return { hata: "Geçerli bir tarih seçin." };
   if (!(onem in ONEM)) return { hata: "Önem derecesini seçin." };
   if (!aciklama || aciklama.length < 2) return { hata: "Kısa bir açıklama yazın." };
 
+  // Tarih sorulmaz: yeni kayıt bugünü alır, düzeltmede ilk gün kalır.
+  // Yer listeden seçilir ya da elle yazılır; ekranda ikisinden biri vardır.
   const alanlar = {
     taseron_id: uuidMi(taseronId) ? taseronId : null,
     sorumlu_kullanici_id: uuidMi(kullaniciId) ? kullaniciId : null,
-    is_tarihi: tarih,
     aciklama,
-    kat: metin(form, "kat", 80),
+    kat: form.has("kat_elle") ? metin(form, "kat_elle", 80) : metin(form, "kat", 80),
     onem,
     fotograflar,
   };
@@ -58,6 +57,7 @@ export async function hataKaydet(_: FormDurumu, form: FormData): Promise<FormDur
     firma_id: o.firma.id,
     santiye_id: o.santiye.id,
     ...alanlar,
+    is_tarihi: bugun(),
   });
   if (error && error.code !== "23505") return { hata: veritabaniHatasi(error) };
   revalidatePath("/hatali");

@@ -21,7 +21,8 @@ export async function gunlukKaydet(_: FormDurumu, form: FormData): Promise<FormD
   if (!duzenle && !o.yetki("gunluk", true)) return { hata: "Günlük girme yetkiniz yok." };
 
   const taseronId = form.get("taseron_id");
-  const tarih = form.get("is_tarihi");
+  // Tarih eki açılmadıysa kayıt bugünün tarihini alır.
+  const tarih = form.get("is_tarihi") ?? bugun();
   const kisi = Math.round(Number(form.get("kisi_sayisi")));
   if (!uuidMi(taseronId)) return { hata: "Taşeron seçin." };
   if (!tarihMi(tarih) || tarih > bugun()) return { hata: "Geçerli bir tarih seçin (ileri tarih olmaz)." };
@@ -50,7 +51,12 @@ export async function gunlukKaydet(_: FormDurumu, form: FormData): Promise<FormD
 
   // Seçimler listeden gelir; boyu ve uzunluğu sınırlanır. "Diğer" seçildiyse
   // yazılan iş onun yerine geçer.
-  const katlar = [...new Set(form.getAll("katlar").map(String))].filter((k) => k.length <= 80).slice(0, 100);
+  // Listede olmayan yer elle yazılır ("Bahçe duvarı"); seçilenlere eklenir.
+  const elleKat = metin(form, "kat_elle", 80);
+  const katlar = [...new Set([...form.getAll("katlar").map(String), ...(elleKat ? [elleKat] : [])])]
+    .filter((k) => k.length <= 80)
+    .slice(0, 100);
+  if (!katlar.length) return { hata: "Nerede çalışıldığını seçin ya da yazın." };
   const diger = metin(form, "is_kalemi_diger", 80);
   const isKalemleri = [...new Set(form.getAll("is_kalemleri").map(String))]
     .filter((k) => k.length <= 80)

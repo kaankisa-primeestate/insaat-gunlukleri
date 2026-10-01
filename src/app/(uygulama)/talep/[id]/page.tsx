@@ -18,7 +18,7 @@ export default async function TalepDetay({ params, searchParams }: PageProps<"/t
   const { kayit, yetki } = await searchParams;
   const { data: t } = await o.supabase
     .from("talepler")
-    .select("id, urun, miktar, birim, notu, durum, is_tarihi, fotograflar, olusturan, olusturma, duzenleme, taseron_id, taseronlar(firma_adi), santiyeler(ad), profiller!talepler_olusturan_fkey(ad_soyad), duzenleyen_kisi:profiller!talepler_duzenleyen_fkey(ad_soyad)")
+    .select("id, urun, miktar, birim, notu, durum, is_tarihi, termin, taseron_adi, fotograflar, olusturan, olusturma, duzenleme, taseron_id, taseronlar(firma_adi), santiyeler(ad), profiller!talepler_olusturan_fkey(ad_soyad), duzenleyen_kisi:profiller!talepler_duzenleyen_fkey(ad_soyad)")
     .eq("id", id)
     .maybeSingle();
   if (!t) notFound();
@@ -65,8 +65,14 @@ export default async function TalepDetay({ params, searchParams }: PageProps<"/t
       </ol>
 
       <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 rounded-2xl bg-yuzey p-4">
-        <dt className="font-bold">Taşeron</dt>
-        <dd>{o.taseron ? taseron?.firma_adi : <Link href={`/taseronlar/${t.taseron_id}`} className="underline">{taseron?.firma_adi}</Link>}</dd>
+        <dt className="font-bold">Kimin için</dt>
+        <dd>
+          {!t.taseron_id ? t.taseron_adi
+            : o.taseron ? taseron?.firma_adi
+            : <Link href={`/taseronlar/${t.taseron_id}`} className="underline">{taseron?.firma_adi}</Link>}
+        </dd>
+        <dt className="font-bold">Ne zaman lazım</dt>
+        <dd>{t.termin ? tarihYaz(t.termin) : "Belli değil"}</dd>
         <dt className="font-bold">Açılış</dt>
         <dd>{tarihYaz(t.is_tarihi)} · {acan?.ad_soyad}</dd>
         {t.notu && (<><dt className="font-bold">Not</dt><dd>{t.notu}</dd></>)}

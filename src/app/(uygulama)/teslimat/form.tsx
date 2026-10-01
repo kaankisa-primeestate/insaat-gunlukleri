@@ -21,7 +21,7 @@ export function TeslimatFormu({
   taseronlar: TaseronSecenek[];
   doluluk: Record<number, number>;
   saatler: number[];
-  talep?: { id: string; urun: string; miktar: number; birim: string; taseron_id: string };
+  talep?: { id: string; urun: string; miktar: number; birim: string; taseron_id: string | null };
 }) {
   const [durum, eylem, bekliyor] = useActionState(teslimatKaydet, undefined);
   const [saat, setSaat] = useState<number | null>(null);
@@ -35,7 +35,7 @@ export function TeslimatFormu({
         <FotoSecici firmaId={firmaId} klasor="teslimat" />
       </Alan>
       <Alan etiket="Taşeron" zorunlu>
-        <TaseronSecici taseronlar={taseronlar} varsayilan={talep?.taseron_id} />
+        <TaseronSecici taseronlar={taseronlar} varsayilan={talep?.taseron_id ?? undefined} />
       </Alan>
       <Alan etiket="Saat" zorunlu>
         <SecimPenceresi

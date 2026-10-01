@@ -9,6 +9,8 @@ import { SesleYaz } from "./sesle-yaz";
 export type FormDurumu = { hata?: string; tamam?: string; uyari?: string } | undefined;
 
 const BekliyorBaglami = createContext(false);
+/** Zorunlu alanlar dolu mu: Kaydet dolana kadar soluk durur (yine basılır, eksik söylenir). */
+const GecerliBaglami = createContext(true);
 
 /**
  * Sunucu işlemine giden form. React 19 `<form action>` kullanıldığında işlem
@@ -33,21 +35,49 @@ export function Form({
   children: ReactNode;
   ref?: Ref<HTMLFormElement>;
 }) {
+  const ic = useRef<HTMLFormElement | null>(null);
+  const [gecerli, setGecerli] = useState(true);
+  // Seçim pencereleri formun dışında açıldığı için tıklamalar belgeden dinlenir.
+  useEffect(() => {
+    const f = ic.current;
+    if (!f) return;
+    let zaman: ReturnType<typeof setTimeout> | undefined;
+    const kontrol = () => {
+      clearTimeout(zaman);
+      zaman = setTimeout(() => setGecerli(f.checkValidity()), 50);
+    };
+    kontrol();
+    f.addEventListener("input", kontrol);
+    f.addEventListener("change", kontrol);
+    document.addEventListener("click", kontrol, true);
+    return () => {
+      clearTimeout(zaman);
+      f.removeEventListener("input", kontrol);
+      f.removeEventListener("change", kontrol);
+      document.removeEventListener("click", kontrol, true);
+    };
+  }, []);
   return (
     <BekliyorBaglami.Provider value={bekliyor}>
-      <form
-        ref={ref}
-        className={className}
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (bekliyor) return;
-          if (onayla && !confirm(onayla)) return;
-          const veri = new FormData(e.currentTarget, (e.nativeEvent as SubmitEvent).submitter);
-          startTransition(() => eylem(veri));
-        }}
-      >
-        {children}
-      </form>
+      <GecerliBaglami.Provider value={gecerli}>
+        <form
+          ref={(el) => {
+            ic.current = el;
+            if (typeof ref === "function") ref(el);
+            else if (ref) ref.current = el;
+          }}
+          className={className}
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (bekliyor) return;
+            if (onayla && !confirm(onayla)) return;
+            const veri = new FormData(e.currentTarget, (e.nativeEvent as SubmitEvent).submitter);
+            startTransition(() => eylem(veri));
+          }}
+        >
+          {children}
+        </form>
+      </GecerliBaglami.Provider>
     </BekliyorBaglami.Provider>
   );
 }
@@ -55,6 +85,7 @@ export function Form({
 export function KaydetButonu({ children = "Kaydet", renk = "vurgu" }: { children?: ReactNode; renk?: "vurgu" | "koyu" | "kirmizi" | "yesil" }) {
   const { pending: formBekliyor } = useFormStatus();
   const pending = useContext(BekliyorBaglami) || formBekliyor;
+  const gecerli = useContext(GecerliBaglami);
   const renkler = {
     vurgu: "bg-vurgu text-black",
     koyu: "bg-koyu text-white",
@@ -65,7 +96,7 @@ export function KaydetButonu({ children = "Kaydet", renk = "vurgu" }: { children
     <button
       type="submit"
       disabled={pending}
-      className={`${renkler[renk]} flex min-h-16 w-full items-center justify-center gap-2 rounded-2xl px-4 text-xl font-bold shadow-sm active:scale-[0.98] disabled:opacity-60`}
+      className={`${renkler[renk]} flex min-h-16 w-full items-center justify-center gap-2 rounded-2xl px-4 text-xl font-bold shadow-sm transition-opacity active:scale-[0.98] disabled:opacity-60 ${gecerli ? "" : "opacity-40"}`}
     >
       {pending ? <LoaderCircle className="size-6 animate-spin" /> : <Check className="size-6" strokeWidth={3} />}
       {pending ? "Kaydediliyor…" : children}

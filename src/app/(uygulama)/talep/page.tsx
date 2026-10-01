@@ -17,12 +17,15 @@ export default async function Talepler({ searchParams }: PageProps<"/talep">) {
 
   const { data } = await o.supabase
     .from("talepler")
-    .select("id, urun, miktar, birim, durum, is_tarihi, taseronlar(firma_adi)")
+    .select("id, urun, miktar, birim, durum, is_tarihi, termin, taseron_adi, taseronlar(firma_adi)")
     .eq("santiye_id", o.santiye.id)
     .in("durum", [...SEKMELER[sekme].durumlar])
     .order("olusturma", { ascending: sekme === "bekleyen" })
     .limit(300);
-  const liste = (data ?? []) as unknown as Talep[];
+  // Bekleyenlerde termini olanlar öne, en yakın termin en üstte.
+  const liste = ((data ?? []) as unknown as Talep[]).sort((a, b) =>
+    sekme === "bekleyen" ? (a.termin ?? "9999").localeCompare(b.termin ?? "9999") : 0,
+  );
 
   return (
     <Sayfa baslik={`Talepler · ${o.santiye.ad}`} genis>

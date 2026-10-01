@@ -271,3 +271,36 @@ taşeron hiçbir şantiyede görünmüyordu.
 - Eski revizyonlar silinmez (göç 14). Yalnız son hâl silinebilir; silinince
   önceki hâl yeniden geçerli olur.
 - Veri yapısı aynı (onceki_id zinciri); ayrı not tablosu açılmadı.
+
+## Hızlı kayıt formları: günlük, hatalı iş, talep (1 Ekim, kullanıcı kararı)
+
+Sahada eski WhatsApp düzeni ("4 sıvacı Bodrum kata devam etti") kadar hızlı
+giriş istendi. Ortak kurallar:
+- Tek sayfa, yukarıdan aşağı sırayla; seçim yapılınca sayfa sıradaki alana
+  kayar. Zorunlular dolana kadar Kaydet soluk durur (basılırsa eksik söylenir).
+- Tarih sorulmaz: kayıt bugünü alır. Günlükte "Tarih · Bugün" ek düğmesiyle
+  geçmiş gün seçilebilir; hatalı iş ve talepte tarih hiç yok.
+- Seçim yapılan alanlarda listede olmayan elle yazılır ("Listede yok,
+  yazarak gir").
+
+Formlar:
+- **Günlük:** Taşeron → Kaç kişi → Ne iş yaptı → Nerede (zorunlu; seç ya da
+  yaz) → Not. Fotoğraf ve tarih altta küçük ek düğmeleri.
+- **Hatalı iş:** Fotoğraf (isteğe bağlı, üstte) → Kimin işi → Nerede (seç ya
+  da yaz) → Ne eksik/hatalı → Önem (Normal seçili). "İlgili kişiler"
+  seçimi konmadı: işi görmesi gereken herkes zaten görüyor; gerekirse
+  ileride bildirim olarak eklenir.
+- **Talep:** Fotoğraf → Ne lazım (yaz ya da seç) → Kaç tane + birim →
+  Kimin için → ek: Ne zaman lazım (Belli değil / Bugün / Yarın / Bu hafta /
+  Tarih seç), Not. Bir talepte tek ürün.
+- **Talepte "kimin için" yazılabilir** (göç 15): "Merkez şantiye" gibi ad
+  yeni taşeron kaydı açmaz, yalnız talebin üstünde durur; şantiyenin
+  sonraki taleplerinde "Daha önce yazılanlar"da çıkar (herkes aynı yazımı
+  kullansın diye). Taşeron sayfasına düşmez; taşeron hesapları görmez ve
+  yazamaz, yalnız listeden seçer. Listedeki ad elle tam yazılırsa o taşeron
+  seçilmiş sayılır.
+- Termini geçmiş/bugün olan talep kırmızı, yarın olan sarı etiketli; bekleyen
+  listesinde termini en yakın olan üstte.
+
+Geri dönüş: değişiklikten önceki kod `hizli-formlar-oncesi` dalında. Göç 15
+yalnız ekleme yaptığı için eski kod da bu veritabanıyla çalışır.
