@@ -1,17 +1,17 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Alan, Form, Girdi, KaydetButonu, Mesaj, Metin, TarihSecici } from "@/components/form";
+import { List, PenLine } from "lucide-react";
+import { Alan, Form, Girdi, KaydetButonu, Mesaj, Metin } from "@/components/form";
 import { FotoSecici } from "@/components/foto-secici";
 import { SecimPenceresi } from "@/components/secim-penceresi";
 import { taseronSecenekleri, type TaseronSecenek } from "@/components/secimler";
 import { IS_TURU_LISTESI, MAHALLER, ROL_ADI, type Rol } from "@/lib/sabitler";
-import { eksikleriEkle, type Yer } from "@/lib/yerler";
+import type { Yer } from "@/lib/yerler";
 import { kararKaydet } from "../eylemler";
 
 export type KararDeger = {
   id?: string;
-  is_tarihi?: string;
   yer: string | null;
   daire: string | null;
   mahal: string | null;
@@ -47,6 +47,9 @@ export function KararFormu({
   const [id] = useState(() => deger?.id ?? crypto.randomUUID());
   const listedeMahal = !deger?.mahal || MAHALLER.includes(deger.mahal);
   const [digerMahal, setDigerMahal] = useState(!listedeMahal);
+  // Listede olmayan yer ("bahçede otopark rampasının duvarı") elle yazılır.
+  const listedeYer = !deger?.yer || yerler.some((y) => y.deger === deger.yer);
+  const [elleYer, setElleYer] = useState(!listedeYer);
 
   return (
     <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-6">
@@ -78,19 +81,33 @@ export function KararFormu({
         />
       </Alan>
 
-      <Alan etiket="Tarih">
-        <TarihSecici varsayilan={deger?.is_tarihi} />
-      </Alan>
-
       <Alan etiket="Yer">
-        <SecimPenceresi
-          ad="yer"
-          baslik="Nerede?"
-          sutun={3}
-          bosYazi="Yer seçmek için dokunun"
-          varsayilan={deger?.yer ? [deger.yer] : []}
-          secenekler={eksikleriEkle(yerler, [deger?.yer])}
-        />
+        {elleYer ? (
+          <Girdi
+            name="yer_elle"
+            maxLength={80}
+            placeholder="Örn. Bahçede otopark rampasının duvarı"
+            defaultValue={!listedeYer ? (deger?.yer ?? "") : ""}
+            autoFocus={!listedeYer ? undefined : true}
+          />
+        ) : (
+          <SecimPenceresi
+            ad="yer"
+            baslik="Nerede?"
+            sutun={3}
+            bosYazi="Yer seçmek için dokunun"
+            varsayilan={deger?.yer && listedeYer ? [deger.yer] : []}
+            secenekler={yerler}
+          />
+        )}
+        <button
+          type="button"
+          onClick={() => setElleYer((x) => !x)}
+          className="flex min-h-11 items-center gap-2 self-start font-bold text-yazi underline"
+        >
+          {elleYer ? <List className="size-5" /> : <PenLine className="size-5" />}
+          {elleYer ? "Listeden seç" : "Listede yok, yazarak gir"}
+        </button>
       </Alan>
 
       <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-3">

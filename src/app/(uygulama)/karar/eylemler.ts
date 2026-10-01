@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { oturum } from "@/lib/oturum";
 import { bugun, IS_TURU_LISTESI, MAHALLER } from "@/lib/sabitler";
-import { fotoYollari, metin, tarihMi, uuidMi, veritabaniHatasi } from "@/lib/denetim";
+import { fotoYollari, metin, uuidMi, veritabaniHatasi } from "@/lib/denetim";
 import { artikFotolariSil } from "@/lib/dosya";
 import type { FormDurumu } from "@/components/form";
 
@@ -21,9 +21,9 @@ export async function kararKaydet(_: FormDurumu, form: FormData): Promise<FormDu
   if (!duzenle && !o.yetki("karar", true)) return { hata: "Karar girme yetkiniz yok." };
 
   const karar = metin(form, "karar", 1000);
-  const tarih = form.get("is_tarihi");
   if (!karar || karar.length < 2) return { hata: "Kararı yazın." };
-  if (!tarihMi(tarih) || tarih > bugun()) return { hata: "Geçerli bir tarih seçin." };
+  // Yer listeden seçilir ya da elle yazılır; ekranda ikisinden biri vardır.
+  const yer = form.has("yer_elle") ? metin(form, "yer_elle", 80) : metin(form, "yer", 80);
 
   const mahalSecim = metin(form, "mahal", 60);
   const mahal = mahalSecim === "Diğer" ? metin(form, "mahal_diger", 60) : mahalSecim && MAHALLER.includes(mahalSecim) ? mahalSecim : null;
@@ -40,9 +40,9 @@ export async function kararKaydet(_: FormDurumu, form: FormData): Promise<FormDu
   if (o.taseron && kisiler.length) return { hata: "Taşeron yalnız kendi alt taşeronuna karar yazabilir." };
 
   const fotograflar = fotoYollari(form, o.firma.id);
+  // Tarih elle girilmez: karar kaydedildiği gün. Düzeltmede ilk gün kalır.
   const alanlar = {
-    is_tarihi: tarih,
-    yer: metin(form, "yer", 80),
+    yer,
     daire: metin(form, "daire", 20),
     mahal,
     konu: konu && IS_TURU_LISTESI.includes(konu) ? konu : null,
@@ -76,6 +76,7 @@ export async function kararKaydet(_: FormDurumu, form: FormData): Promise<FormDu
   const { error } = await o.supabase.from("kararlar").insert({
     id: yeniId,
     ...alanlar,
+    is_tarihi: bugun(),
     firma_id: o.firma.id,
     santiye_id: o.santiye.id,
     olusturan: o.profil.id,

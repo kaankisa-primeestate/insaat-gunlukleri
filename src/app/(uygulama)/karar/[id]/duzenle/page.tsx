@@ -26,7 +26,6 @@ export default async function KararDuzenle({ params }: PageProps<"/karar/[id]/du
         {...secenek}
         deger={{
           id: k.id,
-          is_tarihi: k.is_tarihi,
           yer: k.yer,
           daire: k.daire,
           mahal: k.mahal,

@@ -247,3 +247,12 @@ taşeron hiçbir şantiyede görünmüyordu.
 - Listede kartın altında son revizyon görünür ("Rev. 3 · 1 Eki · …").
 - Revizyonu olan hatalı işi yalnız merkez silebilir.
 - Talep/Tedarik'e aynısı şimdilik yapılmadı; sahada oturursa taşınır.
+
+## Karar Defteri: yer elle yazılır, tarih kendiliğinden (1 Ekim, kullanıcı kararı)
+
+- Yer listede yoksa "Listede yok, yazarak gir" ile elle yazılır ("Bahçede
+  otopark rampasının duvarı"). Yazılan listeye eklenmez. Düğme alanın
+  altında, her zaman görünür: "Diğer" seçeneği çok bloklu şantiyede sekme
+  şeridinin sonunda kalıp görünmüyordu.
+- Tarih alanı kalktı: karar kaydedildiği gün. Düzeltmede ilk gün kalır,
+  "Kararı değiştir" ile açılan yeni sürüm açıldığı günü alır.
