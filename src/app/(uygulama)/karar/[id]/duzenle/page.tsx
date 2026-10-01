@@ -8,7 +8,7 @@ import { SilDugmesi } from "@/components/sil-dugmesi";
 import { KararFormu } from "../../yeni/form";
 import { kararSil } from "../../eylemler";
 
-/** Kimse okumadan önce kaydı giren düzeltir; okunmuş karar "Kararı değiştir" ile yenilenir. */
+/** Kimse okumadan önce kaydı giren düzeltir; okunmuş karara revizyon yapılır. */
 export default async function KararDuzenle({ params }: PageProps<"/karar/[id]/duzenle">) {
   const o = await oturum();
   const { id } = await params;

@@ -56,3 +56,25 @@ export const onayBekliyor = (o: Oturum, k: Karar) =>
   k.karar_muhataplari.some(
     (m) => !m.okundu && (m.kullanici_id === o.profil.id || (m.taseron_id != null && m.taseron_id === o.profil.taseron_id)),
   );
+
+/** Bir kararın ilk hâlinden son revizyonuna kadar bütün hâlleri (eskiden yeniye). */
+export type Zincir = { surumler: Karar[]; son: Karar };
+
+/**
+ * Kararları revizyon zincirlerine ayırır (onceki_id ile). Önceki hâli listede
+ * olmayan karar zincirin başıdır. Zincirler son hâlin zamanına göre yeniden eskiye.
+ */
+export function zincirler(liste: Karar[]): Zincir[] {
+  const kimlikler = new Set(liste.map((k) => k.id));
+  const sonraki = new Map(liste.filter((k) => k.onceki_id).map((k) => [k.onceki_id!, k]));
+  const sonuc: Zincir[] = [];
+  for (const bas of liste.filter((k) => !k.onceki_id || !kimlikler.has(k.onceki_id))) {
+    const surumler = [bas];
+    for (let k = sonraki.get(bas.id); k && surumler.length < 100; k = sonraki.get(k.id)) surumler.push(k);
+    sonuc.push({ surumler, son: surumler[surumler.length - 1] });
+  }
+  return sonuc.sort((a, b) => Date.parse(b.son.olusturma) - Date.parse(a.son.olusturma));
+}
+
+/** "Karar" ya da "Rev. 2". */
+export const surumAdi = (sira: number) => (sira === 0 ? "Karar" : `Rev. ${sira}`);

@@ -256,3 +256,18 @@ taşeron hiçbir şantiyede görünmüyordu.
   şeridinin sonunda kalıp görünmüyordu.
 - Tarih alanı kalktı: karar kaydedildiği gün. Düzeltmede ilk gün kalır,
   "Kararı değiştir" ile açılan yeni sürüm açıldığı günü alır.
+
+## Karar Defteri revizyonları zaman çizelgesi (1 Ekim, kullanıcı kararı)
+
+- "Kararı değiştir" artık **revizyon**: düğme "Rev. N Yap". Bir karar ve
+  bütün revizyonları tek kartta, eskiden yeniye zaman çizelgesi: Karar,
+  Rev. 1, Rev. 2… Hepsi açık; ilk ne kararlaştırıldığı ve neye evrildiği
+  kaydırarak okunur. Geçerli olan en altta, yeşil.
+- Her revizyonda muhataplar yeniden "Okudum" der; eski hâllerde kimin
+  okuduğu görünür kalır.
+- Gün gruplaması son revizyonun gününe göre. Arama, zincirin herhangi bir
+  hâlinde geçen kelimeyle bütün kartı bulur. "Değişmiş eski kararları da
+  göster" seçeneği kalktı (hepsi zaten ekranda).
+- Eski revizyonlar silinmez (göç 14). Yalnız son hâl silinebilir; silinince
+  önceki hâl yeniden geçerli olur.
+- Veri yapısı aynı (onceki_id zinciri); ayrı not tablosu açılmadı.

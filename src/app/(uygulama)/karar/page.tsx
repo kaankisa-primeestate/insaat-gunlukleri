@@ -3,60 +3,58 @@ import { Filter } from "lucide-react";
 import { yetkiIste } from "@/lib/oturum";
 import { imzala } from "@/lib/dosya";
 import { kisaTarih } from "@/lib/sabitler";
-import { KARAR_ALANLARI, onayBekliyor, type Karar } from "@/lib/karar";
+import { KARAR_ALANLARI, onayBekliyor, zincirler, type Karar, type Zincir } from "@/lib/karar";
 import { Bos, Sayfa, YeniEkle } from "@/components/kabuk";
 import { KararKarti } from "./kart";
 
 /**
- * Karar Defteri: güne göre alt alta kartlar (Günlükler ile aynı düzen).
- * Varsayılan: yalnız geçerli kararlar; "geçmiş" ile değişmiş sürümler de.
+ * Karar Defteri: güne göre alt alta kartlar (Günlükler ile aynı düzen). Her
+ * kart bir karar ve bütün revizyonları; gün, son revizyonun günüdür.
  */
 export default async function Kararlar({ searchParams }: PageProps<"/karar">) {
   const o = await yetkiIste("karar");
   const sp = await searchParams;
   if (!o.santiye) return <Sayfa baslik="Karar Defteri"><Bos>Şantiye seçili değil.</Bos></Sayfa>;
 
-  const gecmis = sp.gecmis === "1";
   const bekleyenMi = sp.bekleyen === "1";
   // Aramada virgül ve parantez süzgeç sözdizimini bozar; yalnız harf, rakam ve boşluk kalır.
-  const ara = String(sp.ara ?? "").replace(/[^\p{L}\p{N}\s.\-]/gu, " ").trim().slice(0, 60);
+  const ara = String(sp.ara ?? "").trim().slice(0, 60);
   const bildirim =
     sp.kayit === "yeni" ? "✓ Karar kaydedildi"
-    : sp.kayit === "degisti" ? "✓ Yeni karar kaydedildi; eskisi \"Değişti\" olarak kaldı"
+    : sp.kayit === "degisti" ? "✓ Revizyon kaydedildi; önceki hâli zaman çizelgesinde duruyor"
     : sp.kayit ? "✓ Karar düzeltildi"
     : sp.silindi ? "✓ Karar silindi"
     : null;
 
-  let sorgu = o.supabase
+  // Revizyonlar zincir olarak gösterildiği için eski hâller de gelir; arama
+  // zincirin herhangi bir hâlinde geçen kelimeyle bütün zinciri bulur.
+  const { data } = await o.supabase
     .from("kararlar")
     .select(KARAR_ALANLARI)
     .eq("santiye_id", o.santiye.id)
-    .order("is_tarihi", { ascending: false })
     .order("olusturma", { ascending: false })
-    .limit(300);
-  if (!gecmis) sorgu = sorgu.eq("degisti", false);
+    .limit(500);
+  let liste = zincirler((data ?? []) as unknown as Karar[]);
   if (ara) {
-    const d = `%${ara}%`;
-    sorgu = sorgu.or(`karar.ilike.${d},yer.ilike.${d},daire.ilike.${d},mahal.ilike.${d},konu.ilike.${d}`);
+    const aranan = ara.toLocaleLowerCase("tr");
+    const icinde = (k: Karar) =>
+      [k.karar, k.yer, k.daire, k.mahal, k.konu].some((x) => x?.toLocaleLowerCase("tr").includes(aranan));
+    liste = liste.filter((z) => z.surumler.some(icinde));
   }
-  const { data } = await sorgu;
-  let liste = (data ?? []) as unknown as Karar[];
-  const bekleyenSayi = liste.filter((k) => onayBekliyor(o, k)).length;
-  if (bekleyenMi) liste = liste.filter((k) => onayBekliyor(o, k));
-  const adresler = await imzala(liste.flatMap((k) => k.fotograflar));
-  // Değişmiş kararın yerine gelen sürüm (listede varsa).
-  const yenisi = new Map(liste.filter((k) => k.onceki_id).map((k) => [k.onceki_id!, k]));
+  const bekleyenSayi = liste.filter((z) => onayBekliyor(o, z.son)).length;
+  if (bekleyenMi) liste = liste.filter((z) => onayBekliyor(o, z.son));
+  const adresler = await imzala(liste.flatMap((z) => z.surumler.flatMap((k) => k.fotograflar)));
 
-  const gunler = new Map<string, Karar[]>();
-  for (const k of liste) gunler.set(k.is_tarihi, [...(gunler.get(k.is_tarihi) ?? []), k]);
-  const suzgecAcik = Boolean(ara || gecmis);
+  const gunler = new Map<string, Zincir[]>();
+  for (const z of liste) gunler.set(z.son.is_tarihi, [...(gunler.get(z.son.is_tarihi) ?? []), z]);
+  const suzgecAcik = Boolean(ara);
 
   return (
     <Sayfa baslik={`Karar Defteri · ${o.santiye.ad}`} genis>
       {bildirim && <p className="rounded-xl bg-yesil px-4 py-3 font-bold text-white">{bildirim}</p>}
       {sp.yetki && (
         <p className="rounded-xl bg-kirmizi px-4 py-3 font-bold text-white">
-          Bu kararı değiştirme yetkiniz yok. Kimse okumadan önce kaydı giren düzeltir; okunmuş kararın yerine &quot;Kararı değiştir&quot; ile yenisi yazılır.
+          Bu kararı değiştirme yetkiniz yok. Kimse okumadan önce kaydı giren düzeltir; okunmuş karar &quot;Rev. Yap&quot; ile değiştirilir.
         </p>
       )}
       {o.yetki("karar", true) && <YeniEkle href="/karar/yeni" />}
@@ -86,10 +84,6 @@ export default async function Kararlar({ searchParams }: PageProps<"/karar">) {
               className="min-h-14 rounded-xl border-2 border-cizgi px-3 text-lg"
             />
           </label>
-          <label className="flex min-h-14 items-center gap-3 rounded-xl border-2 border-cizgi px-4 font-semibold">
-            <input type="checkbox" name="gecmis" value="1" defaultChecked={gecmis} className="size-6 accent-yesil" />
-            Değişmiş eski kararları da göster
-          </label>
           <div className="grid grid-cols-2 gap-2">
             <Link href="/karar" className="flex min-h-14 items-center justify-center rounded-xl border-2 border-cizgi px-4 font-bold">Temizle</Link>
             <button className="min-h-14 rounded-xl bg-koyu px-4 font-bold text-white">Uygula</button>
@@ -104,8 +98,8 @@ export default async function Kararlar({ searchParams }: PageProps<"/karar">) {
             <p className="text-sm font-bold text-soluk">
               {kisaTarih(gun)} · {kayitlar.length} karar
             </p>
-            {kayitlar.map((k) => (
-              <KararKarti key={k.id} k={k} o={o} adresler={adresler} yeniSurum={yenisi.get(k.id)} />
+            {kayitlar.map((z) => (
+              <KararKarti key={z.son.id} z={z} o={o} adresler={adresler} />
             ))}
           </section>
         ))}

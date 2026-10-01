@@ -23,7 +23,7 @@ export type KararDeger = {
 
 /**
  * Yeni karar; `deger` kimlikle gelirse düzeltme, `onceki` verilirse eski
- * kararın yeni sürümü ("Kararı değiştir"). Düzeni Yeni Günlük ile aynı.
+ * kararın revizyonu. Düzeni Yeni Günlük ile aynı.
  */
 export function KararFormu({
   firmaId,

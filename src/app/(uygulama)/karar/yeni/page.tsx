@@ -6,7 +6,7 @@ import { kararSecenekleri } from "@/lib/karar-sunucu";
 import { Sayfa } from "@/components/kabuk";
 import { KararFormu } from "./form";
 
-/** Yeni karar; ?onceki=<id> ile eski kararın yerine yeni sürüm ("Kararı değiştir"). */
+/** Yeni karar; ?onceki=<id> ile kararın revizyonu (önceki hâli zincirde kalır). */
 export default async function YeniKarar({ searchParams }: PageProps<"/karar/yeni">) {
   const o = await yetkiIste("karar", true);
   if (!o.santiye) redirect("/");
@@ -18,18 +18,24 @@ export default async function YeniKarar({ searchParams }: PageProps<"/karar/yeni
     eski = data as unknown as Karar | null;
     if (!eski || !degistirebilir(o, eski)) redirect("/karar?yetki=yok");
   }
+  // Kaçıncı revizyon: önceki hâllere geri yürünür.
+  let rev = 0;
+  for (let id = eski?.id ?? null; id && rev < 100; rev++) {
+    const { data } = await o.supabase.from("kararlar").select("onceki_id").eq("id", id).maybeSingle();
+    id = data?.onceki_id ?? null;
+  }
   const secenek = await kararSecenekleri(o);
 
   return (
     <Sayfa
-      baslik={eski ? "Kararı Değiştir" : "Yeni Karar"}
+      baslik={eski ? `Rev. ${rev} Yap` : "Yeni Karar"}
       geri="/karar"
       geriAd="Vazgeç"
       sag={<span className="font-bold text-soluk">{o.santiye.ad}</span>}
     >
       {eski && (
         <p className="rounded-xl bg-sari px-4 py-3 font-semibold text-black">
-          Eski karar silinmez; &quot;Değişti&quot; olarak kalır. Yeni karar için onaylar baştan istenir.
+          Önceki hâli silinmez, zaman çizelgesinde kalır. Muhataplar yeni hâli yeniden onaylar.
         </p>
       )}
       <KararFormu

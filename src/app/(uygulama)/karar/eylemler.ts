@@ -60,7 +60,7 @@ export async function kararKaydet(_: FormDurumu, form: FormData): Promise<FormDu
     // Satır dönmezse ya başkasının kaydıdır ya da biri okumuştur; kural veritabanında.
     const { data, error } = await o.supabase.from("kararlar").update(alanlar).eq("id", id).select("id");
     if (error) return { hata: veritabaniHatasi(error) };
-    if (!data?.length) return { hata: "Bu karar okunmuş ya da size ait değil; düzeltilemez. \"Kararı değiştir\" ile yeni sürüm açın." };
+    if (!data?.length) return { hata: "Bu karar okunmuş ya da size ait değil; düzeltilemez. \"Rev. Yap\" ile revizyon yapın." };
     const { error: sHata } = await o.supabase.from("karar_muhataplari").delete().eq("karar_id", id);
     if (sHata) return { hata: veritabaniHatasi(sHata) };
     if (muhataplar(id as string).length) {
@@ -94,7 +94,7 @@ export async function kararKaydet(_: FormDurumu, form: FormData): Promise<FormDu
     }
   }
   revalidatePath("/karar");
-  redirect(uuidMi(onceki) ? "/karar?kayit=degisti" : "/karar?kayit=yeni");
+  redirect(uuidMi(onceki) ? `/karar?kayit=degisti#k-${yeniId}` : "/karar?kayit=yeni");
 }
 
 export async function kararSil(_: FormDurumu, form: FormData): Promise<FormDurumu> {
@@ -103,7 +103,7 @@ export async function kararSil(_: FormDurumu, form: FormData): Promise<FormDurum
   if (!uuidMi(id)) return { hata: "Geçersiz istek." };
   const { data, error } = await o.supabase.from("kararlar").delete().eq("id", id).select("fotograflar");
   if (error) return { hata: veritabaniHatasi(error) };
-  if (!data?.length) return { hata: "Bu kararı silme yetkiniz yok. Okunmuş kararı yalnız merkez silebilir." };
+  if (!data?.length) return { hata: "Bu kararı silme yetkiniz yok. Okunmuş kararı yalnız merkez silebilir; eski revizyonlar silinmez." };
   await artikFotolariSil(data[0].fotograflar, []);
   revalidatePath("/karar");
   redirect("/karar?silindi=1");
