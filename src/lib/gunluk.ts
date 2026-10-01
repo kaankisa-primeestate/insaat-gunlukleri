@@ -26,3 +26,9 @@ export function kayitDegisebilir(
   if (o.merkez) return true;
   return k.olusturan === o.profil.id && Date.now() - Date.parse(k.olusturma) < GUN_MS && ilkDurumda && o.yetki(sayfa, true);
 }
+
+/** Revizyon notu: silinmez; yazan 24 saat içinde, merkez her zaman düzeltir. */
+export function revizyonDegisebilir(o: Oturum, n: { olusturan: string; olusturma: string }) {
+  if (o.merkez) return true;
+  return n.olusturan === o.profil.id && Date.now() - Date.parse(n.olusturma) < GUN_MS;
+}

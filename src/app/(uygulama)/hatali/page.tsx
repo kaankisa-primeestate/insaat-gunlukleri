@@ -7,7 +7,8 @@ import { HataKarti, type Hata } from "@/components/kartlar";
 
 const ONEM_SIRA = { acil: 0, normal: 1, dusuk: 2 };
 const ALANLAR =
-  "id, is_tarihi, aciklama, kat, onem, durum, fotograflar, taseronlar(firma_adi), sorumlu:profiller!hatali_isler_sorumlu_kullanici_id_fkey(ad_soyad)";
+  "id, is_tarihi, aciklama, kat, onem, durum, fotograflar, taseronlar(firma_adi), sorumlu:profiller!hatali_isler_sorumlu_kullanici_id_fkey(ad_soyad), " +
+  "hatali_notlar(sira, metin, olusturma)";
 
 /** Açık işler önem sırasına göre; onaylananlar ayrı sekmede. */
 export default async function HataliIsler({ searchParams }: PageProps<"/hatali">) {
@@ -20,9 +21,11 @@ export default async function HataliIsler({ searchParams }: PageProps<"/hatali">
   // süzülür, bilgisayarda üç sütunlu panoda birlikte görünür.
   const [{ data: acik }, { data: onayli }] = await Promise.all([
     o.supabase.from("hatali_isler").select(ALANLAR).eq("santiye_id", o.santiye.id).neq("durum", "onaylandi")
-      .order("is_tarihi", { ascending: false }).limit(300),
+      .order("is_tarihi", { ascending: false }).limit(300)
+      .order("sira", { referencedTable: "hatali_notlar", ascending: false }).limit(1, { referencedTable: "hatali_notlar" }),
     o.supabase.from("hatali_isler").select(ALANLAR).eq("santiye_id", o.santiye.id).eq("durum", "onaylandi")
-      .order("guncelleme", { ascending: false }).limit(60),
+      .order("guncelleme", { ascending: false }).limit(60)
+      .order("sira", { referencedTable: "hatali_notlar", ascending: false }).limit(1, { referencedTable: "hatali_notlar" }),
   ]);
   const hepsi = ([...(acik ?? []), ...(onayli ?? [])] as unknown as Hata[]).sort((a, b) => ONEM_SIRA[a.onem] - ONEM_SIRA[b.onem]);
   const liste = hepsi.filter((h) => (filtre === "acik" ? h.durum !== "onaylandi" : h.durum === filtre));

@@ -31,6 +31,8 @@ export type Hata = {
   taseronlar?: { firma_adi: string } | null;
   /** Hatalı iş bir kullanıcıya (kalfa, şef) yazıldıysa. */
   sorumlu?: { ad_soyad: string } | null;
+  /** Son revizyon notu (sorgu yalnız sonuncuyu getirir). */
+  hatali_notlar?: { sira: number; metin: string; olusturma: string }[];
 };
 
 export type Talep = {
@@ -96,6 +98,9 @@ export function GunlukKarti({
   );
 }
 
+/** Zaman damgasının Türkiye saatine göre günü (YYYY-MM-DD). */
+const gunu = (t: string) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date(t));
+
 export function HataKarti({ h, adresler, taseronGoster = true }: { h: Hata; adresler: Record<string, string>; taseronGoster?: boolean }) {
   return (
     <Link href={`/hatali/${h.id}`} className="flex gap-3 rounded-2xl border-2 border-cizgi p-3 active:bg-yuzey">
@@ -114,6 +119,13 @@ export function HataKarti({ h, adresler, taseronGoster = true }: { h: Hata; adre
           {taseronGoster && (h.taseronlar ?? h.sorumlu) ? ` · ${h.taseronlar?.firma_adi ?? h.sorumlu?.ad_soyad}` : ""}
           {h.kat ? ` · ${h.kat}` : ""}
         </p>
+        {h.hatali_notlar?.[0] && (
+          <p className="line-clamp-2 text-sm break-words">
+            <b className="mr-1 rounded bg-koyu px-1.5 text-white">Rev. {h.hatali_notlar[0].sira}</b>
+            <span className="text-soluk">{kisaTarih(gunu(h.hatali_notlar[0].olusturma))} · </span>
+            {h.hatali_notlar[0].metin}
+          </p>
+        )}
       </div>
     </Link>
   );

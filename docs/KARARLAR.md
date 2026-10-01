@@ -230,3 +230,20 @@ taşeron hiçbir şantiyede görünmüyordu.
   Karar Defteri'nde adı geçen taşeron da silinmez.
 - Aynı şantiyede aynı işi yapan başka taşeron varsa önce uyarı, "Yine de
   kaydet" ile geçilir (eskisi gibi).
+
+## Hatalı işte revizyon notları, zaman çizelgesi (1 Ekim, kullanıcı kararı)
+
+- Hatalı iş tespit edildikten sonraki her gelişme "Rev. 1, Rev. 2…" diye
+  not düşülür: sorumluyla konuşuldu, nasıl yapılacağı kararlaştırıldı,
+  düzeltildi… Not + isteğe bağlı fotoğraf; yazı kutusunda mikrofon var.
+- Sayfadaki "Geçmiş" yerine **Zaman Çizelgesi**: durum değişiklikleri ve
+  revizyonlar eskiden yeniye, tek akışta. Yazanın adı, taşeronsa firması.
+- Not ekleyen: işin sorumlusu olan herkes = o işin durumunu
+  değiştirebilenler (şantiyenin şefi, merkez, işin taşeronu ve ana
+  taşeronu). Yalnız gören roller (satın alma) eklemez.
+- Revizyon **silinmez**. Yazan 24 saat içinde, merkez her zaman düzeltir;
+  düzeltilen notta "Düzenlendi · zaman · kişi" yazar.
+- Durum düğmeleri ayrı kalır (not ile durum tek kayıtta birleştirilmedi).
+- Listede kartın altında son revizyon görünür ("Rev. 3 · 1 Eki · …").
+- Revizyonu olan hatalı işi yalnız merkez silebilir.
+- Talep/Tedarik'e aynısı şimdilik yapılmadı; sahada oturursa taşınır.
