@@ -16,6 +16,7 @@ export const SAYFALAR = [
   { kod: "sozlesme", ad: "Sözleşme Bilgisi" },
   { kod: "taseronlar", ad: "Taşeronlar" },
   { kod: "karar", ad: "Karar Defteri" },
+  { kod: "depo", ad: "Depo" },
 ] as const;
 
 /** Karar Defteri'nde dokunarak seçilen mahaller; ortak alanlar "Diğer" ile yazılır. */
@@ -31,9 +32,9 @@ export function varsayilanYetki(rol: Rol, sayfa: Sayfa, duzen: boolean): boolean
     case "sef":
       return sayfa === "sozlesme" || sayfa === "taseronlar" ? !duzen : true;
     case "satinalma":
-      return sayfa === "talep" || sayfa === "teslimat" ? true : !duzen;
+      return sayfa === "talep" || sayfa === "teslimat" || sayfa === "depo" ? true : !duzen;
     case "taseron":
-      if (sayfa === "taseronlar") return false;
+      if (sayfa === "taseronlar" || sayfa === "depo") return false;
       if (sayfa === "sozlesme") return !duzen;
       return true;
   }

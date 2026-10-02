@@ -16,6 +16,7 @@ const NOTLAR: Partial<Record<Rol, Partial<Record<Sayfa, string>>>> = {
     teslimat: "Yalnızca kendi",
     sozlesme: "Yalnızca kendi",
     taseronlar: "Diğer taşeronları hiçbir durumda göremez",
+    depo: "Firma deposu; taşeron hiçbir durumda göremez",
   },
 };
 
@@ -60,7 +61,7 @@ export function YetkiMatrisi({
           <span className="flex flex-col items-center"><Pencil className="size-5" />Düzenler</span>
         </div>
         {SAYFALAR.map(({ kod, ad }) => {
-          const kilitli = rol === "taseron" && kod === "taseronlar";
+          const kilitli = rol === "taseron" && (kod === "taseronlar" || kod === "depo");
           const d = deger[kod];
           return (
             <div key={kod} className="grid grid-cols-[1fr_4.5rem_4.5rem] items-center border-t-2 border-cizgi px-3 py-2">

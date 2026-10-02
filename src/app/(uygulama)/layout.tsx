@@ -18,6 +18,7 @@ export default async function UygulamaDuzeni({ children }: LayoutProps<"/">) {
     { href: "/talep", ad: "Talepler", ikon: "talep" as const, goster: !!s && o.yetki("talep") },
     { href: "/teslimat", ad: "Teslimat Takvimi", ikon: "teslimat" as const, goster: !!s && o.yetki("teslimat") },
     { href: "/karar", ad: "Karar Defteri", ikon: "karar" as const, goster: !!s && o.yetki("karar") },
+    { href: "/depo", ad: "Depo", ikon: "depo" as const, goster: !o.taseron && o.yetki("depo") },
     o.taseron
       ? { href: `/taseronlar/${o.profil.taseron_id}`, ad: "Firmam", ikon: "firma" as const, goster: true }
       : { href: "/taseronlar", ad: "Taşeronlar", ikon: "taseron" as const, goster: true },

@@ -76,7 +76,7 @@ Hazırlık zaten var: kayıt kimliği cihazda üretiliyor, çift gönderim yok s
 
 | Kod | İş |
 |---|---|
-| DP | **Depo / malzeme takibi** (2 Ekim, kullanıcı isteği): şantiyelerden artan ya da sonra kullanılmak üzere alınan malzeme ve aletlerin firma deposunda takibi. Demirbaş (matkap, nivo: verilir, geri gelir) ve sarf (seramik, silikon: verilir, tükenir). Kim aldı, hangi şantiyeye gitti, kim geri getirdi, ne durumda. Öneri: fotoğraflı malzeme kartı; Depoya koy / Ver / Geri al / Kullanıldı hareketleri; "Kimde ne var" ekranı; şantiyeden bağımsız, firma geneli. Açık sorular: kaç depo, demirbaş adet mi tek tek mi, kim kullanacak (taşeron "teslim aldım" onayı?), fiyat tutulsun mu. |
+| DP | ✅ **Depo** (2 Ekim): firmaya ait malzeme ve demirbaş dosyaları; ayrıntı KARARLAR.md "Depo". |
 
 ## Bilerek yapılmayanlar
 

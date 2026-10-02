@@ -304,3 +304,30 @@ Formlar:
 
 Geri dönüş: değişiklikten önceki kod `hizli-formlar-oncesi` dalında. Göç 15
 yalnız ekleme yaptığı için eski kod da bu veritabanıyla çalışır.
+
+## Depo (2 Ekim, kullanıcı kararı)
+
+Firmaya ait, şantiyelerden artan ya da sonra kullanılmak üzere alınan
+malzeme ve demirbaşların kaydı. Menüde "Depo"; şantiyeden bağımsız.
+- **Her kayıt bir dosya:** fotoğraf, ne, özellikleri, miktar + birim
+  ("3 adet", "2 paket", "10 ton"), nerede duruyor. Liste alt alta; üstte
+  arama (ad, özellik, not, yer içinde, yazdıkça süzer), yere göre süzgeç,
+  "Dışarıda olanlar", "Elden çıkanlar".
+- **Nerede:** tanımlı depo ya da elle yazılan yer ("Celayir şantiyesi
+  konteyner"); yazılan yer sonraki kayıtlarda listede çıkar. Depoları
+  şirkete bağlı herkes tanımlar (Depo → Depolar); depo silinmez, pasife
+  alınır.
+- **Hareketler revizyon olarak:** Ver (kime, hangi şantiyeye), Geri al (kim
+  getirdi, Sağlam/Arızalı/Eksik), Kullanıldı (depodan ya da verilenden),
+  Depoya ekle, Yer değiştir, Miktarı düzelt (eski → yeni), Elden çıktı /
+  Yeniden aç. Kalan kendiliğinden hesaplanır; her revizyonda o anki kalan
+  yazar ("6 paket kullanıldı · Kalan: 4 paket"). Dosyada "Kimde?" bölümü:
+  dışarıdaki miktar kişi/firma bazında, kaç gündür.
+- **Hiçbir şey silinmez** (kayıt, hareket, depo); veritabanında silme
+  kuralı yok. Düzeltme serbest ama iz bırakır: ad/özellik/birim/not/
+  fotoğraf düzeltmesi eski → yeni revizyon olarak görünür. Miktar ve yer
+  elle değiştirilemez, yalnız hareketle (veritabanı da yok sayar).
+- **Yalnız şirket tarafı görür;** taşeron hiçbir durumda göremez (yetki
+  sekmesinde kilitli). Satın alma da dahil şirket rolleri varsayılan olarak
+  görür ve yazar; merkez kişi bazında kısabilir.
+- Fiyat tutulmuyor (kullanıcı kararı, şimdilik).
