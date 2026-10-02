@@ -67,7 +67,7 @@ A4 ve D5'in ürettiği veriye (düzeltme süresi, gelmedi günleri) dayanır.
 
 | Kod | İş |
 |---|---|
-| Y1 | İnternet yokken kayıt, bağlantı gelince otomatik gönderim (anayasada zorunlu) |
+| Y1 | ✅ Faz 1 (2 Ekim): Günlük, Hatalı İş, Karar Defteri internet yokken girilir, bağlantı gelince gönderilir. Faz 1b: Talep. Ayrıntı KARARLAR.md "Çevrimdışı çalışma". |
 
 Sahada çekmeyen yer (bodrum, çekirdek) sorun olursa Faz 0 bulgusuyla öne alınır.
 Hazırlık zaten var: kayıt kimliği cihazda üretiliyor, çift gönderim yok sayılıyor.

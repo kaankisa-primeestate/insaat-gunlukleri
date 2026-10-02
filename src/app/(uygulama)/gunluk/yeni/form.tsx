@@ -62,7 +62,12 @@ export function GunlukFormu({
   const katSecenekleri = eksikleriEkle(katlar, deger?.katlar ?? []);
 
   return (
-    <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-6">
+    <Form
+      eylem={eylem}
+      bekliyor={bekliyor}
+      cevrimdisi={{ tur: "gunluk", ozet: (v) => `${taseron?.firma_adi ?? "Taşeron"} · ${v.get("kisi_sayisi")} kişi · ${v.getAll("katlar").join(", ") || v.get("kat_elle") || ""}` }}
+      className="flex flex-col gap-6"
+    >
       <input type="hidden" name="id" value={id} />
       {deger && <input type="hidden" name="duzenle" value="1" />}
       <div id="g-taseron">
@@ -132,7 +137,7 @@ export function GunlukFormu({
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <FotoEki firmaId={firmaId} klasor="gunluk" mevcut={mevcutFotolar} />
+        <FotoEki firmaId={firmaId} klasor="gunluk" mevcut={mevcutFotolar} cevrimdisi />
         <TarihEki varsayilan={deger?.is_tarihi} />
       </div>
 

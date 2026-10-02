@@ -3,6 +3,7 @@ import { oturum } from "@/lib/oturum";
 import { ROL_ADI } from "@/lib/sabitler";
 import { cikisYap } from "@/app/giris/eylem";
 import { MenuBaglantisi } from "@/components/menu";
+import { CevrimdisiKatman } from "@/components/cevrimdisi-katman";
 
 /**
  * Bilgisayar ekranında solda sabit menü; telefonda hiç görünmez, telefon
@@ -52,7 +53,11 @@ export default async function UygulamaDuzeni({ children }: LayoutProps<"/">) {
           </form>
         </div>
       </aside>
-      <div className="flex min-w-0 flex-1 flex-col">{children}</div>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <CevrimdisiKatman kullanici={o.profil.id} santiye={s ? { id: s.id, ad: s.ad } : null}>
+          {children}
+        </CevrimdisiKatman>
+      </div>
     </div>
   );
 }

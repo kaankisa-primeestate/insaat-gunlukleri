@@ -46,11 +46,16 @@ export function HataFormu({
   const listedeYer = !deger?.kat || katlar.some((k) => k.deger === deger.kat);
   const [elleYer, setElleYer] = useState(!listedeYer);
   return (
-    <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-6">
+    <Form
+      eylem={eylem}
+      bekliyor={bekliyor}
+      cevrimdisi={{ tur: "hatali", ozet: (v) => String(v.get("aciklama") ?? "").slice(0, 80) }}
+      className="flex flex-col gap-6"
+    >
       <input type="hidden" name="id" value={id} />
       {deger && <input type="hidden" name="duzenle" value="1" />}
       <Alan etiket="Fotoğraf" ipucu="İsteğe bağlı; çekmeden de devam edebilirsiniz.">
-        <FotoSecici firmaId={firmaId} klasor="hatali" mevcut={mevcutFotolar} />
+        <FotoSecici firmaId={firmaId} klasor="hatali" mevcut={mevcutFotolar} cevrimdisi />
       </Alan>
       <div id="h-kimin">
         <Alan etiket="Kimin işi?" zorunlu ipucu="Bir taşeron ya da bir kişi (kalfa, şef…) seçin.">

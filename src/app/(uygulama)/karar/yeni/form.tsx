@@ -52,13 +52,18 @@ export function KararFormu({
   const [elleYer, setElleYer] = useState(!listedeYer);
 
   return (
-    <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-6">
+    <Form
+      eylem={eylem}
+      bekliyor={bekliyor}
+      cevrimdisi={{ tur: "karar", ozet: (v) => String(v.get("karar") ?? "").slice(0, 80) }}
+      className="flex flex-col gap-6"
+    >
       <input type="hidden" name="id" value={id} />
       {duzenle && <input type="hidden" name="duzenle" value="1" />}
       {onceki && <input type="hidden" name="onceki" value={onceki} />}
 
       <Alan etiket="Fotoğraf" ipucu="İsteğe bağlı: yerin, ölçünün ya da eskizin fotoğrafı.">
-        <FotoSecici firmaId={firmaId} klasor="karar" mevcut={mevcutFotolar} />
+        <FotoSecici firmaId={firmaId} klasor="karar" mevcut={mevcutFotolar} cevrimdisi />
       </Alan>
 
       <Alan etiket="Kiminle karar verildi?" ipucu="Seçilenler kendi hesaplarından “Okudum” der.">

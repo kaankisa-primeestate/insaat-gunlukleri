@@ -2,15 +2,20 @@
 
 import { useFormStatus } from "react-dom";
 import { createContext, startTransition, useContext, useEffect, useRef, useState, type ReactNode, type Ref } from "react";
-import { CalendarDays, Check, LoaderCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { CalendarDays, Check, CloudOff, House, LoaderCircle, Plus } from "lucide-react";
 import { bugun } from "@/lib/sabitler";
+import { gonder, kuyrugaEkle, vazgec, type Bekleyen, type KayitTuru } from "@/lib/cevrimdisi";
 import { SesleYaz } from "./sesle-yaz";
+import { useCevrimdisi } from "./cevrimdisi-katman";
 
 export type FormDurumu = { hata?: string; tamam?: string; uyari?: string } | undefined;
 
 const BekliyorBaglami = createContext(false);
 /** Zorunlu alanlar dolu mu: Kaydet dolana kadar soluk durur (yine basılır, eksik söylenir). */
 const GecerliBaglami = createContext(true);
+/** Kuyruk yolundan dönen hata; formdaki <Mesaj> bunu da gösterir. */
+const YerelDurumBaglami = createContext<FormDurumu>(undefined);
 
 /**
  * Sunucu işlemine giden form. React 19 `<form action>` kullanıldığında işlem
@@ -21,8 +26,9 @@ const GecerliBaglami = createContext(true);
  */
 export function Form({
   eylem,
-  bekliyor,
+  bekliyor: eylemBekliyor,
   onayla,
+  cevrimdisi,
   className,
   children,
   ref,
@@ -31,10 +37,66 @@ export function Form({
   bekliyor: boolean;
   /** Doluysa göndermeden önce bu soruyla onay istenir. */
   onayla?: string;
+  /**
+   * Çevrimdışı çalışan form (günlük, hatalı iş, karar): yeni kayıt önce
+   * telefona yazılır, sonra gönderilir; internet yoksa telefonda bekler.
+   * `ozet` Bekleyenler listesinde kaydı tanıtan kısa yazı.
+   */
+  cevrimdisi?: { tur: KayitTuru; ozet: (veri: FormData) => string };
   className?: string;
   children: ReactNode;
   ref?: Ref<HTMLFormElement>;
 }) {
+  const router = useRouter();
+  const baglam = useCevrimdisi();
+  const [yerelBekliyor, setYerelBekliyor] = useState(false);
+  const [yerelDurum, setYerelDurum] = useState<FormDurumu>(undefined);
+  const [kuyrukta, setKuyrukta] = useState(false);
+  const bekliyor = eylemBekliyor || yerelBekliyor;
+
+  async function kuyrukYolu(veri: FormData) {
+    if (!cevrimdisi || !baglam?.santiye) return;
+    setYerelBekliyor(true);
+    setYerelDurum(undefined);
+    // Kimlik gönderim anında üretilir: telefonda saklanan sayfa her açılışta aynı kimliği taşır.
+    const id = crypto.randomUUID();
+    veri.set("id", id);
+    veri.set("kayit_gunu", bugun());
+    veri.set("cihaz_zamani", new Date().toISOString());
+    const b: Bekleyen = {
+      id,
+      tur: cevrimdisi.tur,
+      kullanici: baglam.kullanici,
+      santiye_id: baglam.santiye.id,
+      santiye_ad: baglam.santiye.ad,
+      ozet: cevrimdisi.ozet(veri),
+      alanlar: [...veri.entries()].filter((x): x is [string, string] => typeof x[1] === "string"),
+      zaman: new Date().toISOString(),
+    };
+    try {
+      await kuyrugaEkle(b);
+    } catch {
+      // Telefon hafızası kullanılamıyorsa (gizli sekme) eski yol: doğrudan sunucu.
+      setYerelBekliyor(false);
+      startTransition(() => eylem(veri));
+      return;
+    }
+    const s = navigator.onLine ? await gonder(b) : "ag";
+    if (s === "ag") {
+      setYerelBekliyor(false);
+      setKuyrukta(true);
+      return;
+    }
+    if ("git" in s) {
+      router.push(s.git);
+      return;
+    }
+    // Sunucu reddetti (aynı gün ikinci günlük gibi): kayıt kuyruktan çıkar, form düzeltilir.
+    await vazgec(b);
+    setYerelDurum({ hata: s.hata });
+    setYerelBekliyor(false);
+  }
+
   const ic = useRef<HTMLFormElement | null>(null);
   const [gecerli, setGecerli] = useState(true);
   // Seçim pencereleri formun dışında açıldığı için tıklamalar belgeden dinlenir.
@@ -60,6 +122,8 @@ export function Form({
   return (
     <BekliyorBaglami.Provider value={bekliyor}>
       <GecerliBaglami.Provider value={gecerli}>
+      <YerelDurumBaglami.Provider value={yerelDurum}>
+        {kuyrukta && <KuyruktaEkrani />}
         <form
           ref={(el) => {
             ic.current = el;
@@ -72,11 +136,17 @@ export function Form({
             if (bekliyor) return;
             if (onayla && !confirm(onayla)) return;
             const veri = new FormData(e.currentTarget, (e.nativeEvent as SubmitEvent).submitter);
+            // Düzeltme (var olan kayıt) çevrimdışı yapılmaz, doğrudan sunucuya gider.
+            if (cevrimdisi && baglam?.santiye && !veri.has("duzenle")) {
+              void kuyrukYolu(veri);
+              return;
+            }
             startTransition(() => eylem(veri));
           }}
         >
           {children}
         </form>
+      </YerelDurumBaglami.Provider>
       </GecerliBaglami.Provider>
     </BekliyorBaglami.Provider>
   );
@@ -104,7 +174,34 @@ export function KaydetButonu({ children = "Kaydet", renk = "vurgu" }: { children
   );
 }
 
-export function Mesaj({ durum }: { durum: FormDurumu }) {
+/** İnternet yokken kaydedildi: telefonda bekliyor, internet gelince gidecek. */
+function KuyruktaEkrani() {
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-5 bg-zemin p-6 text-center">
+      <div className="grid size-24 place-items-center rounded-full bg-yesil text-white">
+        <Check className="size-14" strokeWidth={3} />
+      </div>
+      <p className="text-3xl font-extrabold">Kaydedildi</p>
+      <p className="flex max-w-sm items-center gap-2 text-lg font-semibold text-soluk">
+        <CloudOff className="size-6 shrink-0" /> İnternet yok. Kayıt telefonda bekliyor; internet gelince kendiliğinden gönderilecek.
+      </p>
+      <div className="grid w-full max-w-sm gap-3">
+        {/* Tam sayfa açılır (Link değil): internet yokken sayfa telefondaki kopyadan gelir. */}
+        <a href={typeof window === "undefined" ? "#" : window.location.pathname} className="flex min-h-16 items-center justify-center gap-2 rounded-2xl bg-vurgu text-xl font-bold text-black">
+          <Plus className="size-6" strokeWidth={3} /> Yeni kayıt
+        </a>
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- bilerek tam sayfa */}
+        <a href="/" className="flex min-h-14 items-center justify-center gap-2 rounded-2xl border-2 border-cizgi text-lg font-bold">
+          <House className="size-6" /> Ana sayfa
+        </a>
+      </div>
+    </div>
+  );
+}
+
+export function Mesaj({ durum: eylemDurumu }: { durum: FormDurumu }) {
+  const yerel = useContext(YerelDurumBaglami);
+  const durum = yerel ?? eylemDurumu;
   if (!durum?.hata && !durum?.tamam && !durum?.uyari) return null;
   const sinif = durum.hata ? "bg-kirmizi text-white" : durum.uyari ? "bg-sari text-black" : "bg-yesil text-white";
   return (

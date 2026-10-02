@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { Camera, ImagePlus, LoaderCircle, X, CircleAlert } from "lucide-react";
 import { supabaseTarayici } from "@/lib/supabase/client";
 import { kucult } from "@/lib/foto";
+import { agHatasi, fotoSakla } from "@/lib/cevrimdisi";
 
-type Foto = { anahtar: string; onizleme: string; yol?: string; hata?: boolean };
+type Foto = { anahtar: string; onizleme: string; yol?: string; hata?: boolean; telefonda?: boolean };
 
 /**
  * Fotoğraf çek/seç, küçült, yükle. Yüklenen dosyaların depo yolları gizli
@@ -18,6 +19,7 @@ export function FotoSecici({
   en = 6,
   zorunlu = false,
   mevcut = [],
+  cevrimdisi = false,
 }: {
   firmaId: string;
   klasor: string;
@@ -26,6 +28,8 @@ export function FotoSecici({
   zorunlu?: boolean;
   /** Düzenlemede kayıtlı fotoğraflar (depo yolu + görüntü adresi). */
   mevcut?: { yol: string; adres: string }[];
+  /** Çevrimdışı çalışan formda internet yoksa fotoğraf telefonda bekler, kayıtla gider. */
+  cevrimdisi?: boolean;
 }) {
   const [fotolar, setFotolar] = useState<Foto[]>(() =>
     mevcut.map((m) => ({ anahtar: m.yol, onizleme: m.adres, yol: m.yol })),
@@ -40,15 +44,27 @@ export function FotoSecici({
       const anahtar = crypto.randomUUID();
       const onizleme = URL.createObjectURL(dosya);
       setFotolar((f) => [...f, { anahtar, onizleme }]);
+      const yol = `${firmaId}/${klasor}/${anahtar}.jpg`;
+      let blob: Blob | undefined;
       try {
-        const blob = await kucult(dosya);
-        const yol = `${firmaId}/${klasor}/${anahtar}.jpg`;
+        blob = await kucult(dosya);
+        if (cevrimdisi && !navigator.onLine) throw new Error("network");
         const { error } = await supabaseTarayici()
           .storage.from("dosyalar")
           .upload(yol, blob, { contentType: "image/jpeg", upsert: false });
         if (error) throw error;
         setFotolar((f) => f.map((x) => (x.anahtar === anahtar ? { ...x, yol } : x)));
-      } catch {
+      } catch (e) {
+        // İnternet yok: fotoğraf telefonda saklanır, kayıt gönderilirken yüklenir.
+        if (cevrimdisi && blob && agHatasi(e)) {
+          try {
+            await fotoSakla(yol, blob);
+            setFotolar((f) => f.map((x) => (x.anahtar === anahtar ? { ...x, yol, telefonda: true } : x)));
+            continue;
+          } catch {
+            // Telefon hafızası da yoksa aşağıda "Yüklenemedi".
+          }
+        }
         setFotolar((f) => f.map((x) => (x.anahtar === anahtar ? { ...x, hata: true } : x)));
       }
     }
@@ -78,6 +94,9 @@ export function FotoSecici({
                 <div className="absolute inset-0 grid place-items-center bg-black/50">
                   <LoaderCircle className="size-8 animate-spin text-white" />
                 </div>
+              )}
+              {f.telefonda && (
+                <span className="absolute bottom-1 left-1 rounded-md bg-black/70 px-1.5 text-xs font-bold text-white">Telefonda</span>
               )}
               {f.hata && (
                 <div className="absolute inset-0 grid place-items-center bg-kirmizi/80 p-1 text-center text-xs font-bold text-white">

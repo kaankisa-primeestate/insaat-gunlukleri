@@ -56,11 +56,21 @@ export function TarihEki({ varsayilan }: { varsayilan?: string }) {
 }
 
 /** Fotoğraf eki: nadiren gereken yerde (günlük) küçük düğme. */
-export function FotoEki({ firmaId, klasor, mevcut = [] }: { firmaId: string; klasor: string; mevcut?: { yol: string; adres: string }[] }) {
+export function FotoEki({
+  firmaId,
+  klasor,
+  mevcut = [],
+  cevrimdisi = false,
+}: {
+  firmaId: string;
+  klasor: string;
+  mevcut?: { yol: string; adres: string }[];
+  cevrimdisi?: boolean;
+}) {
   return (
     <Ek simge={<Camera className="size-5" />} etiket="Fotoğraf" acik={mevcut.length > 0}>
       <Alan etiket="Fotoğraf">
-        <FotoSecici firmaId={firmaId} klasor={klasor} mevcut={mevcut} />
+        <FotoSecici firmaId={firmaId} klasor={klasor} mevcut={mevcut} cevrimdisi={cevrimdisi} />
       </Alan>
     </Ek>
   );

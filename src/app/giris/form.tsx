@@ -1,11 +1,15 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { Alan, Form, Girdi, KaydetButonu, Mesaj } from "@/components/form";
 import { girisYap } from "./eylem";
 
 export function GirisFormu() {
   const [durum, eylem, bekliyor] = useActionState(girisYap, undefined);
+  // Giriş ekranı: telefonda saklanan önceki kullanıcının sayfaları silinir.
+  useEffect(() => {
+    navigator.serviceWorker?.controller?.postMessage({ tip: "temizle" });
+  }, []);
   return (
     <Form eylem={eylem} bekliyor={bekliyor} className="flex flex-col gap-5">
       <Alan etiket="Kullanıcı adı">

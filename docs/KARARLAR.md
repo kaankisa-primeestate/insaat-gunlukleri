@@ -331,3 +331,34 @@ malzeme ve demirbaşların kaydı. Menüde "Depo"; şantiyeden bağımsız.
   sekmesinde kilitli). Satın alma da dahil şirket rolleri varsayılan olarak
   görür ve yazar; merkez kişi bazında kısabilir.
 - Fiyat tutulmuyor (kullanıcı kararı, şimdilik).
+
+## Çevrimdışı çalışma, Y1 Faz 1 (2 Ekim, kullanıcı kararı)
+
+Sahada internet olmadığı için kayıt girilemedi; anayasadaki Y1 öne alındı.
+- **Kapsam:** Günlük, Hatalı İş, Karar Defteri (yeni kayıt ve karar
+  revizyonu). Talep sonra. Düzeltme çevrimdışı yapılmaz. İnternet yokken
+  eski kayıtları görmek istenmedi.
+- **Nasıl:** Service worker (`public/sw.js`, yalnız yayın sürümünde) uygulama
+  dosyalarını ve ana sayfa, üç form, Bekleyenler sayfalarını telefonda
+  tutar; internet varken her açılışta tazeler. Kayıtlı olmayan sayfa
+  internetsiz açılınca "İnternet yok" ekranı ve form bağlantıları çıkar.
+- **Kuyruk:** Bu üç formda yeni kayıt önce telefona (IndexedDB) yazılır,
+  sonra `/api/senkron` ile gönderilir. İnternet varsa anında gider (eskisi
+  gibi listeye dönülür); yoksa "Kaydedildi, telefonda bekliyor" ekranı.
+  İnternet gelince, uygulama açılınca ve 30 saniyede bir kendiliğinden
+  gönderilir. Fotoğraf da telefonda bekler, kayıtla birlikte yüklenir.
+- **Tarih:** kayıt girildiği günü taşır (telefondaki gün); 14 günden eski ya
+  da ileri tarih kabul edilmez, o zaman bugün.
+- **Çift kayıt yok:** kimlik telefonda üretilir; aynı kayıt iki kez gelirse
+  sunucu ikincisini yok sayar.
+- **Gönderilemeyen kayıt** (ör. aynı gün aynı taşerona ikinci günlük)
+  silinmez; "Bekleyenler"de sebebiyle durur, yalnız giren kişi görür
+  (Tekrar gönder / Vazgeç). Üstte şerit: İnternet yok · N kayıt telefonda /
+  Gönderiliyor / N kayıt gönderilemedi.
+- **Sınırlar:** telefon uygulamayı en az bir kez internetle açmış olmalı;
+  yeni eklenen taşeron, telefon internete girene kadar listede çıkmaz.
+  iPhone'da ana ekrana eklenmiş olmalı (Safari, eklenmemiş sitenin
+  verisini uzun kullanılmazsa silebiliyor). Giriş ekranında önceki
+  kullanıcının telefonda tutulan sayfaları silinir.
+- Next'in deneysel `useOffline` özelliği kullanılmadı: bekleyen işi yalnız
+  sayfa açıkken bellekte tutuyor, telefon kilitlenince kaybolur.
