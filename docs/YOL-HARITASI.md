@@ -72,6 +72,12 @@ A4 ve D5'in ürettiği veriye (düzeltme süresi, gelmedi günleri) dayanır.
 Sahada çekmeyen yer (bodrum, çekirdek) sorun olursa Faz 0 bulgusuyla öne alınır.
 Hazırlık zaten var: kayıt kimliği cihazda üretiliyor, çift gönderim yok sayılıyor.
 
+## Konuşuluyor
+
+| Kod | İş |
+|---|---|
+| DP | **Depo / malzeme takibi** (2 Ekim, kullanıcı isteği): şantiyelerden artan ya da sonra kullanılmak üzere alınan malzeme ve aletlerin firma deposunda takibi. Demirbaş (matkap, nivo: verilir, geri gelir) ve sarf (seramik, silikon: verilir, tükenir). Kim aldı, hangi şantiyeye gitti, kim geri getirdi, ne durumda. Öneri: fotoğraflı malzeme kartı; Depoya koy / Ver / Geri al / Kullanıldı hareketleri; "Kimde ne var" ekranı; şantiyeden bağımsız, firma geneli. Açık sorular: kaç depo, demirbaş adet mi tek tek mi, kim kullanacak (taşeron "teslim aldım" onayı?), fiyat tutulsun mu. |
+
 ## Bilerek yapılmayanlar
 
 - **C grubu** (kat planı üzerinde işaretleme, QR kod, blok/daire ızgarası):
