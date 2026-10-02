@@ -1,6 +1,8 @@
 import "server-only";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
+import { bildir } from "@/lib/bildirim";
 import type { Oturum } from "@/lib/oturum";
 import { ONEM, type Onem } from "@/lib/sabitler";
 import { fotoYollari, metin, uuidMi, veritabaniHatasi } from "@/lib/denetim";
@@ -58,6 +60,21 @@ export async function hataYaz(o: Oturum, form: FormData): Promise<Sonuc> {
     is_tarihi: kayitGunu(form),
   });
   if (error && error.code !== "23505") return { hata: veritabaniHatasi(error) };
+  if (!error && uuidMi(id)) {
+    const santiye = o.santiye.ad;
+    after(() =>
+      bildir({
+        firmaId: o.firma.id,
+        tur: "hatali_yeni",
+        yapan: o.profil.id,
+        taseronlar: [alanlar.taseron_id],
+        kullanicilar: [alanlar.sorumlu_kullanici_id],
+        baslik: `🔴 Hatalı iş · ${santiye}`,
+        govde: aciklama,
+        url: `/hatali/${id}`,
+      }),
+    );
+  }
   revalidatePath("/hatali");
   return { git: "/hatali?kayit=1" };
 }

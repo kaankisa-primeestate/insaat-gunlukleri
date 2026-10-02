@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
-import { NotebookPen, AlertTriangle, BookOpen, CalendarDays, ChevronRight, ClipboardList, HardHat, Settings, Truck, Users, Building2, Package } from "lucide-react";
+import { NotebookPen, AlertTriangle, BookOpen, CalendarDays, ChevronRight, ClipboardList, HardHat, Settings, Truck, Users, Building2, Package, Bell } from "lucide-react";
 import { GecikmeSesi } from "@/components/gecikme-sesi";
 import type { AnaSayfaVerisi } from "./veri";
 import { AnlikHava } from "./anlik-hava";
@@ -120,6 +120,7 @@ export function BugunKarti({ v }: { v: AnaSayfaVerisi }) {
               ad={v.firmaBag.ad}
             />
             {v.depo && <Satir href="/depo" ikon={<Package />} renk="bg-kahve text-white" ad="Depo" />}
+            <Satir href="/bildirimler" ikon={<Bell />} renk="bg-gri text-white" ad="Bildirimler" />
             {v.merkez && <Satir href="/yonetim" ikon={<Settings />} renk="bg-gri text-white" ad="Yönetim" />}
           </Grup>
         </div>

@@ -362,3 +362,25 @@ Sahada internet olmadığı için kayıt girilemedi; anayasadaki Y1 öne alınd�
   kullanıcının telefonda tutulan sayfaları silinir.
 - Next'in deneysel `useOffline` özelliği kullanılmadı: bekleyen işi yalnız
   sayfa açıkken bellekte tutuyor, telefon kilitlenince kaybolur.
+
+## Telefon bildirimleri, A5 / G4 (2 Ekim, kullanıcı kararı)
+
+Kilit ekranına düşen bildirim (web push, ücretsiz); uygulama kapalıyken de
+gelir, dokununca ilgili kayıt açılır.
+- **Kim ne alır:** yeni hatalı iş → işin taşeronu (ve ana taşeronu) ya da
+  sorumlu kişi; hatalı işe revizyon / durum değişikliği → bildiren, işin
+  taşeronu, sorumlu kişi; yeni karar / karar revizyonu → muhataplar (kişi
+  ya da taşeron firmasının hesapları); yeni talep → satın alma; talebin
+  durumu → talebi açan. Günlük ve depo bildirim üretmez.
+- **Merkez hepsini alır;** herkes Bildirimler sayfasından istediği türü
+  kapatır. Kendi yaptığın işlemin bildirimi sana gelmez.
+- **Sessiz saatler** (varsayılan açık, 20:00–07:00, kişi değiştirir):
+  bildirim düşer ama ses ve titreşim olmaz. Sabaha erteleme yok; ücretli
+  zamanlayıcı gerekirdi.
+- **Telefon:** her telefonda "Bildirimleri aç" ile ayrı açılır, izin
+  istenir. Android'de doğrudan; iPhone'da (iOS 16.4+) yalnız ana ekrana
+  eklenmiş uygulamada. Ana sayfada açılmamışsa bir kez davet çıkar.
+- **Anahtarlar** (VAPID) ilk ihtiyaçta üretilip veritabanının gizli ayar
+  tablosuna (`sistem_ayarlari`, tarayıcıdan erişilemez) yazılır; ortam
+  değişkeni gerekmez. Geçersizleşen abonelik kendiliğinden silinir.
+- Bildirim gönderilemezse kayıt etkilenmez; kayıttan sonra arka planda gider.

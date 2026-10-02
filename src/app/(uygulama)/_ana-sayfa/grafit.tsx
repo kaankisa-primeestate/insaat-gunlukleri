@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
-import { NotebookPen, AlertTriangle, BookOpen, Building2, ChevronRight, ClipboardList, HardHat, MapPin, Package, Settings, Truck, Users } from "lucide-react";
+import { NotebookPen, AlertTriangle, BookOpen, Building2, ChevronRight, ClipboardList, HardHat, Bell, MapPin, Package, Settings, Truck, Users } from "lucide-react";
 import { GecikmeSesi } from "@/components/gecikme-sesi";
 import type { AnaSayfaVerisi } from "./veri";
 import { AnlikHava } from "./anlik-hava";
@@ -113,6 +113,7 @@ export function Grafit({ v }: { v: AnaSayfaVerisi }) {
           alt={v.firmaBag.ad === "Firmam" ? "Bilgiler, sözleşmeler" : "Firmalar, sözleşmeler"}
         />
         {v.depo && <Kart href="/depo" ikon={<Package />} renk="bg-sari-acik text-kahve" ad="Depo" alt="Malzeme, demirbaş" />}
+        <Kart href="/bildirimler" ikon={<Bell />} renk="bg-gri-acik text-yazi" ad="Bildirimler" alt="Telefona bildirim" />
         {v.merkez && <Kart href="/yonetim" ikon={<Settings />} renk="bg-gri-acik text-yazi" ad="Yönetim" alt="Kullanıcı, şantiye" />}
       </nav>
     </div>

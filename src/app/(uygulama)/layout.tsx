@@ -23,6 +23,7 @@ export default async function UygulamaDuzeni({ children }: LayoutProps<"/">) {
     o.taseron
       ? { href: `/taseronlar/${o.profil.taseron_id}`, ad: "Firmam", ikon: "firma" as const, goster: true }
       : { href: "/taseronlar", ad: "Taşeronlar", ikon: "taseron" as const, goster: true },
+    { href: "/bildirimler", ad: "Bildirimler", ikon: "bildirim" as const, goster: true },
     { href: "/yonetim", ad: "Yönetim", ikon: "yonetim" as const, goster: o.merkez },
   ].filter((m) => m.goster);
 

@@ -38,7 +38,7 @@ bozulmaz.
 | G1 | SMS ile giriş / doğrulama (ücretli servis gerekir) | Yok. Merkez kullanıcıyı oluşturur, giriş kullanıcı adı + şifre |
 | G2 | E-posta doğrulama, şifre sıfırlama e-postası | Yok. Şifreyi merkez panelden değiştirir |
 | G3 | E-posta bildirimleri | Yok |
-| G4 | Push bildirim (ücretsizdir, istenirse öne alınabilir) | Yok. Uygulama içi kırmızı uyarı + sesli uyarı + titreşim var |
+| G4 | Push bildirim | **Var** (2 Ekim): KARARLAR.md "Telefon bildirimleri" |
 
 ## SaaS / satış
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AlertTriangle, BookOpen, Building2, ClipboardList, House, NotebookPen, Package, Settings, Truck, Users } from "lucide-react";
+import { AlertTriangle, Bell, BookOpen, Building2, ClipboardList, House, NotebookPen, Package, Settings, Truck, Users } from "lucide-react";
 
 const IKONLAR = {
   ana: House,
@@ -12,6 +12,7 @@ const IKONLAR = {
   teslimat: Truck,
   karar: NotebookPen,
   depo: Package,
+  bildirim: Bell,
   taseron: Users,
   firma: Building2,
   yonetim: Settings,

@@ -2,6 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
+import { bildir } from "@/lib/bildirim";
 import { oturum } from "@/lib/oturum";
 import { HATA_DURUM, type HataDurum } from "@/lib/sabitler";
 import { fotoYollari, metin, uuidMi, veritabaniHatasi } from "@/lib/denetim";
@@ -22,9 +24,26 @@ export async function hataDurum(_: FormDurumu, form: FormData): Promise<FormDuru
   const durum = String(form.get("durum")) as HataDurum;
   if (!uuidMi(id) || !(durum in HATA_DURUM)) return { hata: "Geçersiz istek." };
   if (o.taseron && durum === "onaylandi") return { hata: "Onay merkez tarafından verilir." };
-  const { data, error } = await o.supabase.from("hatali_isler").update({ durum }).eq("id", id).select("id");
+  const { data, error } = await o.supabase
+    .from("hatali_isler")
+    .update({ durum })
+    .eq("id", id)
+    .select("id, olusturan, taseron_id, sorumlu_kullanici_id, aciklama");
   if (error) return { hata: veritabaniHatasi(error) };
   if (!data?.length) return { hata: "Bu kaydı değiştirme yetkiniz yok." };
+  const h = data[0];
+  after(() =>
+    bildir({
+      firmaId: o.firma.id,
+      tur: "hatali_gelisme",
+      yapan: o.profil.id,
+      kullanicilar: [h.olusturan, h.sorumlu_kullanici_id],
+      taseronlar: [h.taseron_id],
+      baslik: `Hatalı iş: ${HATA_DURUM[durum].ad}`,
+      govde: h.aciklama,
+      url: `/hatali/${id}`,
+    }),
+  );
   revalidatePath(`/hatali/${id}`);
   revalidatePath("/hatali");
   return { tamam: `Durum: ${HATA_DURUM[durum].ad}` };
@@ -85,6 +104,20 @@ export async function revizyonKaydet(_: FormDurumu, form: FormData): Promise<For
       .select("sira");
     if (error) return { hata: error.code === "42501" ? "Bu işe not ekleme yetkiniz yok." : veritabaniHatasi(error) };
     sira = data[0].sira;
+    const { data: h } = await o.supabase.from("hatali_isler").select("olusturan, taseron_id, sorumlu_kullanici_id").eq("id", hataliId).maybeSingle();
+    const rev = sira;
+    after(() =>
+      bildir({
+        firmaId: o.firma.id,
+        tur: "hatali_gelisme",
+        yapan: o.profil.id,
+        kullanicilar: [h?.olusturan, h?.sorumlu_kullanici_id],
+        taseronlar: [h?.taseron_id],
+        baslik: `Hatalı iş · Rev. ${rev}`,
+        govde: yazi,
+        url: `/hatali/${hataliId}#rev-${rev}`,
+      }),
+    );
   }
   revalidatePath(`/hatali/${hataliId}`);
   revalidatePath("/hatali");

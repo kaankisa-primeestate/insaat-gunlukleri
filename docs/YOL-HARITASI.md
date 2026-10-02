@@ -50,7 +50,7 @@ Saha denemesinden gelen D6–D9 yapıldı (26 Eylül). Kalanlar:
 |---|---|
 | A4 | Hatalı işte önce/sonra fotoğrafı (düzeltmede zorunlu) ve termin tarihi; termini geçen kırmızı |
 | A1 | WhatsApp'a gönder: hatalı iş / günlük / talep tek dokunuşla ilgili kişiye |
-| A5 | Anlık bildirim (G4): "Size hatalı iş yazıldı", "Yeni talep var" |
+| A5 | ✅ Anlık bildirim (2 Ekim, öne alındı): ayrıntı KARARLAR.md "Telefon bildirimleri". |
 
 ## Faz 4 — Merkezin gözü
 

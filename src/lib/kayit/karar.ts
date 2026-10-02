@@ -1,6 +1,8 @@
 import "server-only";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
+import { bildir } from "@/lib/bildirim";
 import type { Oturum } from "@/lib/oturum";
 import { IS_TURU_LISTESI, MAHALLER } from "@/lib/sabitler";
 import { fotoYollari, metin, uuidMi, veritabaniHatasi } from "@/lib/denetim";
@@ -87,6 +89,21 @@ export async function kararYaz(o: Oturum, form: FormData): Promise<Sonuc> {
       await o.supabase.from("kararlar").delete().eq("id", yeniId);
       return { hata: "Muhataplar kaydedilemedi: " + veritabaniHatasi(mHata) };
     }
+  }
+  if (!error) {
+    const santiye = o.santiye.ad;
+    after(() =>
+      bildir({
+        firmaId: o.firma.id,
+        tur: "karar",
+        yapan: o.profil.id,
+        kullanicilar: kisiler,
+        taseronlar,
+        baslik: `📝 ${uuidMi(onceki) ? "Karar değişti" : "Yeni karar"} · ${santiye}`,
+        govde: karar,
+        url: `/karar#k-${yeniId}`,
+      }),
+    );
   }
   revalidatePath("/karar");
   return { git: uuidMi(onceki) ? `/karar?kayit=degisti#k-${yeniId}` : "/karar?kayit=yeni" };

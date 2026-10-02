@@ -2,6 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
+import { bildir } from "@/lib/bildirim";
 import { oturum } from "@/lib/oturum";
 import { BIRIMLER, TALEP_DURUM, bugun, type TalepDurum } from "@/lib/sabitler";
 import { fotoYollari, metin, tarihMi, uuidMi, veritabaniHatasi } from "@/lib/denetim";
@@ -63,6 +65,21 @@ export async function talepKaydet(_: FormDurumu, form: FormData): Promise<FormDu
     is_tarihi: bugun(),
   });
   if (error && error.code !== "23505") return { hata: "Kaydedilemedi: " + error.message };
+  if (!error && uuidMi(id)) {
+    const santiye = o.santiye.ad;
+    const { data: t } = taseronId ? await o.supabase.from("taseronlar").select("firma_adi").eq("id", taseronId).maybeSingle() : { data: null };
+    after(() =>
+      bildir({
+        firmaId: o.firma.id,
+        tur: "talep_yeni",
+        yapan: o.profil.id,
+        roller: ["satinalma"],
+        baslik: `📦 Yeni talep · ${santiye}`,
+        govde: `${Number(miktar).toLocaleString("tr-TR")} ${birim} ${urun} · ${t?.firma_adi ?? taseronAdi} için`,
+        url: `/talep/${id}`,
+      }),
+    );
+  }
   revalidatePath("/talep");
   redirect("/talep?kayit=1");
 }
@@ -73,9 +90,21 @@ export async function talepDurum(_: FormDurumu, form: FormData): Promise<FormDur
   const id = form.get("id");
   const durum = String(form.get("durum")) as TalepDurum;
   if (!uuidMi(id) || !(durum in TALEP_DURUM)) return { hata: "Geçersiz istek." };
-  const { data, error } = await o.supabase.from("talepler").update({ durum }).eq("id", id).select("id");
+  const { data, error } = await o.supabase.from("talepler").update({ durum }).eq("id", id).select("id, olusturan, urun, miktar, birim");
   if (error) return { hata: "Kaydedilemedi: " + error.message };
   if (!data?.length) return { hata: "Bu talebi değiştirme yetkiniz yok." };
+  const t = data[0];
+  after(() =>
+    bildir({
+      firmaId: o.firma.id,
+      tur: "talep_durum",
+      yapan: o.profil.id,
+      kullanicilar: [t.olusturan],
+      baslik: `Talep: ${TALEP_DURUM[durum].ad}`,
+      govde: `${Number(t.miktar).toLocaleString("tr-TR")} ${t.birim} ${t.urun}`,
+      url: `/talep/${id}`,
+    }),
+  );
   revalidatePath(`/talep/${id}`);
   revalidatePath("/talep");
   return { tamam: `Durum: ${TALEP_DURUM[durum].ad}` };

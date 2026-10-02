@@ -115,3 +115,45 @@ self.addEventListener("fetch", (e) => {
     );
   }
 });
+
+/*
+ * Bildirim (push): sunucudan gelen bildirim kilit ekranına düşer; sessiz
+ * saatte ses ve titreşim olmaz. Dokununca ilgili kayıt açılır.
+ */
+self.addEventListener("push", (e) => {
+  let v = {};
+  try {
+    v = e.data ? e.data.json() : {};
+  } catch {
+    v = { govde: e.data ? e.data.text() : "" };
+  }
+  e.waitUntil(
+    self.registration.showNotification(v.baslik || "İnşaat Günlükleri", {
+      body: v.govde || "",
+      icon: "/ikon-192.png",
+      badge: "/ikon-192.png",
+      tag: v.etiket || undefined,
+      silent: Boolean(v.sessiz),
+      vibrate: v.sessiz ? undefined : [200, 100, 200],
+      data: { url: v.url || "/" },
+    }),
+  );
+});
+
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  const hedef = new URL((e.notification.data && e.notification.data.url) || "/", self.location.origin).href;
+  e.waitUntil(
+    (async () => {
+      const pencereler = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      for (const p of pencereler) {
+        if ("focus" in p) {
+          await p.focus();
+          if ("navigate" in p) await p.navigate(hedef);
+          return;
+        }
+      }
+      await self.clients.openWindow(hedef);
+    })(),
+  );
+});
