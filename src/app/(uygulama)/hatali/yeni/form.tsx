@@ -14,6 +14,7 @@ export type HataDeger = {
   id: string;
   taseron_id: string | null;
   sorumlu_kullanici_id: string | null;
+  izleyenler: string[];
   aciklama: string;
   kat: string | null;
   onem: Onem;
@@ -74,6 +75,16 @@ export function HataFormu({
           />
         </Alan>
       </div>
+      <Alan etiket="Takip edecek kişiler" ipucu="İsteğe bağlı; tamiri yapan kişiden ayrı, işi izleyecek diğer kişiler (şantiye şefi, kalfa…).">
+        <SecimPenceresi
+          ad="izleyen"
+          baslik="Takip edecek kişiler"
+          coklu
+          bosYazi="Kişi seçmek için dokunun"
+          varsayilan={deger?.izleyenler ?? []}
+          secenekler={personel.map((p) => ({ deger: p.id, ad: p.ad_soyad, alt: ROL_ADI[p.rol] }))}
+        />
+      </Alan>
       <div id="h-yer">
         <Alan etiket="Nerede?">
           {elleYer ? (

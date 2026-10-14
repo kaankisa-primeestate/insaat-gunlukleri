@@ -28,7 +28,7 @@ export async function hataDurum(_: FormDurumu, form: FormData): Promise<FormDuru
     .from("hatali_isler")
     .update({ durum })
     .eq("id", id)
-    .select("id, olusturan, taseron_id, sorumlu_kullanici_id, aciklama");
+    .select("id, olusturan, taseron_id, sorumlu_kullanici_id, izleyenler, aciklama");
   if (error) return { hata: veritabaniHatasi(error) };
   if (!data?.length) return { hata: "Bu kaydı değiştirme yetkiniz yok." };
   const h = data[0];
@@ -37,7 +37,7 @@ export async function hataDurum(_: FormDurumu, form: FormData): Promise<FormDuru
       firmaId: o.firma.id,
       tur: "hatali_gelisme",
       yapan: o.profil.id,
-      kullanicilar: [h.olusturan, h.sorumlu_kullanici_id],
+      kullanicilar: [h.olusturan, h.sorumlu_kullanici_id, ...(h.izleyenler ?? [])],
       taseronlar: [h.taseron_id],
       baslik: `Hatalı iş: ${HATA_DURUM[durum].ad}`,
       govde: h.aciklama,
@@ -104,14 +104,14 @@ export async function revizyonKaydet(_: FormDurumu, form: FormData): Promise<For
       .select("sira");
     if (error) return { hata: error.code === "42501" ? "Bu işe not ekleme yetkiniz yok." : veritabaniHatasi(error) };
     sira = data[0].sira;
-    const { data: h } = await o.supabase.from("hatali_isler").select("olusturan, taseron_id, sorumlu_kullanici_id").eq("id", hataliId).maybeSingle();
+    const { data: h } = await o.supabase.from("hatali_isler").select("olusturan, taseron_id, sorumlu_kullanici_id, izleyenler").eq("id", hataliId).maybeSingle();
     const rev = sira;
     after(() =>
       bildir({
         firmaId: o.firma.id,
         tur: "hatali_gelisme",
         yapan: o.profil.id,
-        kullanicilar: [h?.olusturan, h?.sorumlu_kullanici_id],
+        kullanicilar: [h?.olusturan, h?.sorumlu_kullanici_id, ...(h?.izleyenler ?? [])],
         taseronlar: [h?.taseron_id],
         baslik: `Hatalı iş · Rev. ${rev}`,
         govde: yazi,
