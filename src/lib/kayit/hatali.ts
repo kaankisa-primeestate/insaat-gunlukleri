@@ -23,6 +23,7 @@ export async function hataYaz(o: Oturum, form: FormData): Promise<Sonuc> {
   const onem = String(form.get("onem")) as Onem;
   const aciklama = metin(form, "aciklama", 300);
   const fotograflar = fotoYollari(form, o.firma.id);
+  const izleyenler = [...new Set(form.getAll("izleyen").map(String))].filter(uuidMi).slice(0, 10);
 
   if (!uuidMi(taseronId) && !uuidMi(kullaniciId)) return { hata: "Kimin işi olduğunu seçin." };
   // Taşeron yalnız kendi firmasına ya da alt taşeronuna iş yazar; kuralı veritabanı da uygular.
@@ -35,6 +36,7 @@ export async function hataYaz(o: Oturum, form: FormData): Promise<Sonuc> {
   const alanlar = {
     taseron_id: uuidMi(taseronId) ? taseronId : null,
     sorumlu_kullanici_id: uuidMi(kullaniciId) ? kullaniciId : null,
+    izleyenler,
     aciklama,
     kat: form.has("kat_elle") ? metin(form, "kat_elle", 80) : metin(form, "kat", 80),
     onem,
@@ -68,7 +70,7 @@ export async function hataYaz(o: Oturum, form: FormData): Promise<Sonuc> {
         tur: "hatali_yeni",
         yapan: o.profil.id,
         taseronlar: [alanlar.taseron_id],
-        kullanicilar: [alanlar.sorumlu_kullanici_id],
+        kullanicilar: [alanlar.sorumlu_kullanici_id, ...alanlar.izleyenler],
         baslik: `🔴 Hatalı iş · ${santiye}`,
         govde: aciklama,
         url: `/hatali/${id}`,

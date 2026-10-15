@@ -16,7 +16,7 @@ export default async function HataDuzenle({ params }: PageProps<"/hatali/[id]/du
   const { id } = await params;
   const { data: h } = await o.supabase
     .from("hatali_isler")
-    .select("id, santiye_id, taseron_id, sorumlu_kullanici_id, is_tarihi, aciklama, kat, onem, durum, fotograflar, olusturan, olusturma")
+    .select("id, santiye_id, taseron_id, sorumlu_kullanici_id, izleyenler, is_tarihi, aciklama, kat, onem, durum, fotograflar, olusturan, olusturma")
     .eq("id", id)
     .maybeSingle();
   if (!h) notFound();

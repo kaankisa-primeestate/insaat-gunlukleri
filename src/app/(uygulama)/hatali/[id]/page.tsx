@@ -42,7 +42,7 @@ export default async function HataDetay({ params, searchParams }: PageProps<"/ha
   const { kayit, yetki, rev } = await searchParams;
   const { data: h } = await o.supabase
     .from("hatali_isler")
-    .select("id, is_tarihi, aciklama, kat, onem, durum, fotograflar, olusturan, olusturma, duzenleme, taseron_id, taseronlar(firma_adi), santiyeler(ad), bildiren:profiller!hatali_isler_olusturan_fkey(ad_soyad), sorumlu:profiller!hatali_isler_sorumlu_kullanici_id_fkey(ad_soyad), duzenleyen_kisi:profiller!hatali_isler_duzenleyen_fkey(ad_soyad)")
+    .select("id, is_tarihi, aciklama, kat, onem, durum, fotograflar, olusturan, olusturma, duzenleme, taseron_id, izleyenler, taseronlar(firma_adi), santiyeler(ad), bildiren:profiller!hatali_isler_olusturan_fkey(ad_soyad), sorumlu:profiller!hatali_isler_sorumlu_kullanici_id_fkey(ad_soyad), duzenleyen_kisi:profiller!hatali_isler_duzenleyen_fkey(ad_soyad)")
     .eq("id", id)
     .maybeSingle();
   if (!h) notFound();
@@ -54,7 +54,11 @@ export default async function HataDetay({ params, searchParams }: PageProps<"/ha
   // Kim yazdı: ad, taşeronsa firması da ("Mehmet · Yılmaz Kalıp").
   const kisiler = new Map<string, string>();
   const ids = [
-    ...new Set([...(hareketler ?? []).map((x) => x.kullanici), ...notlar.flatMap((n) => [n.olusturan, n.duzenleyen])].filter(Boolean)),
+    ...new Set(
+      [...(hareketler ?? []).map((x) => x.kullanici), ...notlar.flatMap((n) => [n.olusturan, n.duzenleyen]), ...(h.izleyenler ?? [])].filter(
+        Boolean,
+      ),
+    ),
   ] as string[];
   if (ids.length) {
     const { data } = await o.supabase.from("profiller").select("id, ad_soyad, taseronlar(firma_adi)").in("id", ids);
@@ -105,6 +109,12 @@ export default async function HataDetay({ params, searchParams }: PageProps<"/ha
           <>
             <dt className="font-bold">Sorumlu</dt>
             <dd>{sorumlu?.ad_soyad}</dd>
+          </>
+        )}
+        {h.izleyenler?.length > 0 && (
+          <>
+            <dt className="font-bold">Takip eden</dt>
+            <dd>{(h.izleyenler as string[]).map((id) => kisiler.get(id) ?? "?").join(", ")}</dd>
           </>
         )}
         <dt className="font-bold">Şantiye</dt>
