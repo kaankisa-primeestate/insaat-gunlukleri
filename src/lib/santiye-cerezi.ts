@@ -1,4 +1,4 @@
-/** Girişte seçilen şantiye. Çıkışta silinir; oturum boyunca değişmez. */
+/** Girişte seçilen şantiye. Çıkışta silinir; amblemden bilerek (onaylayarak) değiştirilebilir. */
 export const SANTIYE_CEREZI = "santiye";
 
 export const CEREZ_AYARI = {

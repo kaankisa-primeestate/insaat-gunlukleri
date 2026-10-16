@@ -20,8 +20,8 @@ export function BugunKarti({ v }: { v: AnaSayfaVerisi }) {
   return (
     <div className="flex flex-col">
       {/* Bilgisayarda logo ve kişi soldaki menüde; burada yalnız telefonda. */}
-      <div className="flex items-center gap-2.5 lg:hidden">
-        <div className="grid size-9 place-items-center rounded-[10px] bg-yazi">
+      <Link href={v.santiye ? "/santiye-sec" : "/"} className="flex items-center gap-2.5 lg:hidden">
+        <div className="grid size-9 shrink-0 place-items-center rounded-[10px] bg-yazi">
           <HardHat className="size-5 text-vurgu" strokeWidth={2.4} />
         </div>
         <p className="min-w-0 truncate font-extrabold tracking-tight">İnşaat Günlükleri</p>
@@ -31,7 +31,7 @@ export function BugunKarti({ v }: { v: AnaSayfaVerisi }) {
         >
           {v.basHarfler}
         </div>
-      </div>
+      </Link>
 
       <div className="mt-5 lg:mt-0">
         <p className="text-[15px] font-semibold text-soluk">

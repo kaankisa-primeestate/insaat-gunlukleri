@@ -7,6 +7,7 @@ import { kullaniciDurum, santiyeAta } from "../../eylemler";
 import { SifreFormu } from "./sifre";
 import { BilgiFormu } from "./bilgi";
 import { SecimPenceresi } from "@/components/secim-penceresi";
+import { SantiyeErisimi } from "./santiye-erisimi";
 
 export default async function Kullanici({ params, searchParams }: PageProps<"/yonetim/kullanicilar/[id]">) {
   const o = await merkezIste();
@@ -71,6 +72,13 @@ export default async function Kullanici({ params, searchParams }: PageProps<"/yo
             />
             <button className="min-h-14 rounded-2xl bg-koyu text-lg font-bold text-white">Şantiyeleri Kaydet</button>
           </form>
+        </section>
+      )}
+
+      {(rol === "personel" || rol === "satinalma") && (
+        <section className="flex flex-col gap-3">
+          <h2 className="text-xl font-bold">Hangi şantiyeleri görebilir?</h2>
+          <SantiyeErisimi kullaniciId={k.id} atananlar={[...atananlar]} santiyeler={o.santiyeler} />
         </section>
       )}
 

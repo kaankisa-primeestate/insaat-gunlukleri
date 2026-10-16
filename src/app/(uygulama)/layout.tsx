@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { HardHat, LogOut } from "lucide-react";
 import { oturum } from "@/lib/oturum";
 import { ROL_ADI } from "@/lib/sabitler";
@@ -30,15 +31,15 @@ export default async function UygulamaDuzeni({ children }: LayoutProps<"/">) {
   return (
     <div className="flex flex-1">
       <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r-2 border-cizgi bg-yuzey lg:flex">
-        <div className="flex items-center gap-3 px-5 py-5">
-          <div className="grid size-11 place-items-center rounded-xl bg-vurgu">
+        <Link href={s ? "/santiye-sec" : "/"} className="flex items-center gap-3 px-5 py-5 hover:bg-zemin">
+          <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-vurgu">
             <HardHat className="size-6 text-black" strokeWidth={2.4} />
           </div>
           <div className="min-w-0">
             <p className="leading-tight font-extrabold">İnşaat Günlükleri</p>
-            <p className="truncate text-sm text-soluk">{o.firma.ad}</p>
+            <p className="truncate text-sm text-soluk">{s ? s.ad : o.firma.ad}</p>
           </div>
-        </div>
+        </Link>
         <nav className="flex flex-1 flex-col gap-1 px-3">
           {menu.map((m) => (
             <MenuBaglantisi key={m.href} href={m.href} ad={m.ad} ikon={m.ikon} />
