@@ -8,9 +8,7 @@ getirilir; seçilen madde yapılır ve "Yapıldı" bölümüne taşınır.
 
 ## Bekleyenler
 
-| # | Madde | Not |
-|---|---|---|
-| D5 | **"Dünden devam" — sürüp giden işte her gün formu baştan doldurmamak.** Taşeron bir işe başladığında 2–3 gün aynı yerde aynı işi yapıyor; her gün aynı günlüğü girmek zahmetli. | Ayrıntı aşağıda. D1 ve D2 ile birlikte yapılmalı (aynı ekran). |
+Şu an bekleyen madde yok.
 
 ## D8 ayrıntısı: şantiye girişte seçilir (kullanıcı kararı)
 
@@ -19,9 +17,12 @@ getirilir; seçilen madde yapılır ve "Yapıldı" bölümüne taşınır.
   gösterilmez. (Şifreden önce gösterilmez: giriş yapmamış birine firmanın
   şantiye listesi açılmış olur.)
 - Tek şantiyesi olan bu ekranı görmez, doğrudan girer.
-- Üstteki şantiye seçici kalkar. Başka şantiyeye geçmek için çıkış yapılıp
-  yeniden girilir.
 - Her ekranda ayrı bir şantiye şeridi **olmayacak** (kullanıcı istemedi).
+- **(15 Ekim güncellemesi)** Amblem tıklanınca şantiye seçici tekrar
+  açılıyor; ama tek dokunuşla değişmiyor, önce şantiye seçilip sonra ayrı
+  bir ekranda "Evet, X şantiyesine geç" ile onaylanıyor (ayrıntı
+  `KARARLAR.md`). Ayrıca yönetici artık merkez personeli/satın alma için
+  "tüm şantiyeleri görsün" ya da "yalnız seçtiklerini görsün" seçebiliyor.
 
 ## D9 ayrıntısı: bilgisayar görünümü (öneri)
 
@@ -73,7 +74,7 @@ bağlanmadı. Mevcut kayıtlar olduğu gibi kaldı. Seçim penceresinde çok
 bloklu şantiyede üstte blok sekmeleri çıkar (4 blok × 20 kat alt alta
 dizilince kaydırma çok uzuyordu).
 
-## D5 ayrıntısı: "Bugünün Günlüğü" (ERTELENDİ — kullanıcı 29 Eylül: acil değil; "eksik kaldı" diye düşünüldüğünde yeniden getirilecek)
+## D5 ayrıntısı: "Bugünün Günlüğü" (yapıldı, 15 Ekim; 29 Eylül'de ertelenmişti)
 
 **Otomatik kayıt yapılmaz.** Taşeron gelmediği gün de kayıt düşer, kimse
 fark etmezse sahte kayıt oluşur; günlüğün güvenilirliği biter. Bunun yerine
@@ -95,12 +96,28 @@ fark etmezse sahte kayıt oluşur; günlüğün güvenilirliği biter. Bunun yer
 - Aynı gün ikinci kayıt yok (D1): girilmiş kart "Girildi" gösterir,
   dokununca o günün kaydı açılır.
 
-**Karar bekleyen:**
-1. "Gelmedi" kaydı tutulsun mu? (Öneri: evet — gecikme ve ileride puantaj.)
-2. "Hepsini aynen kaydet" toplu düğmesi olsun mu? (Öneri: hayır — her
-   taşeronun sahada olduğu tek tek gözle onaylansın.)
+**Karar verildi (15 Ekim):**
+1. "Gelmedi" kaydı tutulsun mu? → **Evet.**
+2. "Hepsini aynen kaydet" toplu düğmesi olsun mu? → **Hayır**, her taşeron
+   sahada olduğu tek tek gözle onaylanır.
 
 ## Yapıldı
+
+- D5 (15 Ekim) "Dünden devam": otomatik kayıt yapılmaz, öneri + tek dokunuş
+  onay. Günlükler sayfasında "Yeni Ekle"nin üstünde, dün (son 7 gün)
+  çalışan ve bugün kaydı olmayan her taşeron için kart: **Aynen devam**
+  (dünkü bilgiler kopyalanır), **Değiştir** (form dünkü bilgilerle dolu
+  açılır), **Gelmedi** (o gün için boş kayıt düşer — tutulsun kararı: evet),
+  **Bu işi bitirdi** (küçük menüde; önerilmesi durur, elle yeni günlük
+  girilince kendiliğinden döner). Toplu "hepsini kaydet" yok, her taşeron
+  tek tek onaylanır. Ayrıntı `KARARLAR.md`
+- (15 Ekim) Hatalı işte tamiri yapacak sorumludan ayrı, işi takip edecek
+  kişiler de eklenebiliyor (şantiye şefi, kalfa…); bildirimler onlara da
+  gidiyor. Ayrıntı `KARARLAR.md`
+- (15 Ekim) Amblem tıklanınca şantiye seçici açılıyor; değiştirmek iki
+  adımlı onay istiyor (yanlışlıkla tek dokunuşla değişmiyor). Merkez
+  personeli/satın alma için yönetici "tüm şantiyeler" / "yalnız
+  seçtiklerim" kararı verebiliyor. Ayrıntı `KARARLAR.md`
 
 - D3 Şantiye tarifi: bloklar, katları, otopark ve çevre alanları; oluştururken ve sonradan (Yönetim > Şantiyeler). Günlükte ve hatalı işte "Yer" seçimi bloklara göre sekmeli
 

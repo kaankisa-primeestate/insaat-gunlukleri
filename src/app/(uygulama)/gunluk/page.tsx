@@ -7,6 +7,7 @@ import { GunlukKarti, type Gunluk } from "@/components/kartlar";
 import { tarihMi, uuidMi } from "@/lib/denetim";
 import { gunlukDegisebilir } from "@/lib/gunluk";
 import { GunlukIslemleri } from "./islemler";
+import { DundenDevam, type GunlukOnerisi } from "./dunden-devam";
 import { after } from "next/server";
 import { havaTamamla } from "@/lib/hava";
 import { HavaEtiketi, type Hava } from "@/components/hava";
@@ -30,7 +31,7 @@ export default async function Gunlukler({ searchParams }: PageProps<"/gunluk">) 
 
   let sorgu = o.supabase
     .from("gunlukler")
-    .select("id, is_tarihi, kisi_sayisi, katlar, is_kalemleri, notu, fotograflar, olusturma, olusturan, guncelleme, taseronlar(firma_adi), profiller!gunlukler_olusturan_fkey(ad_soyad)")
+    .select("id, is_tarihi, kisi_sayisi, katlar, is_kalemleri, notu, fotograflar, olusturma, olusturan, guncelleme, devam, gelmedi, taseronlar(firma_adi), profiller!gunlukler_olusturan_fkey(ad_soyad)")
     .eq("santiye_id", o.santiye.id)
     .order("is_tarihi", { ascending: false })
     .order("olusturma", { ascending: false })
@@ -39,10 +40,13 @@ export default async function Gunlukler({ searchParams }: PageProps<"/gunluk">) 
   if (bit) sorgu = sorgu.lte("is_tarihi", bit);
   if (taseron) sorgu = sorgu.eq("taseron_id", taseron);
 
-  const [{ data }, { data: taseronlar }] = await Promise.all([
+  const oneriSorgu = !bas && !bit && !taseron && o.yetki("gunluk", true) ? o.supabase.rpc("gunluk_onerileri", { p_santiye: o.santiye.id }) : null;
+  const [{ data }, { data: taseronlar }, oneriSonuc] = await Promise.all([
     sorgu,
     o.supabase.rpc("santiye_taseronlari", { p_santiye: o.santiye.id }),
+    oneriSorgu,
   ]);
+  const oneriler = (oneriSonuc?.data ?? []) as GunlukOnerisi[];
   const liste = (data ?? []) as unknown as Gunluk[];
   const tarihler = [...new Set(liste.map((g) => g.is_tarihi))];
   const [adresler, { data: havaSatirlari }] = await Promise.all([
@@ -64,6 +68,7 @@ export default async function Gunlukler({ searchParams }: PageProps<"/gunluk">) 
   return (
     <Sayfa baslik={`Günlükler · ${o.santiye.ad}`} genis>
       {bildirim && <p className={`rounded-xl px-4 py-3 font-bold ${bildirim.sinif}`}>{bildirim.yazi}</p>}
+      <DundenDevam oneriler={oneriler} />
       {o.yetki("gunluk", true) && <YeniEkle href="/gunluk/yeni" />}
 
       <details className="rounded-2xl border-2 border-cizgi" open={Boolean(bas || bit || taseron)}>

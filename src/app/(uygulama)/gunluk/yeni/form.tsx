@@ -29,17 +29,21 @@ export function GunlukFormu({
   taseronlar,
   katlar,
   deger,
+  kaynakDoldur = false,
   mevcutFotolar = [],
 }: {
   firmaId: string;
   taseronlar: TaseronSecenek[];
   katlar: Yer[];
   deger?: GunlukDeger;
+  /** `deger` düzenlenecek kayıt değil, "Dünden devam" önerisinden gelen doldurma verisidir: yeni kayıt oluşturulur, bugünün tarihiyle. */
+  kaynakDoldur?: boolean;
   mevcutFotolar?: { yol: string; adres: string }[];
 }) {
+  const duzenleniyor = Boolean(deger) && !kaynakDoldur;
   const [durum, eylem, bekliyor] = useActionState(gunlukKaydet, undefined);
   // Kimlik formda üretilir: çift dokunmada aynı kayıt iki kez oluşmaz.
-  const [id] = useState(() => deger?.id ?? crypto.randomUUID());
+  const [id] = useState(() => (duzenleniyor ? deger!.id : crypto.randomUUID()));
   const [taseron, setTaseron] = useState<TaseronSecenek | undefined>(
     taseronlar.find((t) => t.id === deger?.taseron_id) ?? (taseronlar.length === 1 ? taseronlar[0] : undefined),
   );
@@ -69,7 +73,7 @@ export function GunlukFormu({
       className="flex flex-col gap-6"
     >
       <input type="hidden" name="id" value={id} />
-      {deger && <input type="hidden" name="duzenle" value="1" />}
+      {duzenleniyor && <input type="hidden" name="duzenle" value="1" />}
       <div id="g-taseron">
         <Alan etiket="Taşeron" zorunlu>
           <TaseronSecici
@@ -138,12 +142,12 @@ export function GunlukFormu({
 
       <div className="flex flex-wrap gap-2">
         <FotoEki firmaId={firmaId} klasor="gunluk" mevcut={mevcutFotolar} cevrimdisi />
-        <TarihEki varsayilan={deger?.is_tarihi} />
+        <TarihEki varsayilan={duzenleniyor ? deger?.is_tarihi : undefined} />
       </div>
 
       <Mesaj durum={durum} />
       <div className="sticky bottom-3">
-        <KaydetButonu>{deger ? "Değişiklikleri Kaydet" : "Kaydet"}</KaydetButonu>
+        <KaydetButonu>{duzenleniyor ? "Değişiklikleri Kaydet" : "Kaydet"}</KaydetButonu>
       </div>
     </Form>
   );

@@ -16,6 +16,10 @@ export type Gunluk = {
   olusturan?: string;
   /** Doluysa kayıt girildikten sonra düzenlenmiştir. */
   guncelleme?: string | null;
+  /** "Aynen devam" önerisiyle, dünkü bilgiler kopyalanarak oluşturuldu. */
+  devam?: boolean;
+  /** O gün için "gelmedi" kaydı; kişi/kat/iş boştur. */
+  gelmedi?: boolean;
   taseronlar?: { firma_adi: string } | null;
   profiller?: { ad_soyad: string } | null;
 };
@@ -103,14 +107,20 @@ export function GunlukKarti({
           {taseronGoster && g.taseronlar && <span className="text-lg font-extrabold">· {g.taseronlar.firma_adi}</span>}
           {sonradanMi(g.is_tarihi, g.olusturma) && <Etiket sinif="bg-yuzey text-soluk border border-cizgi">sonradan girildi</Etiket>}
           {g.guncelleme && <Etiket sinif="bg-yuzey text-soluk border border-cizgi">düzenlendi</Etiket>}
+          {g.gelmedi && <Etiket sinif="bg-kirmizi-acik text-kirmizi">gelmedi</Etiket>}
+          {g.devam && <Etiket sinif="bg-mavi text-white">dünden devam</Etiket>}
         </div>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-base">
-          <span className="flex items-center gap-1"><Users className="size-5" /> {g.kisi_sayisi} kişi</span>
-          {g.katlar.length > 0 && <span className="flex items-center gap-1"><Layers className="size-5" /> {g.katlar.join(", ")}</span>}
-          {giren && <span className="hidden items-center gap-1 text-sm text-soluk lg:flex">{giren}</span>}
-        </div>
-        {g.is_kalemleri.length > 0 && <p className="font-semibold">{g.is_kalemleri.join(", ")}</p>}
-        {g.notu && <p className="text-soluk">{g.notu}</p>}
+        {!g.gelmedi && (
+          <>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-base">
+              <span className="flex items-center gap-1"><Users className="size-5" /> {g.kisi_sayisi} kişi</span>
+              {g.katlar.length > 0 && <span className="flex items-center gap-1"><Layers className="size-5" /> {g.katlar.join(", ")}</span>}
+              {giren && <span className="hidden items-center gap-1 text-sm text-soluk lg:flex">{giren}</span>}
+            </div>
+            {g.is_kalemleri.length > 0 && <p className="font-semibold">{g.is_kalemleri.join(", ")}</p>}
+            {g.notu && <p className="text-soluk">{g.notu}</p>}
+          </>
+        )}
       </div>
       <Fotolar yollar={g.fotograflar} adresler={adresler} />
       {giren && <p className="flex items-center gap-1 text-sm text-soluk lg:hidden">{giren}</p>}
