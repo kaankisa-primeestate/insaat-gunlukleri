@@ -70,6 +70,14 @@
 - **Şantiye girişte seçilir, oturum boyunca değişmez** (D8). Üstteki şantiye
   seçici, kullanıcının yanlışlıkla şantiye değiştirip farkında olmadan
   işlem yapmasına yol açtı. Başka şantiye için çıkış yapılıp yeniden girilir.
+- **(15 Ekim, D8 yumuşatıldı) Amblem tekrar tıklanabilir oldu**, ama
+  "yanlışlıkla fark etmeden değişme" sorunu geri gelmesin diye iki adımlı:
+  amblem → şantiye seçici → hedef şantiye seçilir → ayrı bir ekranda
+  "Evet, X şantiyesine geç" ile onaylanır. Tek dokunuşla geçiş yok; çıkış
+  yapmaya da artık gerek yok. Ayrıca merkez personeli ve satın alma rolü
+  için yönetici "tüm şantiyeleri görsün" / "yalnızca seçtiklerini görsün"
+  kararı verebiliyor (`kullanici_santiye`, şantiye şefinde zaten vardı).
+  Hiç atama yoksa tüm şantiyeler görünür (geriye dönük davranış bozulmadı).
 
 ## Ana sayfa sadeleşti, fotoğraf her kayıtta (saha denemesi)
 
@@ -384,3 +392,33 @@ gelir, dokununca ilgili kayıt açılır.
   tablosuna (`sistem_ayarlari`, tarayıcıdan erişilemez) yazılır; ortam
   değişkeni gerekmez. Geçersizleşen abonelik kendiliğinden silinir.
 - Bildirim gönderilemezse kayıt etkilenmez; kayıttan sonra arka planda gider.
+
+## Hatalı işte izleyenler (14 Ekim, kullanıcı geri bildirimi)
+
+- **Tamiri yapacak taşeron/kişi (sorumlu) dışında, işi takip edecek diğer
+  kişiler de eklenebiliyor** (şantiye şefi, kalfa…). Sorumludan ayrı:
+  düzeltmekle yükümlü değiller, yalnız bilgilendiriliyorlar — yeni kayıt,
+  durum değişikliği ve revizyon bildirimleri onlara da gidiyor.
+- Yalnız şirket personeli seçilebilir (taşeron eklenemez), en çok 10 kişi.
+  Taşeron kendi işini düzenlerken bu alanı değiştiremez (diğer kilitli
+  alanlar gibi).
+
+## D5 "Dünden devam" (15 Ekim, 29 Eylül'de ertelenmişti)
+
+- **Otomatik kayıt yapılmaz** — güvenilirlik ilkesi korundu; öneri + tek
+  dokunuş onay. Öneri kaynağı: taşeronun santiye+taşeron başına son 7
+  gündeki son gerçek (gelmedi olmayan) kaydı; bugün zaten kaydı olan ya da
+  susturulmuş taşeron önerilmez.
+- **"Gelmedi" kaydı tutulsun mu?** → Evet. Kişi/kat/iş boş, yalnız "gelmedi"
+  etiketiyle günlük listesinde durur.
+- **Toplu onay düğmesi olsun mu?** → Hayır, her taşeron sahada olduğu tek
+  tek gözle onaylanır.
+- **"Bu işi bitirdi"** bir taşeron+şantiye için öneriyi susturur
+  (`gunluk_oneri_kapatildi`, susturma zaman damgalı). Elle (gelmedi
+  olmayan) yeni günlük girilince öneri kendiliğinden geri döner — ayrı bir
+  "sıfırla" adımı yok, susturmadan sonraki kayıt otomatik öncelik kazanır.
+- Fotoğraf "Aynen devam"da kopyalanmaz (spec gereği); "Değiştir" formda
+  elle eklenebilir.
+- Konum: Ana sayfada değil, Günlükler sayfasında "Yeni Ekle"nin üstünde —
+  "Yeni Günlük Ekle" düğmesi zaten oraya taşınmıştı (bkz. "Ana sayfa
+  sadeleşti" kararı), doküman D5'i yazarken henüz o taşıma yoktu.
