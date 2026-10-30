@@ -1,104 +1,82 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 /*
- * Saha V2 Modern Tasarım Sistemi:
- * Güneş altında yüksek okunabilirliği (WCAG AAA/AA) korurken,
- * hafif slate zemin (#f8fafc) üzerinde saf beyaz (#ffffff) kartlar,
- * Plus Jakarta Sans & JetBrains Mono tipografisi ve modern derinlik sunar.
+ * Saha ekranı: güneş altında okunabilsin diye açık zemin, siyaha yakın yazı,
+ * doygun durum renkleri. Arayüzde doğrudan renk yazılmaz; hepsi buradan gelir.
+ * Ölçülen kontrast oranları (WCAG, normal metin eşiği 4.5):
+ * yazı/zemin 18.5, soluk/zemin 7.9, soluk/yüzey 7.0, siyah/vurgu 12.0,
+ * beyaz/kırmızı 5.9, siyah/sarı 12.9, beyaz/yeşil 5.4, beyaz/mavi 6.1,
+ * beyaz/gri 7.9, beyaz/koyu 14.8.
  */
 @theme {
-  --color-zemin: #f8fafc;
-  --color-yuzey: #ffffff;
-  --color-cizgi: #cbd5e1;
-  --color-yazi: #0f172a;
-  --color-soluk: #475569;
+  --color-zemin: #ffffff;
+  --color-yuzey: #f1f2f4;
+  --color-cizgi: #c9cdd3;
+  --color-yazi: #0f1419;
+  --color-soluk: #4a5260;
   --color-vurgu: #ffb627;
-  --color-koyu: #0f172a;
-  --color-kirmizi: #dc2626;
-  --color-sari: #f59e0b;
-  --color-yesil: #059669;
-  --color-mavi: #2563eb;
-  --color-gri: #475569;
+  --color-koyu: #1f2933;
+  --color-kirmizi: #c0262d;
+  --color-sari: #f5c518;
+  --color-yesil: #1d7a3c;
+  --color-mavi: #1f5fbf;
+  --color-gri: #4a5260;
 
-  /* Kart rozetleri ve durum vurguları (Yüksek kontrastlı çift tonlu palet) */
+  /* Ana sayfa kartları: yumuşak ikon zeminleri, turuncu geçiş, ince ayraç.
+     Üzerlerine koyu ton yazılır: kırmızı/kırmızı-açık 4.9, mavi/mavi-açık 5.2,
+     yeşil/yeşil-açık 4.6, kahve/sarı-açık 5.4, siyah/vurgu-koyu 9.8,
+     parlak kırmızı/koyu 5.3, parlak mavi/koyu 6.8, vurgu/koyu 8.4. */
   --color-kirmizi-parlak: #ff6b6b;
-  --color-mavi-parlak: #60a5fa;
-  --color-vurgu-koyu: #d97706;
-  --color-sari-acik: #fef3c7;
-  --color-kahve: #78350f;
-  --color-kirmizi-acik: #fee2e2;
-  --color-mavi-acik: #dbeafe;
-  --color-yesil-acik: #d1fae5;
-  --color-gri-acik: #f1f5f9;
+  --color-mavi-parlak: #6fb4ff;
+  --color-vurgu-koyu: #f59e0b;
+  --color-sari-acik: #fff3d6;
+  --color-kahve: #8a5a00;
+  --color-kirmizi-acik: #fde3e4;
+  --color-mavi-acik: #e3edfb;
+  --color-yesil-acik: #dff2e6;
+  --color-gri-acik: #eceef1;
 
-  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 html {
   font-size: 17px;
   -webkit-tap-highlight-color: transparent;
-  scroll-behavior: smooth;
 }
 
 body {
   background: var(--color-zemin);
   color: var(--color-yazi);
   font-family: var(--font-sans);
-  letter-spacing: -0.01em;
-}
-
-/* Rakamlar, tarihler ve sayaçlar için hizalı mono görünüm */
-input[type="number"],
-input[type="date"],
-.tabular-nums {
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
   width: 1.6rem;
   height: 1.6rem;
-  cursor: pointer;
 }
 
 :focus-visible {
-  outline: 3px solid var(--color-vurgu);
+  outline: 3px solid var(--color-mavi);
   outline-offset: 2px;
 }
 
 /*
- * Dokunuşa anında fiziksel tepki: düğmeler basılınca hafifçe küçülür ve kararır.
+ * Dokunuşa anında tepki: bağlantı ve düğmeler basılınca hemen kararır.
+ * Sunucudan cevap gelmeden de dokunuşun alındığı görülür; kullanıcı
+ * "basmadı" sanıp başka yere basmasın. touch-action: çift dokunuşla
+ * yakınlaştırma beklemesini kaldırır.
  */
 a,
 button,
 label {
   touch-action: manipulation;
-  transition: transform 0.12s ease, filter 0.12s ease, background-color 0.15s ease, border-color 0.15s ease;
 }
-
 a:active,
 button:not(:disabled):active {
-  filter: brightness(0.92);
-  transform: scale(0.98);
+  filter: brightness(0.85);
 }
 
-/* Kart yüzeylerine otomatik hafif derinlik */
-.bg-yuzey {
-  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
-}
-
-/* Yatay kaydırılan şeritlerde kaydırma çubuğunu gizle */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-/* Sayfa geçişinde üstte kayan yükleniyor çizgisi */
+/* Sayfa geçişinde üstte kayan yükleniyor çizgisi. */
 @keyframes yukleme {
   0% { transform: translateX(-100%) scaleX(0.3); }
   50% { transform: translateX(0) scaleX(0.6); }
