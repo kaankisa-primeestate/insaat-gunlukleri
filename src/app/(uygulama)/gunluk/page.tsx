@@ -103,7 +103,8 @@ export default async function Gunlukler({ searchParams }: PageProps<"/gunluk">) 
       </details>
 
       {liste.length === 0 && <Bos>Kayıt yok.</Bos>}
-      {/* Telefonda da bilgisayarda da aynı düzen: güne göre alt alta kartlar. */}
+      {/* Telefonda tek sütun; bilgisayarda (deneme) günün kartları yan yana iki
+          sütun, böylece kaydırmadan aynı anda daha çok kayıt görünür. */}
       <div className="flex flex-col gap-5">
         {[...gunler.entries()].map(([gun, kayitlar]) => (
           <section key={gun} className="flex flex-col gap-2">
@@ -113,14 +114,16 @@ export default async function Gunlukler({ searchParams }: PageProps<"/gunluk">) 
               </span>
               {hava.get(gun) && <HavaEtiketi h={hava.get(gun)!} sinif="text-yazi" />}
             </div>
-            {kayitlar.map((g) => (
-              <GunlukKarti
-                key={g.id}
-                g={g}
-                adresler={adresler}
-                islemler={gunlukDegisebilir(o, { olusturan: g.olusturan!, olusturma: g.olusturma }) ? <GunlukIslemleri id={g.id} /> : undefined}
-              />
-            ))}
+            <div className="flex flex-col gap-2 lg:grid lg:grid-cols-2 lg:items-start lg:gap-3">
+              {kayitlar.map((g) => (
+                <GunlukKarti
+                  key={g.id}
+                  g={g}
+                  adresler={adresler}
+                  islemler={gunlukDegisebilir(o, { olusturan: g.olusturan!, olusturma: g.olusturma }) ? <GunlukIslemleri id={g.id} /> : undefined}
+                />
+              ))}
+            </div>
           </section>
         ))}
       </div>

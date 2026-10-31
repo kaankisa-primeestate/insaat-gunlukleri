@@ -31,7 +31,7 @@ export function DundenDevam({ oneriler }: { oneriler: GunlukOnerisi[] }) {
       <h2 className="text-lg font-bold">
         Dün çalışan {oneriler.length} taşeron — bugün de devam ediyorlar mı?
       </h2>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 lg:grid lg:grid-cols-2 lg:items-start">
         {oneriler.map((o) => (
           <OneriKarti key={o.taseron_id} o={o} />
         ))}
