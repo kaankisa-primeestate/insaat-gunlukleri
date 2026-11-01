@@ -122,3 +122,16 @@ export function kisaTarih(t: string): string {
   const d = new Date(t + "T12:00:00");
   return new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", weekday: "short", timeZone: "Europe/Istanbul" }).format(d);
 }
+
+/** Bugünden bir tarihe kaç gün geçmiş (YYYY-MM-DD, her ikisi de gün başı kabul edilir). */
+export function gunFarki(tarih: string): number {
+  return Math.round((new Date(bugun() + "T12:00:00").getTime() - new Date(tarih + "T12:00:00").getTime()) / 86400000);
+}
+
+/** "Bugün", "Dün", "3 gün önce" gibi göreli tarih yazısı. */
+export function goreliTarih(tarih: string): string {
+  const fark = gunFarki(tarih);
+  if (fark <= 0) return "Bugün";
+  if (fark === 1) return "Dün";
+  return `${fark} gün önce`;
+}

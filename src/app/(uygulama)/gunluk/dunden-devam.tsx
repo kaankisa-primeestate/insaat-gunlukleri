@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CheckCircle2, MoreHorizontal, Pencil } from "lucide-react";
-import { bugun } from "@/lib/sabitler";
+import { goreliTarih } from "@/lib/sabitler";
 import { gunlukDevamEt, gunlukGelmedi, gunlukOneriKapat } from "./eylemler";
 
 export type GunlukOnerisi = {
@@ -13,12 +13,6 @@ export type GunlukOnerisi = {
   is_kalemleri: string[];
   notu: string | null;
 };
-
-/** Dünden bugüne kaç gün geçmiş; "Dün", "2 gün önce" gibi. */
-function gecenGun(tarih: string): string {
-  const fark = Math.round((new Date(bugun()).getTime() - new Date(tarih).getTime()) / 86400000);
-  return fark <= 1 ? "Dün" : `${fark} gün önce`;
-}
 
 /**
  * D5 "Dünden devam": otomatik kayıt yapılmaz, öneri + tek dokunuş onay.
@@ -46,7 +40,7 @@ function OneriKarti({ o }: { o: GunlukOnerisi }) {
     <article className="rounded-xl bg-zemin p-3">
       <p className="font-extrabold">{o.firma_adi}</p>
       <p className="text-sm text-soluk">
-        {gecenGun(o.kaynak_tarih)} · {ozet}
+        {goreliTarih(o.kaynak_tarih)} · {ozet}
         {o.notu && ` · ${o.notu}`}
       </p>
       <div className="mt-2 flex flex-wrap gap-2">

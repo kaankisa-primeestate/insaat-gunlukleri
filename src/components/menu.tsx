@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AlertTriangle, Bell, BookOpen, Building2, ClipboardList, House, NotebookPen, Package, Settings, Truck, Users } from "lucide-react";
+import { AlertTriangle, BarChart3, Bell, BookOpen, Building2, ClipboardList, House, NotebookPen, Package, Settings, Truck, Users } from "lucide-react";
 
 const IKONLAR = {
   ana: House,
   gunluk: BookOpen,
+  rapor: BarChart3,
   hatali: AlertTriangle,
   talep: ClipboardList,
   teslimat: Truck,

@@ -122,7 +122,11 @@ export function GunlukKarti({
           </>
         )}
       </div>
-      <Fotolar yollar={g.fotograflar} adresler={adresler} />
+      {/* lg:w-56: çok sayıda fotoğraf varken bu sütun sınırsız genişleyip metin sütununu
+          (minmax(0,1fr)) sıfıra sıkıştırmasın diye sabit genişlik — fazlası içeride kaydırılır. */}
+      <div className="lg:w-56">
+        <Fotolar yollar={g.fotograflar} adresler={adresler} />
+      </div>
       {giren && <p className="flex items-center gap-1 text-sm text-soluk lg:hidden">{giren}</p>}
       {islemler && <div className="flex flex-wrap gap-2 border-t-2 border-cizgi pt-2 lg:col-span-2">{islemler}</div>}
     </article>
