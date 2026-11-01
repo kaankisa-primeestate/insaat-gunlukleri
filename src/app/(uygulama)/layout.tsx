@@ -16,6 +16,7 @@ export default async function UygulamaDuzeni({ children }: LayoutProps<"/">) {
   const menu = [
     { href: "/", ad: "Ana sayfa", ikon: "ana" as const, goster: true },
     { href: "/gunluk", ad: "Günlükler", ikon: "gunluk" as const, goster: !!s && o.yetki("gunluk") },
+    { href: "/rapor", ad: "Rapor", ikon: "rapor" as const, goster: !!s && !o.taseron && o.yetki("gunluk") },
     { href: "/hatali", ad: "Hatalı İşler", ikon: "hatali" as const, goster: !!s && o.yetki("hatali") },
     { href: "/talep", ad: "Talepler", ikon: "talep" as const, goster: !!s && o.yetki("talep") },
     { href: "/teslimat", ad: "Teslimat Takvimi", ikon: "teslimat" as const, goster: !!s && o.yetki("teslimat") },
